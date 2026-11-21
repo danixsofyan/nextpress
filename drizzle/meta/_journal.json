@@ -85,6 +85,13 @@
       "when": 1795249650270,
       "tag": "0011_backfill_published_at",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795253159553,
+      "tag": "0012_page_revisions",
+      "breakpoints": true
     }
   ]
 }

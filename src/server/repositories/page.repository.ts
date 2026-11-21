@@ -1,11 +1,14 @@
 import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
-import { pages, user } from '@/core/schema'
+import { type Page, pageRevisions, pages, user } from '@/core/schema'
 import type { CreatePageInput, UpdatePageInput } from '@/core/validators'
-import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
+import { currentActor } from '@/lib/request-context'
 import { audit } from '../audit'
 import { restoredSlug, trashedSlug } from './trash'
 import { sanitizeBlocks, sanitizeContent } from '../sanitize'
+
+const MAX_REVISIONS = 30
 
 export class PageRepository {
   constructor(private readonly db: Database) {}
@@ -69,6 +72,11 @@ export class PageRepository {
   async update(id: string, input: UpdatePageInput) {
     const before = await this.findById(id)
     if (!before) return null
+    const changed =
+      (input.title !== undefined && input.title !== before.title) ||
+      (input.content !== undefined && input.content !== before.content) ||
+      (input.blocks !== undefined && JSON.stringify(input.blocks) !== JSON.stringify(before.blocks))
+    if (changed) await this.saveRevision(before)
     const result = await this.db
       .update(pages)
       .set({ ...sanitizeBlocks(sanitizeContent(input)), updatedAt: new Date() })
@@ -78,6 +86,60 @@ export class PageRepository {
     await audit(this.db, 'page.update', { type: 'page', id }, { before, after })
     revalidatePublicSite()
     return after
+  }
+
+  private async saveRevision(page: Page) {
+    const actor = currentActor()
+    await this.db.insert(pageRevisions).values({
+      pageId: page.id,
+      title: page.title,
+      content: page.content,
+      blocks: page.blocks,
+      authorId: actor.userId,
+      authorName: actor.actorType === 'api_key' ? 'API key' : null,
+    })
+    const stale = await this.db
+      .select({ id: pageRevisions.id })
+      .from(pageRevisions)
+      .where(eq(pageRevisions.pageId, page.id))
+      .orderBy(desc(pageRevisions.createdAt))
+      .offset(MAX_REVISIONS)
+    if (stale.length > 0) {
+      await this.db.delete(pageRevisions).where(
+        inArray(
+          pageRevisions.id,
+          stale.map((r) => r.id)
+        )
+      )
+    }
+  }
+
+  async findRevisions(pageId: string) {
+    return this.db
+      .select({
+        id: pageRevisions.id,
+        title: pageRevisions.title,
+        createdAt: pageRevisions.createdAt,
+        authorName: sql<string | null>`coalesce(${user.name}, ${pageRevisions.authorName})`,
+      })
+      .from(pageRevisions)
+      .leftJoin(user, eq(user.id, pageRevisions.authorId))
+      .where(eq(pageRevisions.pageId, pageId))
+      .orderBy(desc(pageRevisions.createdAt))
+  }
+
+  async restoreRevision(pageId: string, revisionId: string) {
+    const [revision] = await this.db
+      .select()
+      .from(pageRevisions)
+      .where(and(eq(pageRevisions.id, revisionId), eq(pageRevisions.pageId, pageId)))
+      .limit(1)
+    if (!revision) return null
+    return this.update(pageId, {
+      title: revision.title,
+      content: revision.content,
+      ...(revision.blocks && { blocks: revision.blocks }),
+    })
   }
 
   async delete(id: string) {

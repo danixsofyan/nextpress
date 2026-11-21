@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
 import { TiptapEditor } from '@/components/admin/editor/tiptap-editor'
+import { RevisionsPanel } from '@/components/admin/editor/revisions-panel'
 import { useConfirm } from '@/components/admin/confirm-dialog'
 import { useToast } from '@/components/admin/toast'
 import { apiFetch, errorMessage } from '@/lib/admin-fetch'
@@ -229,6 +230,10 @@ export default function EditPagePage() {
               />
             </div>
           </div>
+          <RevisionsPanel
+            basePath={`/api/admin/pages/${id}`}
+            onRestored={() => window.location.reload()}
+          />
         </div>
       </form>
     </DashboardLayout>

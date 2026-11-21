@@ -8,17 +8,23 @@ import { apiFetch } from '@/lib/admin-fetch'
 
 type Revision = { id: string; title: string; createdAt: string; authorName: string | null }
 
-export function RevisionsPanel({ postId, onRestored }: { postId: string; onRestored: () => void }) {
+export function RevisionsPanel({
+  basePath,
+  onRestored,
+}: {
+  basePath: string
+  onRestored: () => void
+}) {
   const toast = useToast()
   const confirm = useConfirm()
   const [revisions, setRevisions] = useState<Revision[] | null>(null)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    apiFetch<Revision[]>(`/api/admin/posts/${postId}/revisions`)
+    apiFetch<Revision[]>(`${basePath}/revisions`)
       .then(setRevisions)
       .catch(() => setRevisions([]))
-  }, [postId])
+  }, [basePath])
 
   if (!revisions || revisions.length === 0) return null
 
@@ -30,7 +36,7 @@ export function RevisionsPanel({ postId, onRestored }: { postId: string; onResto
     })
     if (!ok) return
     const restored = await toast.run(
-      () => apiFetch(`/api/admin/posts/${postId}/revisions/${revision.id}`, { method: 'POST' }),
+      () => apiFetch(`${basePath}/revisions/${revision.id}`, { method: 'POST' }),
       'Revision restored.'
     )
     if (restored) onRestored()

@@ -575,7 +575,10 @@ export default function EditPostPage() {
             </div>
           )}
 
-          <RevisionsPanel postId={id} onRestored={() => window.location.reload()} />
+          <RevisionsPanel
+            basePath={`/api/admin/posts/${id}`}
+            onRestored={() => window.location.reload()}
+          />
 
           <div className="space-y-3 rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold">Featured image</h3>
