@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- **Tools → Site Health** checks the database connection and latency, whether every table and column in the code exists (unapplied migrations), Redis, media storage, HTTPS, search engine visibility, comment spam protection, plugins waiting for environment variables, and the running version.
 - **Additional CSS** in Appearance → Customize applies site-wide CSS after the theme. It is limited to 20,000 characters and rejects `<`, `@import`, `expression()`, `javascript:`, and `behavior`, so it cannot break out of its style tag or load code.
 - Dashboard **Activity** (publishing soon, recently published, recent comments) and **Quick Draft** (saves a draft from the dashboard and lists your latest drafts).
 - Menus support one level of dropdown submenus: indent and outdent items in **Menus**, or pass `children` to the `set_navigation` MCP tool. Dropdowns open on hover and keyboard focus without JavaScript in both themes.

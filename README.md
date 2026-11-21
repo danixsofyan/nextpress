@@ -39,6 +39,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
   - **Privacy**: create or choose a Privacy Policy page, linked in the site footer
   - **API**: create, list, and revoke API keys
 - **Tools → Import**: WordPress export files (WXR) and RSS/Atom feeds (Blogger, Medium, Substack, Ghost, and others)
+- **Tools → Site Health**: database, migrations, Redis, storage, HTTPS, indexing, spam protection, and version checks
 - **Tools → Export**: download all content, posts, or pages as a WordPress export file (WXR)
 - **Appearance → Themes**: switch themes, or open a live preview of another theme that only you see
 - **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy, plus **Additional CSS** for the whole site
