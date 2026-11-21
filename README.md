@@ -25,10 +25,12 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
   - SEO panel with Google snippet preview and keyphrase highlighting
   - Screen Options to show or hide panels, remembered per browser
 - **Pages**, **Media library**, **Menus**, **Categories & tags**
+- **Comments** with moderation (Pending, Approved, Spam, Trash), bulk actions, and **Settings → Discussion**
 - **Lists everywhere** share one data table: search, status filters with counts, sortable columns, pagination, select all, and bulk actions. Search, filter, and page live in the URL, so views can be bookmarked
 - **Users** with roles (Administrator, Editor, Author), add/edit/delete, password generator with strength meter, and a **Profile** page for every user
 - **Settings** (each tab has its own URL, e.g. `/admin/settings?tab=reading`):
   - **General**: site title, tagline, timezone, date and time formats (WordPress format characters)
+  - **Discussion**: allow comments, hold comments for approval
   - **Reading**: latest posts or a static homepage, posts per page, feed length, full text or excerpt in feeds, discourage search engines
   - **Branding**: custom logo, site icon (favicon), default social (Open Graph) image
   - **SEO**: default meta description, custom `robots.txt`

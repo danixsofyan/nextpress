@@ -31,6 +31,8 @@ const settingsSchema = z
     posts_per_rss: count,
     rss_use_excerpt: z.enum(['0', '1']),
     blog_public: z.enum(['0', '1']),
+    comments_enabled: z.enum(['0', '1']),
+    comment_moderation: z.enum(['0', '1']),
     privacy_policy_page: id,
     default_meta_description: z.string().max(160),
     ga_id: z

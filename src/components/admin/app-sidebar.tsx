@@ -11,6 +11,7 @@ import {
   Image,
   LayoutDashboard,
   Menu,
+  MessageSquare,
   Palette,
   PanelsTopLeft,
   Plug,
@@ -41,6 +42,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/posts', icon: FileText, label: 'Posts', min: 'author' },
       { href: '/admin/pages', icon: File, label: 'Pages', min: 'editor' },
       { href: '/admin/media', icon: Image, label: 'Media', min: 'author' },
+      { href: '/admin/comments', icon: MessageSquare, label: 'Comments', min: 'editor' },
     ],
   },
   {

@@ -8,6 +8,7 @@ import { getSiteSettings } from '@/lib/site'
 import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
 import { PostRepository } from '@/server'
+import { CommentsSection } from '@/components/comments-section'
 import { WithSidebar } from '@/components/widget-area'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
@@ -115,6 +116,7 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <WithSidebar>
         <PostDetail post={post} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+        {!preview && <CommentsSection postId={post.id} />}
       </WithSidebar>
     </>
   )

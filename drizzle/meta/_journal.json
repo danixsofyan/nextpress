@@ -57,6 +57,13 @@
       "when": 1795244035341,
       "tag": "0007_donation_donor_details",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795247745061,
+      "tag": "0008_comments",
+      "breakpoints": true
     }
   ]
 }

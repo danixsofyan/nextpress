@@ -29,5 +29,7 @@ export const getSiteSettings = cache(async () => {
     discourageSearch: s.blog_public === '0',
     privacyPage: s.privacy_policy_page || '',
     robotsTxt: s.robots_txt || '',
+    commentsEnabled: s.comments_enabled !== '0',
+    commentModeration: s.comment_moderation !== '0',
   }
 })

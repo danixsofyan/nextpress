@@ -14,6 +14,7 @@ import { useToast } from '@/components/admin/toast'
 const TABS = [
   { key: 'general', label: 'General' },
   { key: 'reading', label: 'Reading' },
+  { key: 'discussion', label: 'Discussion' },
   { key: 'branding', label: 'Branding' },
   { key: 'seo', label: 'SEO' },
   { key: 'privacy', label: 'Privacy' },
@@ -404,6 +405,35 @@ export function SettingsClient({
             </label>
             <p className="text-xs text-muted-foreground">
               It is up to search engines to honor this request.
+            </p>
+          </fieldset>
+          {saveBar}
+        </form>
+      )}
+
+      {tab === 'discussion' && (
+        <form onSubmit={handleSave} className="max-w-2xl space-y-6">
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium">Comments</legend>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={settings.comments_enabled !== '0'}
+                onChange={(e) => set('comments_enabled', e.target.checked ? '1' : '0')}
+              />
+              Allow people to comment on new and existing posts
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={settings.comment_moderation !== '0'}
+                onChange={(e) => set('comment_moderation', e.target.checked ? '1' : '0')}
+              />
+              Comments must be approved before they appear
+            </label>
+            <p className="text-xs text-muted-foreground">
+              Moderate comments under Comments in the admin menu. Activate a captcha plugin to stop
+              spam bots.
             </p>
           </fieldset>
           {saveBar}
