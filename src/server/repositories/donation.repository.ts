@@ -18,7 +18,13 @@ export function donationStatus(...signals: (string | undefined)[]): DonationStat
 export class DonationRepository {
   constructor(private readonly db: Database) {}
 
-  async create(input: { orderId: string; amount: number; requestId?: string | null | undefined }) {
+  async create(input: {
+    orderId: string
+    amount: number
+    donorName: string
+    message: string | null
+    requestId?: string | null | undefined
+  }) {
     const [row] = await this.db.insert(donations).values(input).returning()
     return row!
   }

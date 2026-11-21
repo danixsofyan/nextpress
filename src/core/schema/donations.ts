@@ -9,6 +9,8 @@ export const donations = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     orderId: text('order_id').notNull().unique(),
     amount: integer('amount').notNull(),
+    donorName: text('donor_name'),
+    message: text('message'),
     status: text('status', { enum: DONATION_STATUSES }).notNull().default('pending'),
     paymentUrl: text('payment_url'),
     requestId: text('request_id'),

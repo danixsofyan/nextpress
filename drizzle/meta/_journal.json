@@ -50,6 +50,13 @@
       "when": 1795243287317,
       "tag": "0006_standard_columns_audit_donations",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795244035341,
+      "tag": "0007_donation_donor_details",
+      "breakpoints": true
     }
   ]
 }

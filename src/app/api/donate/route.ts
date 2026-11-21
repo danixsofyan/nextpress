@@ -4,6 +4,7 @@ import {
   donationOrderId,
   donationsEnabled,
   parseDonationAmount,
+  parseDonor,
 } from '@/lib/donations'
 import { env } from '@/lib/env'
 import { logger, requestIdOf } from '@/lib/logger'
@@ -26,13 +27,15 @@ const back = (path: string) => NextResponse.redirect(new URL(path, env.NEXT_PUBL
 export async function POST(request: Request) {
   if (!donationsEnabled()) return back('/donate/error')
   if (await rateLimited(request)) return back('/donate/error')
-  const amount = parseDonationAmount(await request.formData().catch(() => new FormData()))
-  if (!amount) return back('/donate/error')
+  const form = await request.formData().catch(() => new FormData())
+  const amount = parseDonationAmount(form)
+  const donor = parseDonor(form)
+  if (!amount || !donor) return back('/donate/error')
   const requestId = requestIdOf(request)
   const orderId = donationOrderId()
   const repo = new DonationRepository(db)
   try {
-    await repo.create({ orderId, amount, requestId })
+    await repo.create({ orderId, amount, ...donor, requestId })
     const link = await createDonationPayment({
       orderId,
       amount,

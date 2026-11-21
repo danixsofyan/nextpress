@@ -1,4 +1,5 @@
 import { DONATION_MAX, DONATION_MIN } from '@/core/validators'
+import { DONOR_MESSAGE_MAX, DONOR_NAME_MAX } from '@/lib/donation-input'
 import type { Block, BlocksProps } from '@/themes/engine'
 import {
   BookOpen,
@@ -154,6 +155,32 @@ function DonateForm({ block }: { block: Extract<Block, { type: 'donate' }> }) {
               step={1000}
               placeholder={String(amounts[0])}
               className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
+            />
+          </div>
+          <div className="text-left">
+            <label htmlFor="donate-name" className="text-sm font-medium">
+              Your name
+            </label>
+            <input
+              id="donate-name"
+              name="name"
+              type="text"
+              required
+              maxLength={DONOR_NAME_MAX}
+              autoComplete="name"
+              className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
+            />
+          </div>
+          <div className="text-left">
+            <label htmlFor="donate-message" className="text-sm font-medium">
+              Message <span className="font-normal text-muted-foreground">(optional)</span>
+            </label>
+            <textarea
+              id="donate-message"
+              name="message"
+              rows={3}
+              maxLength={DONOR_MESSAGE_MAX}
+              className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
             />
           </div>
           <button

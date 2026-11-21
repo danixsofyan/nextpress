@@ -27,6 +27,7 @@ export default async function DonationsPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
+              <th className="px-4 py-3 font-medium">Donor</th>
               <th className="px-4 py-3 font-medium">Order</th>
               <th className="px-4 py-3 font-medium">Amount</th>
               <th className="px-4 py-3 font-medium">Status</th>
@@ -37,13 +38,21 @@ export default async function DonationsPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   No donations yet.
                 </td>
               </tr>
             )}
             {rows.map((d) => (
               <tr key={d.id} className="border-t">
+                <td className="max-w-xs px-4 py-3">
+                  <p className="font-medium">{d.donorName ?? 'Anonymous'}</p>
+                  {d.message && (
+                    <p className="mt-0.5 break-words whitespace-pre-line text-muted-foreground">
+                      {d.message}
+                    </p>
+                  )}
+                </td>
                 <td className="px-4 py-3 font-mono text-xs">{d.orderId}</td>
                 <td className="px-4 py-3">{rupiah.format(d.amount)}</td>
                 <td className="px-4 py-3">

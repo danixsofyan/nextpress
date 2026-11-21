@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { donationOrderId, parseDonationAmount } from './donation-input'
+import { donationOrderId, parseDonationAmount, parseDonor } from './donation-input'
 
 const form = (entries: Record<string, string>) => {
   const f = new FormData()
@@ -20,4 +20,15 @@ test('parses preset and custom donation amounts within limits', () => {
 
 test('builds a prefixed, unique-looking order id', () => {
   expect(donationOrderId(0, 'abcdef12-0000-0000-0000-000000000000')).toBe('NPD-0-ABCDEF12')
+})
+
+test('requires a donor name and trims the optional message', () => {
+  expect(parseDonor(form({ name: '  Budi  ', message: ' Semangat! ' }))).toEqual({
+    donorName: 'Budi',
+    message: 'Semangat!',
+  })
+  expect(parseDonor(form({ name: 'Ani' }))).toEqual({ donorName: 'Ani', message: null })
+  expect(parseDonor(form({ name: '   ' }))).toBeNull()
+  expect(parseDonor(form({ message: 'hi' }))).toBeNull()
+  expect(parseDonor(form({ name: 'a\u0000b'.padEnd(200, 'x') }))!.donorName).toHaveLength(80)
 })

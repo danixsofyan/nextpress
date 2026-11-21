@@ -1,6 +1,6 @@
 import { env } from './env'
 
-export { donationOrderId, parseDonationAmount } from './donation-input'
+export { donationOrderId, parseDonationAmount, parseDonor } from './donation-input'
 
 export const donationsEnabled = () => Boolean(env.SUMOPOD_API_KEY)
 
