@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A `lottie` page block that plays a same-site Lottie animation with the lightweight player. The player and the animation load only when the block scrolls into view, pause off screen, and show a still frame under reduced motion. The landing page uses the free "Earth and connections" animation from LottieFiles (`public/lottie/globe.json`).
 - Buttons that link to a GitHub repository show its live star count, fetched on the server and cached for an hour.
 - Public sites default to dark mode, and visitors switch between dark and light with the sun and moon button in the header. The choice is remembered per browser and applied before the first paint. Administrators pick the default scheme in Appearance → Customize.
 - CodeQL scans the code with the `security-extended` queries on every push, pull request, and weekly.

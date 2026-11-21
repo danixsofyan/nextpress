@@ -63,6 +63,7 @@ export const BLOCK_SPEC = {
     'Blocks render on the server with no client JavaScript, so any combination is fast. Keep the first block (usually hero) text-only so it is the fast largest contentful paint.',
     'Prefer fewer, focused blocks: around 6 to 10 sections per landing page. Long pages slow the speed index and dilute the message.',
     'Keep the richText HTML semantic and small. Do not paste embeds, iframes, or inline images of text.',
+    'The lottie block is the only block with client JavaScript. Never make it the first block: it loads its player and animation only when scrolled into view, and shows a still frame under reduced motion.',
   ],
   donations:
     'The donate block renders only when the site owner has configured SumoPod (SUMOPOD_API_KEY). Amounts are whole rupiah between 1,000 and 100,000,000; it shows QRIS payment through SumoPod.',
@@ -98,6 +99,16 @@ export const BLOCK_SPEC = {
       fields:
         'heading, text?, amounts (1..6 whole-rupiah presets, 1,000..100,000,000), buttonLabel? — QRIS donation form via SumoPod; hidden unless donations are configured',
     },
+    lottie: {
+      fields:
+        'heading?, intro?, src (same-site Lottie JSON path, e.g. /lottie/globe.json), label (describes the animation for screen readers), loop? (default true)',
+      example: {
+        type: 'lottie',
+        heading: 'Connected everywhere',
+        src: '/lottie/globe.json',
+        label: 'A globe with glowing connections between cities',
+      },
+    },
     richText: {
       fields: 'html — sanitized HTML (p, h2, h3, ul, ol, a, img, blockquote, code, pre)',
     },
@@ -123,7 +134,7 @@ export function registerSiteTools(server: McpServer, db: Database) {
 
   server.tool(
     'get_block_spec',
-    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, richText) used to build landing pages',
+    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, donate, lottie, richText) used to build landing pages',
     {},
     async () => json(BLOCK_SPEC)
   )

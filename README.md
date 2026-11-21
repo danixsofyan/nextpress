@@ -341,3 +341,5 @@ Read [AGENTS.md](AGENTS.md) and the [engineering standard](docs/engineering-stan
 ## License
 
 [MIT](LICENSE)
+
+The landing-page animation in `public/lottie/globe.json` is "Earth and connections" from [LottieFiles](https://lottiefiles.com/free-animation/earth-and-connections-qKp1xwkNHV), used under the [Lottie Simple License](https://lottiefiles.com/page/license).

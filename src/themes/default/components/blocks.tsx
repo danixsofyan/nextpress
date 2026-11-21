@@ -35,6 +35,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
+import { LottiePlayer } from '@/components/lottie-player'
 import { PostCard } from './post-card'
 
 const ICONS: Record<string, LucideIcon> = {
@@ -504,6 +505,16 @@ function BlockView({
     }
     case 'donate':
       return donations ? <DonateForm block={block} /> : null
+    case 'lottie':
+      return (
+        <section className="relative py-16">
+          <SectionHeading heading={block.heading} intro={block.intro} />
+          <div className="np-reveal relative mx-auto -my-8 max-w-3xl">
+            <div className="absolute inset-[10%] -z-10 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--color-glow-1)_25%,transparent),transparent)]" />
+            <LottiePlayer src={block.src} label={block.label} loop={block.loop} />
+          </div>
+        </section>
+      )
     case 'richText':
       return (
         <section

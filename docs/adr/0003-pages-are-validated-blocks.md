@@ -9,7 +9,7 @@ AI agents build landing pages through MCP. Letting them write raw HTML, CSS, or 
 
 ## Decision
 
-Pages store an ordered list of typed blocks (`hero`, `features`, `steps`, `stats`, `code`, `table`, `faq`, `cta`, `posts`, and `richText`) validated by `blocksSchema`.
+Pages store an ordered list of typed blocks (`hero`, `features`, `steps`, `stats`, `code`, `table`, `faq`, `cta`, `posts`, `donate`, `lottie`, and `richText`) validated by `blocksSchema`.
 
 - Links must start with `/`, `#`, `http(s)://`, or `mailto:`.
 - Icons come from a fixed list.

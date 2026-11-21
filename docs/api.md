@@ -101,6 +101,7 @@ Pages can be built from an ordered list of blocks instead of HTML. The REST API 
 | `cta`      | `heading`, `text?`, `primary`, `secondary?`                                                                       |
 | `donate`   | `heading`, `text?`, `amounts[]` (1–6 presets in rupiah), `buttonLabel?`; shown only when `SUMOPOD_API_KEY` is set |
 | `posts`    | `heading?`, `count` (latest published posts)                                                                      |
+| `lottie`   | `heading?`, `intro?`, `src` (same-site Lottie JSON path), `label`, `loop?`; loads only when scrolled into view    |
 | `richText` | `html` (sanitized)                                                                                                |
 
 Links are `{ "label": "...", "href": "..." }` and the `href` must start with `/`, `#`, `http(s)://`, or `mailto:`.

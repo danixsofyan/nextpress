@@ -129,6 +129,21 @@ export const blockSchema = z.discriminatedUnion('type', [
     buttonLabel: text(40).optional(),
   }),
   z.object({
+    type: z.literal('lottie'),
+    heading: text(120).optional(),
+    intro: text(300).optional(),
+    src: z
+      .string()
+      .trim()
+      .max(300)
+      .regex(/^\/(?!\/)[\w\-/]+(\.[\w\-]+)*\.json$/, {
+        message: 'Use a same-site Lottie JSON path such as /lottie/globe.json',
+      })
+      .refine((v) => !v.includes('..'), { message: 'Path must not contain ..' }),
+    label: text(120),
+    loop: z.boolean().optional(),
+  }),
+  z.object({
     type: z.literal('richText'),
     html: z.string().max(20000),
   }),
