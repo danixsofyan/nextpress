@@ -11,14 +11,21 @@ All notable changes to this project are documented here. The format follows [Kee
 - The pull request template and Dependabot configuration.
 - A CI job that runs a gitleaks secret scan and fails on high or critical dependency advisories.
 - `GET /api/health` now reports the running commit.
+- A Lighthouse CI budget (`lighthouserc.json`), enforced on every production deployment and daily.
+- A Claude Code `SessionStart` hook that injects the agent rules and `.agents/HANDOFF.md` after startup, resume, clear, and compaction.
+- Performance rules in the `get_block_spec` MCP tool.
 
 ### Changed
 
+- Public pages, feeds, the sitemap, and `llms.txt` are served statically with ISR and revalidate on every content write. Theme and draft previews use Next.js draft mode.
+- Blog pagination moved to `/blog/page/N`; `/blog?page=N` redirects permanently.
+- Modern browserslist targets, so less legacy JavaScript ships.
 - Upgraded to zod 4, `@hono/zod-openapi` 1.x, Hono 4.13, drizzle-orm 0.45, drizzle-kit 0.31, Tiptap 3, and `@vercel/og` 1.0.
 - `sitemap.xml` reads the site URL from the validated environment instead of a hardcoded fallback.
 
 ### Fixed
 
+- The CI security job no longer fails after a clean run because of a missing pnpm cache.
 - Updating a post, page, or taxonomy without sending `status`, `content`, or `type` no longer resets those fields to their defaults.
 
 ### Security

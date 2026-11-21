@@ -10,9 +10,24 @@ Do these at the start of **every** session, including after context compaction:
 2. Read [docs/engineering-standard.md](docs/engineering-standard.md). It is the binding standard for this repository.
 3. Read [docs/quality.md](docs/quality.md) to see what is measured and what is still open.
 4. Skim the ADRs in [docs/adr/](docs/adr/) that touch the area you are changing.
-5. Run `git status` and `git log --oneline -10` so you know the current state.
+5. Read `.agents/HANDOFF.md` (gitignored) and your persistent memory for this project, and continue from "Next steps".
+6. Run `git status` and `git log --oneline -10` so you know the current state.
 
 If a request conflicts with the standard, stop and ask. Do not silently deviate, and do not silently comply.
+
+## Session continuity
+
+Compaction, resume, clear, and switching agents all lose context. Keep `.agents/HANDOFF.md` current, with these sections:
+
+- Current goal (quote the user's latest instruction)
+- Done (verified), each item with its proof
+- In progress
+- Next steps
+- Decisions and constraints
+- Gotchas
+- How to verify
+
+Update it after each milestone, before long-running commands, and before you stop. Move lasting knowledge into memory, this file, an ADR, or the docs. Claude Code injects the handoff automatically through `.claude/hooks/session-context.sh` on every session start, including after compaction.
 
 ## Project
 
@@ -70,7 +85,11 @@ Do not run `next build` locally; CI and Vercel build. After the change reaches p
 - **Admin UI:**
   - Use toasts (`useToast`) for every save and error, and confirmation dialogs (`useConfirm`) for destructive actions; never `window.confirm`.
   - Use `next/link` for internal links and `next/image` for images.
-- **Public pages stay fast and crawlable.** Use server components, no client JS unless interactive, JSON-LD through `components/json-ld.tsx`, and keep `llms.txt` generated from content.
+- **Public pages stay fast and crawlable** ([ADR 0006](docs/adr/0006-static-public-pages.md)):
+  - Public routes are static with ISR. Never read `cookies()`, `headers()`, or the session in the public render path, except behind `draftMode()`.
+  - Previews (themes and draft posts) use draft mode, and repository writes call `revalidatePublicSite()`.
+  - Use server components, with no client JS unless interactive. JSON-LD goes through `components/json-ld.tsx`, and `llms.txt` is generated from content.
+  - The performance budget in `lighthouserc.json` (Lighthouse CI on every production deploy and daily) must stay green. Blocks and themes must keep any combination of content within it: a new block may not add client JS above the fold, and heavy media (video, Lottie) must load lazily after the largest contentful paint.
 - **The MCP tool count is part of the public API.** When you add or remove a tool, update the README and the docs tables, the landing page stat, and the e2e expectation.
 - **`/docs` serves files from `docs/`** only when `NEXTPRESS_DOCS=true`. `docs/engineering-standard.md` is a copy of the global standard; do not edit it here. Put NextPress-specific rules in this file.
 

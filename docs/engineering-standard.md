@@ -1,8 +1,8 @@
-<!-- Copied from engineering-standard v1.0 on 2026-11-21. Edit the global standard, then run scripts/adopt.sh <project> <stack> --update. Project-specific rules belong in AGENTS.md. -->
+<!-- Copied from engineering-standard v1.1 on 2026-11-21. Edit the global standard, then run scripts/adopt.sh <project> <stack> --update. Project-specific rules belong in AGENTS.md. -->
 
 # Engineering Standard
 
-**Version 1.0 · 2026-11-21**
+**Version 1.1 · 2026-11-21**
 
 This is the default standard for every project I start. A project may tighten a rule, or turn one off by recording an ADR. It may never loosen a rule silently.
 
@@ -26,6 +26,23 @@ Every AI agent working in a project that adopts this standard **MUST**:
 4. Follow the commit rules in §2 exactly. Add no `Co-Authored-By` trailers or AI attribution unless the project says otherwise.
 5. Never run destructive or outward-facing actions without explicit approval in the conversation. This covers force-push, dropping data, rotating production secrets, publishing, and sending messages.
 6. Keep secrets out of chat, logs, commits, and URLs. When a secret appears in the conversation, use it only for its stated purpose and recommend rotation afterwards.
+
+### Session continuity (compaction and agent handover)
+
+Context is lost when a conversation is compacted, a session is resumed or cleared, or a different agent takes over. Work must survive all of these:
+
+1. **The handoff file.** Every project keeps `.agents/HANDOFF.md` (gitignored), with these sections: Current goal, Done (verified), In progress, Next steps, Decisions and constraints, Gotchas, and How to verify.
+2. **Read before acting.** At the start of every session, and after every compaction, resume, or handover, the agent MUST first:
+   - read `AGENTS.md`, the engineering standard, its persistent memory index and the memory files relevant to the project, and `.agents/HANDOFF.md`;
+   - check the git log and status;
+   - continue from "Next steps".
+   It does not redo verified work, and it does not re-ask decisions that are already recorded.
+3. **Write as you go.** The agent updates the handoff after each milestone, before a long-running command, and before it stops. It does not wait for compaction, because compaction gives no warning. Each entry records verified facts with their proof and the user's latest instruction, quoted.
+4. **Durable knowledge leaves the handoff.**
+   - Facts that stay true belong in the agent's persistent memory, or in `AGENTS.md`, an ADR, or the docs when they concern the project.
+   - The handoff holds only the current state of work.
+5. **Enforce it with the harness.** For Claude Code, `.claude/settings.json` runs `.claude/hooks/session-context.sh` on every `SessionStart` (startup, resume, clear, and compact). The hook injects these instructions, the handoff, and the git state into the new context. For other agents, start each session with: "Read AGENTS.md and .agents/HANDOFF.md, then continue."
+6. **Memory hygiene.** Memory must be verified before it is relied on: a remembered file, flag, or command may have changed. When a memory turns out wrong, correct or delete it in the same session.
 
 ## 1. Quick reference
 
@@ -227,7 +244,18 @@ Format `<type>(<scope>): <subject>`.
 - Shape API responses so the client receives only the fields it renders.
 - Images use the framework's image component (AVIF/WebP, `sizes`, `priority` only above the fold). Self-host fonts with `font-display: swap`.
 - Third-party scripts (analytics, pixels, chat) load after interaction or when idle, never in the critical path.
-- Performance budget: LCP < 2.5 s, INP < 200 ms, CLS < 0.1 at p75, and Lighthouse ≥ 95 on public pages. A Lighthouse CI step guards the budget once one exists.
+- **Performance is a gate, not a goal.**
+  - Budget: LCP < 2.5 s, INP < 200 ms, CLS < 0.1 at p75; Lighthouse accessibility, best practices, and SEO = 100; performance ≥ 90 (target 100) on mobile and desktop.
+  - Keep the budget in `lighthouserc.json`, and enforce it with Lighthouse CI on every production deploy and on a daily schedule. Content edited through a CMS or AI agent changes pages without a deploy, so a push-only check misses those regressions.
+- **Public pages are static or ISR.**
+  - Never read cookies, headers, or the session in a public render path. Use the framework's draft or preview mode for previews.
+  - Revalidate on every content write.
+  - A public HTML response with `Cache-Control: no-store` is a bug.
+- **AI-generated pages stay inside the budget by construction.**
+  - Agents compose validated blocks; they never write raw HTML, CSS, or JS.
+  - Blocks render on the server with no client JS above the fold.
+  - Heavy media (video, Lottie, embeds) loads lazily after the largest contentful paint, with a static poster.
+  - Before adding a new block or effect, measure it with Lighthouse on a page that uses it.
 - A CDN never caches personalized or session pages. Cache keys for authorized data include the user.
 - Responsive behavior comes from CSS, not from device-sniffing React branches.
 - **Accessibility:**

@@ -52,3 +52,6 @@ test-results/
 # OS
 .DS_Store
 Thumbs.db
+
+# Agent handoff (local session state)
+.agents/
