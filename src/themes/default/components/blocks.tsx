@@ -35,7 +35,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { CaptchaWidget } from '@/components/captcha-widget'
-import { GithubStars } from '@/components/github-stars'
+import { GithubStars, LinkLabel } from '@/components/github-stars'
 import { LottiePlayer } from '@/components/lottie-player'
 import { PostCard } from './post-card'
 
@@ -86,7 +86,7 @@ function ButtonLink({ link, variant }: { link: LinkValue; variant: 'primary' | '
           : 'np-glass inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold transition-colors duration-300 hover:bg-accent'
       }
     >
-      {link.label}
+      <LinkLabel href={link.href} label={link.label} />
       <GithubStars
         href={link.href}
         className={variant === 'primary' ? 'bg-primary-foreground/20' : 'bg-foreground/10'}
@@ -452,7 +452,7 @@ function BlockView({
               {...external(block.primary.href)}
               className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-950 shadow-[0_8px_30px_-6px_rgba(255,255,255,0.5)] transition-transform duration-300 hover:-translate-y-0.5"
             >
-              {block.primary.label}
+              <LinkLabel href={block.primary.href} label={block.primary.label} />
               <GithubStars href={block.primary.href} className="bg-neutral-950/10" />
               <ArrowRight
                 className="size-4 transition-transform duration-300 group-hover:translate-x-1"
@@ -463,10 +463,10 @@ function BlockView({
               <a
                 href={block.secondary.href}
                 {...external(block.secondary.href)}
-                className="inline-flex items-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/15"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/15"
               >
-                {block.secondary.label}
-                <GithubStars href={block.secondary.href} className="ml-2 bg-white/15" />
+                <LinkLabel href={block.secondary.href} label={block.secondary.label} />
+                <GithubStars href={block.secondary.href} className="bg-white/15" />
               </a>
             )}
           </div>
