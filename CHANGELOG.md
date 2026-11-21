@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- **Tools → Export** downloads a WordPress export file (WXR) of all content, posts, or pages, which NextPress and WordPress can both import.
 - Post revisions: every change to a post's title, excerpt, or content keeps the previous version (the latest 30), and the editor's **Revisions** panel restores any of them.
 - The Publish box now saves what it shows: a publish date (a future date schedules the post, which appears within the hour), **Private** visibility, **Stick to the top of the blog**, and the post format. Password-protected visibility was removed because static pages cannot gate content.
 - Comments: visitors comment and reply (one level) under posts without client JavaScript, with a honeypot, rate limiting, and the active captcha plugin. Editors moderate them under **Comments** (approve, unapprove, spam, trash, delete permanently), and **Settings → Discussion** turns comments and moderation on or off. Comments keep no email address.

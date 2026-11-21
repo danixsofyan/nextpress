@@ -5,6 +5,7 @@ import { useAdminUser } from './admin-session'
 import {
   BookOpen,
   ChevronDown,
+  Download,
   File,
   FileText,
   HandHeart,
@@ -68,6 +69,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/users', icon: Users, label: 'Users', min: 'administrator' },
       { href: '/admin/donations', icon: HandHeart, label: 'Donations', min: 'administrator' },
       { href: '/admin/tools/import', icon: Upload, label: 'Import', min: 'administrator' },
+      { href: '/admin/tools/export', icon: Download, label: 'Export', min: 'administrator' },
       { href: '/admin/settings', icon: Settings, label: 'Settings', min: 'administrator' },
     ],
   },
