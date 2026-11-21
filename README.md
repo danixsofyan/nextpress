@@ -350,8 +350,12 @@ Read [AGENTS.md](AGENTS.md) and the [engineering standard](docs/engineering-stan
 4. Commit using [Conventional Commits](https://www.conventionalcommits.org): `feat: add X`
 5. Open a pull request using the template, and add an entry to [CHANGELOG.md](CHANGELOG.md)
 
+## Author
+
+NextPress is created and maintained by **Dani Sofyan** ([@danixsofyan](https://github.com/danixsofyan)). Contributions are welcome.
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 Dani Sofyan and NextPress contributors
 
 The landing-page animation in `public/lottie/globe.json` is "Earth and connections" from [LottieFiles](https://lottiefiles.com/free-animation/earth-and-connections-qKp1xwkNHV), used under the [Lottie Simple License](https://lottiefiles.com/page/license).
