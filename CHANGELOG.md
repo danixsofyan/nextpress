@@ -29,6 +29,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- The default theme's blocks have a modern look: an animated aurora and grid behind the hero, gradient headings, glass cards with gradient borders, a code window, and sections that reveal on scroll. Everything is CSS (no client JavaScript), the glow colors follow the theme's primary color, and all motion stops under `prefers-reduced-motion`.
 - Passwords are hashed with argon2id. Existing scrypt hashes still verify and are rehashed with argon2id at the next sign-in.
 - The Lighthouse workflow runs on every push to `main` once production reports that commit, because Vercel does not create GitHub deployments.
 - `posts.status`, `pages.status`, and `taxonomies.type` are `text` columns with `CHECK` constraints instead of Postgres enums.

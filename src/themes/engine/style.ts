@@ -29,6 +29,9 @@ export function themeStyleVars(style: ThemeStyle): Record<string, string> {
   return {
     '--color-primary': style.primary,
     '--color-primary-foreground': readableOn(style.primary),
+    '--color-glow-1': `oklch(from ${style.primary} 0.66 max(c, 0.17) h)`,
+    '--color-glow-2': `oklch(from ${style.primary} 0.72 max(c, 0.16) calc(h + 75))`,
+    '--color-glow-3': `oklch(from ${style.primary} 0.8 max(c, 0.12) calc(h - 70))`,
     '--color-background': style.background,
     '--color-foreground': style.foreground,
     '--color-card': style.background,
