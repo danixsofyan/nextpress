@@ -321,11 +321,13 @@ See the [theme development guide](docs/theme-development.md), or call the MCP to
 
 ## Contributing
 
+Read [AGENTS.md](AGENTS.md) and the [engineering standard](docs/engineering-standard.md) first. They apply to humans and AI agents alike. The [quality bar](docs/quality.md) shows what is measured and what is still open, and [docs/adr/](docs/adr/) explains the main design decisions.
+
 1. Fork the repository
-2. Create a branch: `git checkout -b feat/your-feature`
+2. Create a branch: `git checkout -b feature/your-feature`
 3. Make sure `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, and `pnpm test` pass
 4. Commit using [Conventional Commits](https://www.conventionalcommits.org): `feat: add X`
-5. Open a pull request
+5. Open a pull request using the template, and add an entry to [CHANGELOG.md](CHANGELOG.md)
 
 ## License
 
