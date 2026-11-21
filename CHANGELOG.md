@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Structured JSON logging with redaction of passwords, tokens, keys, cookies, and signatures. Every response carries `X-Request-ID`, which is also forwarded to SumoPod.
+- Every API error has a stable `code` next to its message (for example `NP-4000` validation, `NP-4010` unauthorized, `NP-4040` not found, `NP-4290` rate limited). Validation errors from the REST API use the same shape and no longer leak schema internals.
+- REST API responses send `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`, plus `Retry-After` on 429.
 - `/donate` page and `/api/webhooks/sumopod`, which verifies SumoPod's Svix signature (or webhook token) and records `NPD-` donation events. Several apps can share one SumoPod project when its single webhook relays `NPD-` orders here.
 - A `donate` page block that accepts QRIS donations through SumoPod. It is hidden until `SUMOPOD_API_KEY` is set, needs no client JavaScript, and has thank-you and error pages.
 - Posts and pages record their author, and the admin lists show an Author column. Authors can view, edit, and delete only their own posts; editors and administrators keep full access.
@@ -39,6 +42,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Security
 
+- Sign-in is limited to 5 attempts per 15 minutes per IP (previously per minute), sign-up and password reset to 3, and the REST API to 60 requests per minute per key.
+- Environment variables are read only through the validated `env` module.
 - The app connects as `nextpress_app`, a least-privilege role without BYPASSRLS or DDL rights, with an RLS policy per table (`pnpm db:roles`). Migrations still run as the owner.
 - Uploads are typed from their magic bytes. The stored extension and content type come from the detected type, never from the client's filename or MIME type, and HTML disguised as an image is rejected with 415.
 - Fixed every `pnpm audit` advisory:

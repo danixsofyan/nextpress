@@ -42,17 +42,18 @@ Update it after each milestone, before long-running commands, and before you sto
 
 ## Commands
 
-| Purpose              | Command                                      |
-| -------------------- | -------------------------------------------- |
-| Install              | `pnpm install`                               |
-| Dev server           | `pnpm dev`                                   |
-| Lint (0 warnings)    | `pnpm lint`                                  |
-| Format check         | `pnpm format:check` (fix with `pnpm format`) |
-| Typecheck            | `pnpm typecheck`                             |
-| Tests                | `pnpm test`                                  |
-| Generate a migration | `pnpm db:generate`                           |
-| Apply migrations     | `DATABASE_URL=… pnpm db:migrate`             |
-| Dependency audit     | `pnpm audit --audit-level high`              |
+| Purpose                           | Command                                                                                                                                        |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install                           | `pnpm install`                                                                                                                                 |
+| Dev server                        | `pnpm dev`                                                                                                                                     |
+| Lint (0 warnings)                 | `pnpm lint`                                                                                                                                    |
+| Format check                      | `pnpm format:check` (fix with `pnpm format`)                                                                                                   |
+| Typecheck                         | `pnpm typecheck`                                                                                                                               |
+| Tests                             | `pnpm test`                                                                                                                                    |
+| Generate a migration              | `pnpm db:generate`                                                                                                                             |
+| Apply migrations                  | `DATABASE_URL=… pnpm db:migrate`                                                                                                               |
+| Dependency audit                  | `pnpm audit --audit-level high`                                                                                                                |
+| Secret-scan hook (once per clone) | `printf '#!/bin/sh\nexec gitleaks git --pre-commit --staged --redact --no-banner\n' > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit` |
 
 Definition of done for every change:
 
