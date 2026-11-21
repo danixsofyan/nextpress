@@ -12,6 +12,7 @@ export const BLOCK_ICONS = [
   'gauge',
   'github',
   'globe',
+  'heart',
   'image',
   'key',
   'layout',
@@ -24,10 +25,14 @@ export const BLOCK_ICONS = [
   'settings',
   'shield',
   'sparkles',
+  'star',
   'upload',
   'users',
   'zap',
 ] as const
+
+export const DONATION_MIN = 1000
+export const DONATION_MAX = 100_000_000
 
 const text = (max: number) => z.string().trim().min(1).max(max)
 
@@ -115,6 +120,13 @@ export const blockSchema = z.discriminatedUnion('type', [
     type: z.literal('posts'),
     heading: text(120).optional(),
     count: z.number().int().min(1).max(12).default(3),
+  }),
+  z.object({
+    type: z.literal('donate'),
+    heading: text(120),
+    text: text(300).optional(),
+    amounts: z.array(z.number().int().min(DONATION_MIN).max(DONATION_MAX)).min(1).max(6),
+    buttonLabel: text(40).optional(),
   }),
   z.object({
     type: z.literal('richText'),

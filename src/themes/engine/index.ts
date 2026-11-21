@@ -60,6 +60,7 @@ export interface BlocksProps {
   posts?: Post[]
   timeZone?: string
   dateFormat?: string
+  donations?: boolean
 }
 
 export type { Block }

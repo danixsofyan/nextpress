@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { donationsEnabled } from '@/lib/donations'
 import { getSiteSettings } from '@/lib/site'
 import { getActiveTheme } from '@/lib/themes'
 import { PostRepository } from '@/server'
@@ -27,6 +28,12 @@ export async function PageBody({ page }: { page: Page }) {
       : []
 
   return (
-    <Blocks blocks={blocks} posts={posts} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+    <Blocks
+      blocks={blocks}
+      posts={posts}
+      timeZone={site.timeZone}
+      dateFormat={site.dateFormat}
+      donations={donationsEnabled()}
+    />
   )
 }

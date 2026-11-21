@@ -1,3 +1,4 @@
+import { DONATION_MAX, DONATION_MIN } from '@/core/validators'
 import type { Block, BlocksProps } from '@/themes/engine'
 import {
   BookOpen,
@@ -11,6 +12,7 @@ import {
   Gauge,
   Github,
   Globe,
+  Heart,
   Image,
   KeyRound,
   LayoutTemplate,
@@ -24,6 +26,7 @@ import {
   Settings,
   ShieldCheck,
   Sparkles,
+  Star,
   Upload,
   Users,
   Zap,
@@ -42,6 +45,7 @@ const ICONS: Record<string, LucideIcon> = {
   gauge: Gauge,
   github: Github,
   globe: Globe,
+  heart: Heart,
   image: Image,
   key: KeyRound,
   layout: LayoutTemplate,
@@ -54,6 +58,7 @@ const ICONS: Record<string, LucideIcon> = {
   settings: Settings,
   shield: ShieldCheck,
   sparkles: Sparkles,
+  star: Star,
   upload: Upload,
   users: Users,
   zap: Zap,
@@ -100,11 +105,80 @@ const GRID: Record<number, string> = {
   4: 'sm:grid-cols-2 lg:grid-cols-4',
 }
 
+const rupiah = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+})
+
+function DonateForm({ block }: { block: Extract<Block, { type: 'donate' }> }) {
+  const amounts = [...new Set(block.amounts)].sort((a, b) => a - b)
+  return (
+    <section className="py-12">
+      <div className="mx-auto max-w-xl rounded-2xl border bg-card p-6 text-center shadow-sm sm:p-8">
+        <Heart className="mx-auto size-8 text-primary" aria-hidden />
+        <h2 className="mt-3 text-3xl font-bold tracking-tight">{block.heading}</h2>
+        {block.text && <p className="mt-3 text-muted-foreground">{block.text}</p>}
+        <form method="post" action="/api/donate" className="mt-8 space-y-5">
+          <fieldset>
+            <legend className="sr-only">Choose an amount</legend>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {amounts.map((amount, i) => (
+                <label
+                  key={amount}
+                  className="cursor-pointer rounded-md border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-2 has-focus-visible:ring-ring"
+                >
+                  <input
+                    type="radio"
+                    name="amount"
+                    value={amount}
+                    defaultChecked={i === 0}
+                    className="sr-only"
+                  />
+                  {rupiah.format(amount)}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="text-left">
+            <label htmlFor="donate-custom" className="text-sm font-medium">
+              Or enter another amount (IDR)
+            </label>
+            <input
+              id="donate-custom"
+              name="custom"
+              type="number"
+              inputMode="numeric"
+              min={DONATION_MIN}
+              max={DONATION_MAX}
+              step={1000}
+              placeholder={String(amounts[0])}
+              className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Heart className="size-4" aria-hidden />
+            {block.buttonLabel ?? 'Donate with QRIS'}
+          </button>
+          <p className="text-xs text-muted-foreground">
+            Payment is processed securely by SumoPod. Any QRIS-enabled banking or e-wallet app
+            works.
+          </p>
+        </form>
+      </div>
+    </section>
+  )
+}
+
 function BlockView({
   block,
   posts,
   timeZone,
   dateFormat,
+  donations,
 }: { block: Block } & Omit<BlocksProps, 'blocks'>) {
   switch (block.type) {
     case 'hero':
@@ -295,6 +369,8 @@ function BlockView({
         </section>
       )
     }
+    case 'donate':
+      return donations ? <DonateForm block={block} /> : null
     case 'richText':
       return (
         <section

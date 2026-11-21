@@ -18,6 +18,8 @@ const schema = z
     S3_PUBLIC_URL: z.string().url().optional(),
     MAX_UPLOAD_SIZE_MB: z.coerce.number().positive().default(4),
     NEXTPRESS_DOCS: z.enum(['true', 'false']).default('false'),
+    SUMOPOD_API_KEY: z.string().min(16).optional(),
+    SUMOPOD_API_BASE_URL: z.string().url().default('https://api-pay.sumopod.com'),
   })
   .refine(
     (e) =>

@@ -58,6 +58,14 @@ export const BLOCK_SPEC = {
   description:
     'A page is an ordered list of blocks. Compose any landing page from these blocks; the active theme renders them. Raw HTML/CSS/JS is not allowed except sanitized HTML inside richText.',
   links: 'Every href must start with /, #, http(s):// or mailto:',
+  performance: [
+    'Pages must keep PageSpeed (Lighthouse) at 100 for accessibility, best practices, and SEO, and at least 90 for performance on mobile and desktop. A scheduled audit flags regressions.',
+    'Blocks render on the server with no client JavaScript, so any combination is fast. Keep the first block (usually hero) text-only so it is the fast largest contentful paint.',
+    'Prefer fewer, focused blocks: around 6 to 10 sections per landing page. Long pages slow the speed index and dilute the message.',
+    'Keep the richText HTML semantic and small. Do not paste embeds, iframes, or inline images of text.',
+  ],
+  donations:
+    'The donate block renders only when the site owner has configured SumoPod (SUMOPOD_API_KEY). Amounts are whole rupiah between 1,000 and 100,000,000; it shows QRIS payment through SumoPod.',
   icons: BLOCK_ICONS,
   blocks: {
     hero: {
@@ -86,6 +94,10 @@ export const BLOCK_SPEC = {
     faq: { fields: 'heading?, items[1..20]{question, answer}' },
     cta: { fields: 'heading, text?, primary{label,href}, secondary?{label,href}' },
     posts: { fields: 'heading?, count (1..12) — shows the latest published posts' },
+    donate: {
+      fields:
+        'heading, text?, amounts (1..6 whole-rupiah presets, 1,000..100,000,000), buttonLabel? — QRIS donation form via SumoPod; hidden unless donations are configured',
+    },
     richText: {
       fields: 'html — sanitized HTML (p, h2, h3, ul, ol, a, img, blockquote, code, pre)',
     },
