@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, BookOpen } from 'lucide-react'
@@ -12,11 +13,13 @@ export function LoginForm({
   captcha,
   googleLogin,
   googleError = false,
+  canResetPassword = false,
 }: {
   needsSetup: boolean
   captcha: CaptchaConfig | null
   googleLogin: boolean
   googleError?: boolean
+  canResetPassword?: boolean
 }) {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -148,9 +151,19 @@ export function LoginForm({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="password" className="text-sm font-medium text-foreground">
-                    Password
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="password" className="text-sm font-medium text-foreground">
+                      Password
+                    </label>
+                    {canResetPassword && (
+                      <Link
+                        href="/admin/forgot-password"
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        Lost your password?
+                      </Link>
+                    )}
+                  </div>
                   <div className="relative">
                     <input
                       id="password"

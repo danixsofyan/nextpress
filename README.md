@@ -15,6 +15,7 @@ Runs free on [Vercel](https://vercel.com) + [Supabase](https://supabase.com).
 
 One app, one deployment: the admin panel lives at `/admin` on the same domain, like `/wp-admin`.
 
+- **Email** through any SMTP provider: lost password, user invitations, and new comment notifications
 - **First-run setup**: the first visit to `/admin` creates the administrator account, then public sign-up closes
 - **Dashboard** with content stats, Activity (scheduled, recently published, recent comments), Quick Draft, and a **Visit site** link
 - **Post editor** modeled on WordPress:
@@ -182,25 +183,28 @@ pnpm dev
 
 All variables are documented in [`.env.example`](.env.example). Site title, logo, timezone, and other site options are set in the admin under Settings, not in the environment.
 
-| Variable                | Required  | Description                                                                                              |
-| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`          | yes       | PostgreSQL connection string                                                                             |
-| `NEXT_PUBLIC_SITE_URL`  | yes       | Public URL of the site, no trailing slash                                                                |
-| `BETTER_AUTH_SECRET`    | yes       | Session signing secret, at least 32 characters                                                           |
-| `NEXT_PUBLIC_SITE_NAME` | no        | Fallback site name until a Site Title is saved, default `NextPress`                                      |
-| `NEXTPRESS_API_KEY`     | no        | Extra API key from the environment; keys are normally created in the admin                               |
-| `NEXTPRESS_DOCS`        | no        | `true` serves this repository's developer documentation at `/docs`, default `false`                      |
-| `SUMOPOD_API_KEY`       | no        | Enables the `donate` block (QRIS donations through SumoPod)                                              |
-| `ADMIN_URL`             | no        | Serve the admin panel only on its own domain                                                             |
-| `REDIS_URL`             | no        | Shared rate limiting across instances                                                                    |
-| `STORAGE_DRIVER`        | no        | `local` (default, development) or `s3`                                                                   |
-| `S3_ENDPOINT`           | with `s3` | S3 endpoint without bucket                                                                               |
-| `S3_REGION`             | no        | `auto` (default) for R2, bucket region for AWS                                                           |
-| `S3_BUCKET`             | with `s3` | Bucket name                                                                                              |
-| `S3_ACCESS_KEY_ID`      | with `s3` | Access key                                                                                               |
-| `S3_SECRET_ACCESS_KEY`  | with `s3` | Secret key                                                                                               |
-| `S3_PUBLIC_URL`         | no        | Public bucket URL. Leave empty to keep the bucket private and serve files from `/media/…` on your domain |
-| `MAX_UPLOAD_SIZE_MB`    | no        | Upload limit, default `4`                                                                                |
+| Variable                                                        | Required  | Description                                                                                              |
+| --------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                  | yes       | PostgreSQL connection string                                                                             |
+| `NEXT_PUBLIC_SITE_URL`                                          | yes       | Public URL of the site, no trailing slash                                                                |
+| `BETTER_AUTH_SECRET`                                            | yes       | Session signing secret, at least 32 characters                                                           |
+| `NEXT_PUBLIC_SITE_NAME`                                         | no        | Fallback site name until a Site Title is saved, default `NextPress`                                      |
+| `NEXTPRESS_API_KEY`                                             | no        | Extra API key from the environment; keys are normally created in the admin                               |
+| `NEXTPRESS_DOCS`                                                | no        | `true` serves this repository's developer documentation at `/docs`, default `false`                      |
+| `SUMOPOD_API_KEY`                                               | no        | Enables the `donate` block (QRIS donations through SumoPod)                                              |
+| `ADMIN_URL`                                                     | no        | Serve the admin panel only on its own domain                                                             |
+| `REDIS_URL`                                                     | no        | Shared rate limiting across instances                                                                    |
+| `STORAGE_DRIVER`                                                | no        | `local` (default, development) or `s3`                                                                   |
+| `S3_ENDPOINT`                                                   | with `s3` | S3 endpoint without bucket                                                                               |
+| `S3_REGION`                                                     | no        | `auto` (default) for R2, bucket region for AWS                                                           |
+| `S3_BUCKET`                                                     | with `s3` | Bucket name                                                                                              |
+| `S3_ACCESS_KEY_ID`                                              | with `s3` | Access key                                                                                               |
+| `S3_SECRET_ACCESS_KEY`                                          | with `s3` | Secret key                                                                                               |
+| `S3_PUBLIC_URL`                                                 | no        | Public bucket URL. Leave empty to keep the bucket private and serve files from `/media/…` on your domain |
+| `MAX_UPLOAD_SIZE_MB`                                            | no        | Upload limit, default `4`                                                                                |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | no        | Any SMTP provider. Turns on lost-password emails, user invitations, and comment notifications            |
+| `TURNSTILE_SECRET_KEY`, `RECAPTCHA_SECRET_KEY`                  | no        | Secret for the Cloudflare Turnstile or Google reCAPTCHA plugin                                           |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                      | no        | OAuth client for the Sign in with Google plugin                                                          |
 
 Generate secrets with `openssl rand -base64 32`.
 

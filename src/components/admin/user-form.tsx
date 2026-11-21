@@ -11,18 +11,20 @@ import { useToast } from './toast'
 
 type Props = {
   mode: 'create' | 'edit'
+  canInvite?: boolean
   userId?: string
   initial?: { name: string; email: string; role: Role }
   isSelf?: boolean
 }
 
-export function UserForm({ mode, userId, initial, isSelf = false }: Props) {
+export function UserForm({ mode, userId, initial, isSelf = false, canInvite = false }: Props) {
   const router = useRouter()
   const [name, setName] = useState(initial?.name ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
   const [role, setRole] = useState<Role>(initial?.role ?? 'author')
   const [password, setPassword] = useState('')
   const [saving, setSaving] = useState(false)
+  const [sendInvite, setSendInvite] = useState(canInvite)
   const toast = useToast()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,7 +33,13 @@ export function UserForm({ mode, userId, initial, isSelf = false }: Props) {
     const res = await fetch(mode === 'create' ? '/api/admin/users' : `/api/admin/users/${userId}`, {
       method: mode === 'create' ? 'POST' : 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, role, password }),
+      body: JSON.stringify({
+        name,
+        email,
+        role,
+        password,
+        ...(mode === 'create' && canInvite && { sendInvite }),
+      }),
     })
     setSaving(false)
     if (!res.ok) {
@@ -107,6 +115,16 @@ export function UserForm({ mode, userId, initial, isSelf = false }: Props) {
           {isSelf ? 'You cannot change your own role.' : ROLE_DESCRIPTIONS[role]}
         </p>
       </div>
+      {mode === 'create' && canInvite && (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={sendInvite}
+            onChange={(e) => setSendInvite(e.target.checked)}
+          />
+          Send the new user an email with a link to choose their own password
+        </label>
+      )}
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={saving || (mode === 'create' && password.length < 8)}>
           {saving ? 'Saving...' : mode === 'create' ? 'Add User' : 'Update User'}

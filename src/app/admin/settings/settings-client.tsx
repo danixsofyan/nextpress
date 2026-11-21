@@ -431,6 +431,14 @@ export function SettingsClient({
               />
               Comments must be approved before they appear
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={settings.comment_notify !== '0'}
+                onChange={(e) => set('comment_notify', e.target.checked ? '1' : '0')}
+              />
+              Email administrators and the post author about new comments (needs SMTP settings)
+            </label>
             <p className="text-xs text-muted-foreground">
               Moderate comments under Comments in the admin menu. Activate a captcha plugin to stop
               spam bots.

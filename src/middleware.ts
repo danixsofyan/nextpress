@@ -21,6 +21,12 @@ function hasSession(request: NextRequest) {
   )
 }
 
+const PUBLIC_ADMIN_PAGES = new Set([
+  '/admin/login',
+  '/admin/forgot-password',
+  '/admin/reset-password',
+])
+
 export function middleware(request: NextRequest) {
   const requestId = request.headers.get('x-request-id') || crypto.randomUUID()
   const response = route(request, requestId)
@@ -44,7 +50,7 @@ function route(request: NextRequest, requestId: string) {
     if (!onAdminHost && adminPath) return new NextResponse(null, { status: 404 })
   }
 
-  if (!adminPath || pathname.startsWith('/api/auth/') || pathname === '/admin/login') {
+  if (!adminPath || pathname.startsWith('/api/auth/') || PUBLIC_ADMIN_PAGES.has(pathname)) {
     return next()
   }
 

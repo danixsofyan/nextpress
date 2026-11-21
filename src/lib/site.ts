@@ -33,5 +33,6 @@ export const getSiteSettings = cache(async () => {
     customCss: customCssSchema.safeParse(s.custom_css ?? '').success ? (s.custom_css ?? '') : '',
     commentsEnabled: s.comments_enabled !== '0',
     commentModeration: s.comment_moderation !== '0',
+    commentNotify: s.comment_notify !== '0',
   }
 })

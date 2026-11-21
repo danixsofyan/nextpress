@@ -1,4 +1,4 @@
-import { beginRequestContext, setActor } from './request-context'
+import { beginRequestContext, isInvite, setActor } from './request-context'
 import { apiError } from '@/lib/api-error'
 import { redis } from '@/server'
 import { account, session, user, verification } from '@/core/schema'
@@ -13,6 +13,8 @@ import { and, eq } from 'drizzle-orm'
 import { db } from './db'
 import { env } from './env'
 import { clientIp, verifyCaptcha } from './captcha'
+import { emailLayout, sendEmail } from './email'
+import { getSiteSettings } from './site'
 import { isPluginActive } from './plugins'
 import { logger } from './logger'
 import { hashPassword, isArgon2id, verifyPassword } from './password'
@@ -34,6 +36,8 @@ const roles = {
   author: contentRole,
 }
 
+const CAPTCHA_PATHS = new Set(['/sign-in/email', '/sign-up/email', '/request-password-reset'])
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -44,6 +48,30 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      if (isInvite()) {
+        const site = await getSiteSettings()
+        const invite = emailLayout(
+          [
+            `Hi ${user.name},`,
+            `An account was created for you on ${site.title}. Choose your password with the button below to sign in. The link works for one hour; after that, use "Lost your password?" on the sign-in page.`,
+          ],
+          { label: 'Choose your password', url }
+        )
+        await sendEmail({ to: user.email, subject: `Your account on ${site.title}`, ...invite })
+        return
+      }
+      const { html, text } = emailLayout(
+        [
+          `Hi ${user.name},`,
+          'Someone asked to reset the password of your NextPress account. If it was you, choose a new password with the button below. The link works for one hour.',
+          'If you did not ask for this, ignore this email; your password stays the same.',
+        ],
+        { label: 'Choose a new password', url }
+      )
+      await sendEmail({ to: user.email, subject: 'Reset your password', html, text })
+    },
     password: { hash: hashPassword, verify: verifyPassword },
   },
   hooks: {
@@ -54,7 +82,7 @@ export const auth = betterAuth({
         }
         return
       }
-      if (ctx.path !== '/sign-in/email' && ctx.path !== '/sign-up/email') return
+      if (!CAPTCHA_PATHS.has(ctx.path) || isInvite()) return
       const headers = ctx.headers ?? new Headers()
       if (!(await verifyCaptcha(headers.get('x-captcha-token'), clientIp(headers)))) {
         throw new APIError('FORBIDDEN', { message: 'The security check failed' })

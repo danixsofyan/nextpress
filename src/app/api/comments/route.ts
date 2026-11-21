@@ -4,6 +4,7 @@ import { clientIp, verifyCaptcha } from '@/lib/captcha'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { logger, requestIdOf } from '@/lib/logger'
+import { notifyNewComment } from '@/lib/notifications'
 import { getSiteSettings } from '@/lib/site'
 import { CommentRepository, PostRepository, isPostPublic, redis } from '@/server'
 
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
   }
   const status = site.commentModeration ? 'pending' : 'approved'
   const comment = await repo.create(parsed.data, status)
+  await notifyNewComment({ ...parsed.data, status, post })
   logger.info('comment received', { requestId: requestIdOf(request), postId: post.id, status })
   return back(status === 'approved' ? `comment-${comment.id}` : 'comment-pending')
 }

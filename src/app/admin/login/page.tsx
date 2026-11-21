@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { hasUsers } from '@/lib/auth'
+import { emailEnabled } from '@/lib/email'
 import { getCaptcha, isPluginActive } from '@/lib/plugins'
 import { LoginForm } from './login-form'
 
@@ -23,6 +24,7 @@ export default async function LoginPage({
       captcha={captcha}
       googleLogin={google && users}
       googleError={(await searchParams).error === 'google'}
+      canResetPassword={users && emailEnabled()}
     />
   )
 }
