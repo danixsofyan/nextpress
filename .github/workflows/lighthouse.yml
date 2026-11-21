@@ -1,7 +1,8 @@
 name: Lighthouse
 
 on:
-  deployment_status:
+  push:
+    branches: [main]
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
@@ -13,10 +14,22 @@ on:
 jobs:
   audit:
     name: Performance budget
-    if: github.event_name != 'deployment_status' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Wait for the production deploy of this commit
+        if: github.event_name == 'push'
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          base="${SITE_URL:-https://nextpress-app.vercel.app}"
+          for _ in $(seq 1 60); do
+            if curl -fsS "${base%/}/api/health" | grep -q "\"commit\":\"$GITHUB_SHA\""; then exit 0; fi
+            sleep 15
+          done
+          echo "Production never reported $GITHUB_SHA" >&2
+          exit 1
 
       - name: Choose URLs
         id: urls

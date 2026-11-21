@@ -58,6 +58,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          package-manager-cache: false
 
       - name: Dependency audit (fails on high or critical)
         run: pnpm audit --audit-level high
