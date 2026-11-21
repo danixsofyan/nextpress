@@ -1,0 +1,70 @@
+import { MenuRepository, PageRepository } from '@/server'
+import { themeStyleVars } from '@/themes/engine'
+import Script from 'next/script'
+import type { CSSProperties } from 'react'
+import './site.css'
+import { AdminBar } from '@/components/admin-bar'
+import { db } from '@/lib/db'
+import { getSiteSettings } from '@/lib/site'
+import { THEMES, getActiveTheme } from '@/lib/themes'
+
+const DEFAULT_NAVIGATION = [{ label: 'Blog', href: '/blog' }]
+
+async function getNavigation() {
+  const menu = await new MenuRepository(db).findBySlug('primary').catch(() => null)
+  if (!menu) return DEFAULT_NAVIGATION
+  try {
+    const items = JSON.parse(menu.items) as { label?: unknown; url?: unknown }[]
+    const links = items
+      .filter((i) => typeof i.label === 'string' && typeof i.url === 'string')
+      .map((i) => ({ label: i.label as string, href: i.url as string }))
+    return links.length > 0 ? links : DEFAULT_NAVIGATION
+  } catch {
+    return DEFAULT_NAVIGATION
+  }
+}
+
+async function getFooterLinks(privacyPageId: string) {
+  if (!privacyPageId) return []
+  const page = await new PageRepository(db).findById(privacyPageId).catch(() => null)
+  return page?.status === 'published' ? [{ label: page.title, href: `/${page.slug}` }] : []
+}
+
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const site = await getSiteSettings()
+  const [footerLinks, navigation, active] = await Promise.all([
+    getFooterLinks(site.privacyPage),
+    getNavigation(),
+    getActiveTheme(),
+  ])
+  const { Layout } = active.theme.slots
+  return (
+    <>
+      <AdminBar {...(active.preview && { previewTheme: THEMES[active.id].label })} />
+      <div
+        style={themeStyleVars(active.style) as CSSProperties}
+        className="bg-background text-foreground"
+      >
+        <Layout
+          siteName={site.title}
+          {...(site.logo && { logo: site.logo })}
+          navigation={navigation}
+          footerLinks={footerLinks}
+        >
+          {children}
+        </Layout>
+      </div>
+      {site.gaId && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${site.gaId}`}
+            strategy="afterInteractive"
+          />
+          <Script id="ga" strategy="afterInteractive">
+            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","${site.gaId}")`}
+          </Script>
+        </>
+      )}
+    </>
+  )
+}

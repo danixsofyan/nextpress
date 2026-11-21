@@ -1,0 +1,105 @@
+import { getCurrentSession } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { env } from '@/lib/env'
+import { JsonLd } from '@/components/json-ld'
+import { extractFaq } from '@/lib/markdown'
+import { breadcrumbSchema, faqSchema } from '@/lib/seo'
+import { getSiteSettings } from '@/lib/site'
+import { hasRole } from '@/lib/roles'
+import { getActiveTheme } from '@/lib/themes'
+import { PostRepository } from '@/server'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { cache } from 'react'
+
+const getVisiblePost = cache(async (slug: string) => {
+  const post = await new PostRepository(db).findBySlug(slug)
+  if (!post) return null
+  if (post.status === 'published') return { post, preview: false }
+  const session = await getCurrentSession().catch(() => null)
+  return session && hasRole(session.user.role, 'author') ? { post, preview: true } : null
+})
+
+export const dynamic = 'force-dynamic'
+
+interface Props {
+  params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const visible = await getVisiblePost(slug)
+  if (!visible) return {}
+  const { post, preview } = visible
+  return {
+    ...(preview && { robots: { index: false, follow: false } }),
+    title: post.metaTitle ?? post.title,
+    description: post.metaDescription ?? post.excerpt ?? undefined,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+      types: { 'text/markdown': `/blog/${post.slug}.md` },
+    },
+    openGraph: {
+      url: `/blog/${post.slug}`,
+      title: post.metaTitle ?? post.title,
+      description: post.metaDescription ?? post.excerpt ?? undefined,
+      type: 'article',
+      publishedTime: post.publishedAt?.toISOString(),
+      images: post.coverImage
+        ? [{ url: post.coverImage }]
+        : [{ url: `/og?title=${encodeURIComponent(post.title)}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.metaTitle ?? post.title,
+      description: post.metaDescription ?? post.excerpt ?? undefined,
+    },
+  }
+}
+
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params
+  const visible = await getVisiblePost(slug)
+  if (!visible) notFound()
+  const { post, preview } = visible
+  const site = await getSiteSettings()
+
+  const url = `${env.NEXT_PUBLIC_SITE_URL}/blog/${post.slug}`
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.metaTitle ?? post.title,
+    description: post.metaDescription ?? post.excerpt ?? undefined,
+    image:
+      post.coverImage ?? `${env.NEXT_PUBLIC_SITE_URL}/og?title=${encodeURIComponent(post.title)}`,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    url,
+    mainEntityOfPage: url,
+    publisher: { '@type': 'Organization', name: site.title },
+  }
+
+  const { PostDetail } = (await getActiveTheme()).theme.slots
+
+  return (
+    <>
+      {preview && (
+        <p className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+          Draft preview. Only signed-in staff can see this post until it is published.
+        </p>
+      )}
+      <JsonLd
+        data={[
+          jsonLd,
+          breadcrumbSchema([
+            { name: site.title, path: '/' },
+            { name: 'Blog', path: '/blog' },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+          ...[faqSchema(extractFaq(post.content))].filter((s) => s !== null),
+        ]}
+      />
+      <PostDetail post={post} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+    </>
+  )
+}
