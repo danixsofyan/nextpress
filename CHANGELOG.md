@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- CodeQL scans the code with the `security-extended` queries on every push, pull request, and weekly.
 - A WordPress-style Trash for posts and pages. Deleting moves an item to the Trash (`All | Trash` views with counts), from where it can be restored or deleted permanently. The REST API accepts `DELETE …?permanent=true` for trashed items.
 - An append-only `audit_logs` table that records every create, update, publish, trash, restore, and delete with the actor (user, API key, or system) and the request ID.
 - Donations are stored in a `donations` table. The SumoPod webhook updates their status, and administrators see them under **Donations**.
@@ -27,6 +28,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- Passwords are hashed with argon2id. Existing scrypt hashes still verify and are rehashed with argon2id at the next sign-in.
+- The Lighthouse workflow runs on every push to `main` once production reports that commit, because Vercel does not create GitHub deployments.
 - `posts.status`, `pages.status`, and `taxonomies.type` are `text` columns with `CHECK` constraints instead of Postgres enums.
 - The `delete_page` MCP tool moves the page to the Trash.
 - The database client keeps up to 10 pooled connections per instance and closes idle ones after 20 s. Builds prerender one page at a time and retry transient failures, because Supavisor's transaction mode hangs postgres.js queries that are pipelined when more queries are queued than connections.
