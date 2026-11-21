@@ -4,13 +4,16 @@ import { redis } from '@/server'
 import { account, session, user, verification } from '@/core/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { APIError } from 'better-auth/api'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { admin } from 'better-auth/plugins'
 import { createAccessControl } from 'better-auth/plugins/access'
 import { defaultStatements } from 'better-auth/plugins/admin/access'
 import { headers } from 'next/headers'
+import { and, eq } from 'drizzle-orm'
 import { db } from './db'
 import { env } from './env'
+import { logger } from './logger'
+import { hashPassword, isArgon2id, verifyPassword } from './password'
 import { hasRole, type Role } from './roles'
 
 export async function hasUsers() {
@@ -36,7 +39,19 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.ADMIN_URL ?? env.NEXT_PUBLIC_SITE_URL,
-  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 8,
+    password: { hash: hashPassword, verify: verifyPassword },
+  },
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/sign-in/email') return
+      const userId = ctx.context.newSession?.user.id
+      const password = (ctx.body as { password?: unknown } | undefined)?.password
+      if (userId && typeof password === 'string') await upgradeLegacyHash(userId, password)
+    }),
+  },
   plugins: [admin({ ac, roles, defaultRole: 'author', adminRoles: ['administrator'] })],
   databaseHooks: {
     user: {
@@ -66,6 +81,20 @@ export const auth = betterAuth({
     ...(redis ? { customStorage: redisRateLimitStorage(redis) } : { storage: 'memory' as const }),
   },
 })
+
+async function upgradeLegacyHash(userId: string, password: string) {
+  const credential = and(eq(account.userId, userId), eq(account.providerId, 'credential'))
+  const [row] = await db.select({ password: account.password }).from(account).where(credential)
+  if (!row?.password || isArgon2id(row.password)) return
+  try {
+    await db
+      .update(account)
+      .set({ password: await hashPassword(password), updatedAt: new Date() })
+      .where(credential)
+  } catch (err) {
+    logger.error('password rehash failed', { userId, err })
+  }
+}
 
 export type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>
 
