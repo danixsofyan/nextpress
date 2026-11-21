@@ -41,7 +41,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 - **Tools → Import**: WordPress export files (WXR) and RSS/Atom feeds (Blogger, Medium, Substack, Ghost, and others)
 - **Tools → Export**: download all content, posts, or pages as a WordPress export file (WXR)
 - **Appearance → Themes**: switch themes, or open a live preview of another theme that only you see
-- **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy
+- **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy, plus **Additional CSS** for the whole site
 - **Appearance → Widgets**: blog sidebar and footer widgets (Search, Recent Posts, Categories, Tag Cloud, Text, Links), reordered with up and down buttons
 - **Plugins**: activate, deactivate, and configure plugins (Google Analytics 4, Meta Pixel, Cloudflare Turnstile, Google reCAPTCHA, Sign in with Google), filtered by All, Active, and Inactive
 - **Trash** for posts and pages with restore and permanent delete, an append-only **audit log**, and a **Donations** list with donor names and messages

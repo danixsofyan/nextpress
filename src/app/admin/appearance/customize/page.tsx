@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
 import { ThemeSwatch } from '@/components/admin/theme-swatch'
+import { AdditionalCss } from './additional-css'
 import { useToast } from '@/components/admin/toast'
 import { apiFetch, errorMessage } from '@/lib/admin-fetch'
 import type { getAppearance } from '@/lib/themes'
@@ -271,6 +272,7 @@ export default function CustomizePage() {
           </div>
         </div>
       )}
+      <AdditionalCss />
     </DashboardLayout>
   )
 }

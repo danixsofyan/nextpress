@@ -40,6 +40,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <>
       <AdminBar {...(active.preview && { previewTheme: THEMES[active.id].label })} />
       <style dangerouslySetInnerHTML={{ __html: themeSchemeCss(active.style, '.np-site') }} />
+      {site.customCss && <style dangerouslySetInnerHTML={{ __html: site.customCss }} />}
       <div
         data-scheme={defaultScheme(active.style)}
         suppressHydrationWarning

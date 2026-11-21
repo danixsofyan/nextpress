@@ -1,6 +1,7 @@
 import { SettingsRepository } from '@/server'
 import { isValidTimeZone } from '@/themes/engine'
 import { cache } from 'react'
+import { customCssSchema } from '@/core/validators'
 import { db } from './db'
 import { env } from './env'
 
@@ -29,6 +30,7 @@ export const getSiteSettings = cache(async () => {
     discourageSearch: s.blog_public === '0',
     privacyPage: s.privacy_policy_page || '',
     robotsTxt: s.robots_txt || '',
+    customCss: customCssSchema.safeParse(s.custom_css ?? '').success ? (s.custom_css ?? '') : '',
     commentsEnabled: s.comments_enabled !== '0',
     commentModeration: s.comment_moderation !== '0',
   }

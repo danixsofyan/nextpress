@@ -2,6 +2,7 @@ import { apiError } from '@/lib/api-error'
 import { SettingsRepository } from '@/server'
 import { isValidTimeZone } from '@/themes/engine'
 import { z } from 'zod'
+import { customCssSchema } from '@/core/validators'
 import { requireRole } from '@/lib/auth'
 import { db } from '@/lib/db'
 
@@ -39,6 +40,7 @@ const settingsSchema = z
       .string()
       .refine((v) => v === '' || /^G-[A-Z0-9]+$/.test(v), 'must look like G-XXXXXXXXXX'),
     robots_txt: z.string().max(5000),
+    custom_css: customCssSchema,
   })
   .partial()
 
