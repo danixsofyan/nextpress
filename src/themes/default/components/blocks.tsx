@@ -1,6 +1,5 @@
 import { DONATION_MAX, DONATION_MIN } from '@/core/validators'
 import { DONOR_MESSAGE_MAX, DONOR_NAME_MAX } from '@/lib/donation-input'
-import { formatStars, githubRepo, githubStars } from '@/lib/github'
 import type { Block, BlocksProps } from '@/themes/engine'
 import {
   ArrowRight,
@@ -35,6 +34,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
+import { GithubStars } from '@/components/github-stars'
 import { LottiePlayer } from '@/components/lottie-player'
 import { PostCard } from './post-card'
 
@@ -74,20 +74,6 @@ type LinkValue = { label: string; href: string }
 const external = (href: string) =>
   /^https?:\/\//.test(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {}
 
-async function StarCount({ href, className }: { href: string; className: string }) {
-  const repo = githubRepo(href)
-  const stars = repo ? await githubStars(repo) : null
-  if (stars === null) return null
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${className}`}
-      aria-label={`${stars} GitHub stars`}
-    >
-      {formatStars(stars)}
-    </span>
-  )
-}
-
 function ButtonLink({ link, variant }: { link: LinkValue; variant: 'primary' | 'secondary' }) {
   return (
     <a
@@ -100,7 +86,7 @@ function ButtonLink({ link, variant }: { link: LinkValue; variant: 'primary' | '
       }
     >
       {link.label}
-      <StarCount
+      <GithubStars
         href={link.href}
         className={variant === 'primary' ? 'bg-primary-foreground/20' : 'bg-foreground/10'}
       />
@@ -458,7 +444,7 @@ function BlockView({
               className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-950 shadow-[0_8px_30px_-6px_rgba(255,255,255,0.5)] transition-transform duration-300 hover:-translate-y-0.5"
             >
               {block.primary.label}
-              <StarCount href={block.primary.href} className="bg-neutral-950/10" />
+              <GithubStars href={block.primary.href} className="bg-neutral-950/10" />
               <ArrowRight
                 className="size-4 transition-transform duration-300 group-hover:translate-x-1"
                 aria-hidden
@@ -471,7 +457,7 @@ function BlockView({
                 className="inline-flex items-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/15"
               >
                 {block.secondary.label}
-                <StarCount href={block.secondary.href} className="ml-2 bg-white/15" />
+                <GithubStars href={block.secondary.href} className="ml-2 bg-white/15" />
               </a>
             )}
           </div>

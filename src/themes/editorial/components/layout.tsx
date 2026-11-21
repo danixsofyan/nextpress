@@ -1,6 +1,7 @@
 import { isOptimizableImage } from '@/themes/engine'
 import Image from 'next/image'
 import Link from 'next/link'
+import { GithubStars } from '@/components/github-stars'
 import { SchemeToggle } from '@/components/scheme-toggle'
 import type { LayoutProps } from '@/themes/engine'
 
@@ -41,9 +42,13 @@ export function Layout({
                 <li key={item.href}>
                   <a
                     href={item.href}
-                    className="text-muted-foreground transition-colors hover:text-primary"
+                    className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary"
                   >
                     {item.label}
+                    <GithubStars
+                      href={item.href}
+                      className="bg-foreground/10 tracking-normal text-foreground"
+                    />
                   </a>
                 </li>
               ))}
