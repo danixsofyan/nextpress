@@ -73,6 +73,8 @@ Errors are JSON, for example `{"error": "Not found"}`.
 | `delete_page`          | Move a page to the Trash                                              |
 | `set_homepage`         | Show the latest posts or a published page on the homepage             |
 | `set_navigation`       | Replace the header navigation links                                   |
+| `get_widgets`          | Read the blog sidebar and footer widgets                              |
+| `set_widgets`          | Replace the blog sidebar and footer widgets                           |
 | `update_site_identity` | Update site title, tagline, and default meta description              |
 | `create_post`          | Create a blog post                                                    |
 | `update_post`          | Update a post by ID                                                   |

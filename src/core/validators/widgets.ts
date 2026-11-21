@@ -22,3 +22,17 @@ export const widgetAreasSchema = z.object({
 export type Widget = z.infer<typeof widgetSchema>
 export type WidgetType = Widget['type']
 export type WidgetAreas = z.infer<typeof widgetAreasSchema>
+
+export const WIDGETS_SETTING = 'widgets'
+
+export const EMPTY_AREAS: WidgetAreas = { sidebar: [], footer: [] }
+
+export function parseWidgetAreas(raw: string | null | undefined): WidgetAreas {
+  if (!raw) return EMPTY_AREAS
+  try {
+    const parsed = widgetAreasSchema.safeParse(JSON.parse(raw))
+    return parsed.success ? parsed.data : EMPTY_AREAS
+  } catch {
+    return EMPTY_AREAS
+  }
+}

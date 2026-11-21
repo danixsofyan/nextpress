@@ -273,6 +273,7 @@ Create a key in **Admin → Settings → API** (`/admin/settings?tab=api`) and s
 | `create_page`, `update_page`, `delete_page`            | Build and edit pages from blocks                                            |
 | `set_homepage`                                         | Show the latest posts or a page on the homepage                             |
 | `set_navigation`                                       | Replace the header navigation                                               |
+| `get_widgets`, `set_widgets`                           | Read and replace the blog sidebar and footer widgets                        |
 | `update_site_identity`                                 | Site title, tagline, default meta description                               |
 | `create_post`, `update_post`, `list_posts`, `get_post` | Write and manage blog posts                                                 |
 | `create_taxonomy`                                      | Create categories and tags                                                  |

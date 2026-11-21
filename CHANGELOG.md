@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
-- Widgets: **Appearance → Widgets** manages a blog sidebar and a footer area with Search, Recent Posts, Categories, Tag Cloud, Text, and Links widgets. Empty areas render nothing.
+- Widgets: **Appearance → Widgets** manages a blog sidebar and a footer area with Search, Recent Posts, Categories, Tag Cloud, Text, and Links widgets. Empty areas render nothing. AI agents manage them with the new `get_widgets` and `set_widgets` MCP tools (22 tools in total).
 - Category and tag archives at `/category/<slug>` and `/tag/<slug>` (static, in the sitemap), and a site search at `/search` over published posts.
 - Plugins: a WordPress-style **Plugins** screen to activate, deactivate, and configure plugins that ship as code in `src/plugins`. The first two are Google Analytics 4 (replacing the Measurement ID field in Settings, which is migrated automatically) and Meta Pixel. See `docs/plugin-development.md`.
 - A `lottie` page block that plays a same-site Lottie animation with the lightweight player. The player and the animation load only when the block scrolls into view, pause off screen, and show a still frame under reduced motion. The landing page uses the free "Earth and connections" animation from LottieFiles (`public/lottie/globe.json`).
@@ -53,6 +53,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
+- Article text in posts, docs, and rich-text blocks follows the light and dark schemes instead of Tailwind Typography's fixed gray, which was unreadable on the dark background.
 - The CI security job no longer fails after a clean run because of a missing pnpm cache.
 - Updating a post, page, or taxonomy without sending `status`, `content`, or `type` no longer resets those fields to their defaults.
 

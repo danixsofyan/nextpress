@@ -1,8 +1,8 @@
-import { widgetAreasSchema } from '@/core/validators'
+import { WIDGETS_SETTING, widgetAreasSchema } from '@/core/validators'
 import { withApiErrors } from '@/lib/api-errors'
 import { requireRole } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { WIDGETS_SETTING, getWidgetAreas } from '@/lib/widgets'
+import { getWidgetAreas } from '@/lib/widgets'
 import { SettingsRepository } from '@/server'
 
 export async function GET(request: Request) {

@@ -1,6 +1,12 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { Database } from '@/core/db'
-import { BLOCK_ICONS, blocksSchema } from '@/core/validators'
+import {
+  BLOCK_ICONS,
+  WIDGETS_SETTING,
+  blocksSchema,
+  parseWidgetAreas,
+  widgetAreasSchema,
+} from '@/core/validators'
 import { z } from 'zod'
 import { MenuRepository } from '../repositories/menu.repository'
 import { PageRepository } from '../repositories/page.repository'
@@ -216,6 +222,20 @@ export function registerSiteTools(server: McpServer, db: Database) {
       }
       await settings.setMany({ show_on_front: 'posts' })
       return json({ homepage: 'latest posts' })
+    }
+  )
+
+  server.tool('get_widgets', 'Read the widgets in the blog sidebar and the footer', {}, async () =>
+    json(parseWidgetAreas(await settings.get(WIDGETS_SETTING)))
+  )
+
+  server.tool(
+    'set_widgets',
+    'Replace the widgets in the blog sidebar and the footer. Types: search, recentPosts{count 1..10}, categories{showCounts?}, tags, text{text}, links{links[{label,href}]}; every widget takes an optional title. An empty area is hidden.',
+    { sidebar: widgetAreasSchema.shape.sidebar, footer: widgetAreasSchema.shape.footer },
+    async (areas) => {
+      await settings.set(WIDGETS_SETTING, JSON.stringify(widgetAreasSchema.parse(areas)))
+      return json(areas)
     }
   )
 
