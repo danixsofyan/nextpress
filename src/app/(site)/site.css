@@ -284,3 +284,18 @@
   --tw-prose-th-borders: var(--color-border);
   --tw-prose-td-borders: var(--color-border);
 }
+
+.np-embed {
+  margin: 2rem 0;
+}
+
+.np-embed iframe {
+  width: 100%;
+  border: 0;
+  border-radius: 0.75rem;
+}
+
+.np-embed iframe.np-embed-video {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}

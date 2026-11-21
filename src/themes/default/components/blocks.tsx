@@ -37,6 +37,8 @@ import {
 import { CaptchaWidget } from '@/components/captcha-widget'
 import { GithubStars, LinkLabel } from '@/components/github-stars'
 import { LottiePlayer } from '@/components/lottie-player'
+import { VideoEmbed } from '@/components/video-embed'
+import { embedSrc, embedThumbnail, parseEmbed } from '@/lib/embeds'
 import { PostCard } from './post-card'
 
 const ICONS: Record<string, LucideIcon> = {
@@ -510,6 +512,36 @@ function BlockView({
           </div>
         </section>
       )
+    case 'embed': {
+      const embed = parseEmbed(block.url)
+      if (!embed) return null
+      return (
+        <figure className="np-reveal mx-auto max-w-3xl py-10">
+          {embed.provider === 'spotify' ? (
+            <iframe
+              src={embedSrc(embed)}
+              title={block.caption ?? 'Spotify player'}
+              loading="lazy"
+              height={152}
+              allow="encrypted-media"
+              className="w-full rounded-xl border-0"
+            />
+          ) : (
+            <VideoEmbed
+              src={embedSrc(embed)}
+              autoplaySrc={embedSrc(embed, true)}
+              thumbnail={embedThumbnail(embed)}
+              title={block.caption ?? `${embed.provider === 'youtube' ? 'YouTube' : 'Vimeo'} video`}
+            />
+          )}
+          {block.caption && (
+            <figcaption className="mt-3 text-center text-sm text-muted-foreground">
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
     case 'pattern':
       return null
     case 'richText':

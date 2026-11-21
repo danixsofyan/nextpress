@@ -117,6 +117,11 @@ export const BLOCK_SPEC = {
         label: 'A globe with glowing connections between cities',
       },
     },
+    embed: {
+      fields:
+        'url (YouTube, Vimeo, or Spotify https link), caption? — videos show a thumbnail and load the player only when clicked',
+      example: { type: 'embed', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+    },
     pattern: {
       fields:
         'slug — reuses every block of another page (for example a shared call to action). Edit that page once and every page with this block updates. Patterns inside patterns are ignored.',
@@ -147,7 +152,7 @@ export function registerSiteTools(server: McpServer, db: Database) {
 
   server.tool(
     'get_block_spec',
-    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, donate, lottie, pattern, richText) used to build landing pages',
+    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, donate, lottie, embed, pattern, richText) used to build landing pages',
     {},
     async () => json(BLOCK_SPEC)
   )

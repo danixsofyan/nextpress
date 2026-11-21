@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Embeds: an `embed` page block for YouTube, Vimeo, and Spotify, and a link to one of them on its own line in a post becomes an embedded player, like WordPress. Videos in blocks show a thumbnail and load the privacy-friendly player (youtube-nocookie, Vimeo `dnt`) only when clicked.
 - **Tools → Site Health** checks the database connection and latency, whether every table and column in the code exists (unapplied migrations), Redis, media storage, HTTPS, search engine visibility, comment spam protection, plugins waiting for environment variables, and the running version.
 - **Additional CSS** in Appearance → Customize applies site-wide CSS after the theme. It is limited to 20,000 characters and rejects `<`, `@import`, `expression()`, `javascript:`, and `behavior`, so it cannot break out of its style tag or load code.
 - Dashboard **Activity** (publishing soon, recently published, recent comments) and **Quick Draft** (saves a draft from the dashboard and lists your latest drafts).

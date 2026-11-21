@@ -55,7 +55,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 - Category, tag, and author archives (`/category/{slug}`, `/tag/{slug}`, `/author/{id}`), bylines, and site search at `/search`
 - Dark mode by default with a light toggle remembered per visitor, plus blog sidebar and footer widgets
 - Developer documentation at `/docs` when `NEXTPRESS_DOCS=true`, rendered from the Markdown files in `docs/` (the same files GitHub shows)
-- **Block-based pages**: hero, features, steps, stats, code, table, FAQ, call to action, latest posts, donations, Lottie animation, reusable patterns, and rich text, rendered by the active theme. Any page, including the homepage, can be a landing page
+- **Block-based pages**: hero, features, steps, stats, code, table, FAQ, call to action, latest posts, donations, Lottie animation, YouTube/Vimeo/Spotify embeds, reusable patterns, and rich text, rendered by the active theme. Any page, including the homepage, can be a landing page
 - Admin bar for signed-in users (Dashboard, New, Edit Post, Log out)
 - Dynamic Open Graph images at `/og`, canonical URLs, and `BlogPosting`, `BreadcrumbList`, `FAQPage`, and `WebSite` JSON-LD
 - RSS feed at `/feed.xml`, `sitemap.xml` (posts, pages, categories, tags, docs), and `robots.txt` that welcomes AI crawlers

@@ -4,6 +4,7 @@ import { env } from '@/lib/env'
 import { JsonLd } from '@/components/json-ld'
 import { extractFaq } from '@/lib/markdown'
 import { absoluteUrl, breadcrumbSchema, faqSchema } from '@/lib/seo'
+import { autoEmbed } from '@/lib/embeds'
 import { getSiteSettings } from '@/lib/site'
 import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
@@ -125,7 +126,7 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <WithSidebar>
         <PostDetail
-          post={post}
+          post={{ ...post, content: autoEmbed(post.content) }}
           timeZone={site.timeZone}
           dateFormat={site.dateFormat}
           {...(author && { author: { name: author.name, href: `/author/${author.id}` } })}

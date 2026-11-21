@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { parseEmbed } from '../../lib/embeds'
 
 export const BLOCK_ICONS = [
   'bot',
@@ -144,6 +145,17 @@ export const blockSchema = z.discriminatedUnion('type', [
       .refine((v) => !v.includes('..'), { message: 'Path must not contain ..' }),
     label: text(120),
     loop: z.boolean().optional(),
+  }),
+  z.object({
+    type: z.literal('embed'),
+    url: z
+      .string()
+      .trim()
+      .max(500)
+      .refine((v) => parseEmbed(v) !== null, {
+        message: 'Use a YouTube, Vimeo, or Spotify https link',
+      }),
+    caption: text(200).optional(),
   }),
   z.object({
     type: z.literal('pattern'),

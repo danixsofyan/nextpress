@@ -104,6 +104,7 @@ Pages can be built from an ordered list of blocks instead of HTML. The REST API 
 | `donate`   | `heading`, `text?`, `amounts[]` (1–6 presets in rupiah), `buttonLabel?`; shown only when `SUMOPOD_API_KEY` is set |
 | `posts`    | `heading?`, `count` (latest published posts)                                                                      |
 | `lottie`   | `heading?`, `intro?`, `src` (same-site Lottie JSON path), `label`, `loop?`; loads only when scrolled into view    |
+| `embed`    | `url` (YouTube, Vimeo, or Spotify), `caption?`; videos load the player only on click                              |
 | `pattern`  | `slug` of a page whose blocks are reused (edit once, update everywhere)                                           |
 | `richText` | `html` (sanitized)                                                                                                |
 

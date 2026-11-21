@@ -10,7 +10,7 @@ function csp(extra: { script?: string; style?: string } = {}) {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://challenges.cloudflare.com",
-    'frame-src https://challenges.cloudflare.com https://www.google.com https://recaptcha.google.com',
+    'frame-src https://challenges.cloudflare.com https://www.google.com https://recaptcha.google.com https://www.youtube-nocookie.com https://player.vimeo.com https://open.spotify.com',
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://pay.sumopod.com https://checkout.pymnt.app",
