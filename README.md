@@ -16,7 +16,7 @@ Runs free on [Vercel](https://vercel.com) + [Supabase](https://supabase.com).
 One app, one deployment: the admin panel lives at `/admin` on the same domain, like `/wp-admin`.
 
 - **First-run setup**: the first visit to `/admin` creates the administrator account, then public sign-up closes
-- **Dashboard** with content stats and a **Visit site** link
+- **Dashboard** with content stats, Activity (scheduled, recently published, recent comments), Quick Draft, and a **Visit site** link
 - **Post editor** modeled on WordPress:
   - Tiptap rich-text editor
   - Permalink bar with inline slug editing

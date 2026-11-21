@@ -1,7 +1,7 @@
 import type { Database } from '@/core/db'
 import { comments, posts } from '@/core/schema'
 import type { CommentStatus, CreateCommentInput } from '@/core/validators'
-import { and, asc, count, desc, eq } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm'
 import { audit } from '../audit'
 import { revalidatePublicSite } from '../revalidate'
 
@@ -57,6 +57,24 @@ export class CommentRepository {
       .innerJoin(posts, eq(posts.id, comments.postId))
       .orderBy(desc(comments.createdAt))
       .limit(1000)
+  }
+
+  async findRecent(limit = 5) {
+    return this.db
+      .select({
+        id: comments.id,
+        authorName: comments.authorName,
+        content: comments.content,
+        status: comments.status,
+        createdAt: comments.createdAt,
+        postTitle: posts.title,
+        postSlug: posts.slug,
+      })
+      .from(comments)
+      .innerJoin(posts, eq(posts.id, comments.postId))
+      .where(inArray(comments.status, ['pending', 'approved']))
+      .orderBy(desc(comments.createdAt))
+      .limit(limit)
   }
 
   async countPending() {

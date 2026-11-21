@@ -2,7 +2,20 @@ import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { type Post, postRevisions, posts, termRelationships, user } from '@/core/schema'
 import type { CreatePostInput, UpdatePostInput, ListPostsInput } from '@/core/validators'
-import { and, desc, eq, ilike, inArray, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm'
 import { currentActor } from '@/lib/request-context'
 import { audit } from '../audit'
 import { restoredSlug, trashedSlug } from './trash'
@@ -81,6 +94,35 @@ export class PostRepository {
       .where(eq(user.id, authorId))
       .limit(1)
     return row ?? null
+  }
+
+  async findScheduled(limit = 5) {
+    return this.db
+      .select({ id: posts.id, title: posts.title, publishedAt: posts.publishedAt })
+      .from(posts)
+      .where(
+        and(
+          eq(posts.status, 'published'),
+          isNull(posts.deletedAt),
+          gt(posts.publishedAt, sql`now()`)
+        )
+      )
+      .orderBy(asc(posts.publishedAt))
+      .limit(limit)
+  }
+
+  async findRecentDrafts(authorId: string, limit = 3) {
+    return this.db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        updatedAt: posts.updatedAt,
+        excerpt: posts.excerpt,
+      })
+      .from(posts)
+      .where(and(eq(posts.status, 'draft'), eq(posts.authorId, authorId), isNull(posts.deletedAt)))
+      .orderBy(desc(posts.updatedAt))
+      .limit(limit)
   }
 
   async findAllSummaries({ trashed = false }: { trashed?: boolean } = {}) {

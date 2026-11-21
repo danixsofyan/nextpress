@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Dashboard **Activity** (publishing soon, recently published, recent comments) and **Quick Draft** (saves a draft from the dashboard and lists your latest drafts).
 - Menus support one level of dropdown submenus: indent and outdent items in **Menus**, or pass `children` to the `set_navigation` MCP tool. Dropdowns open on hover and keyboard focus without JavaScript in both themes.
 - A **Featured image** panel in the post editor picks or uploads the cover image used on the post, in lists, and in Open Graph and JSON-LD (as an absolute URL).
 - A `pattern` page block reuses every block of another page, like WordPress synced patterns: edit the source page once and every page that includes it updates.
