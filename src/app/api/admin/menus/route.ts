@@ -3,6 +3,7 @@ import { withApiErrors } from '@/lib/api-errors'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { z } from 'zod'
+import { menuItemsJson } from '@/core/validators'
 
 const createMenuSchema = z.object({
   name: z.string().min(1),
@@ -10,7 +11,7 @@ const createMenuSchema = z.object({
     .string()
     .min(1)
     .regex(/^[a-z0-9-]+$/),
-  items: z.string().optional(),
+  items: menuItemsJson.optional(),
 })
 
 export async function GET(request: Request) {

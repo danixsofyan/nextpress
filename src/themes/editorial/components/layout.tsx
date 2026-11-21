@@ -40,10 +40,11 @@ export function Layout({
           <nav className="border-t border-border">
             <ul className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-6 gap-y-1 px-4 py-3 text-sm tracking-widest uppercase sm:px-6">
               {navigation.map((item) => (
-                <li key={item.href}>
+                <li key={item.href} className="group relative">
                   <a
                     href={item.href}
                     className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary"
+                    {...(item.children && { 'aria-haspopup': 'true' as const })}
                   >
                     <LinkLabel href={item.href} label={item.label} />
                     <GithubStars
@@ -51,6 +52,20 @@ export function Layout({
                       className="bg-foreground/10 tracking-normal text-foreground"
                     />
                   </a>
+                  {item.children && (
+                    <ul className="invisible absolute top-full left-1/2 z-50 min-w-48 -translate-x-1/2 border border-border bg-background py-2 text-left tracking-normal normal-case opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                      {item.children.map((child) => (
+                        <li key={child.href}>
+                          <a
+                            href={child.href}
+                            className="block px-4 py-2 text-muted-foreground hover:text-primary focus-visible:text-primary"
+                          >
+                            {child.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>

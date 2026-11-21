@@ -1,5 +1,6 @@
 import { isOptimizableImage } from '@/themes/engine'
 import Image from 'next/image'
+import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { GithubStars, LinkLabel } from '@/components/github-stars'
 import { SchemeToggle } from '@/components/scheme-toggle'
@@ -37,14 +38,30 @@ export function Layout({
           </Link>
           <ul className="flex items-center gap-1">
             {navigation.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="group relative">
                 <a
                   href={item.href}
                   className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  {...(item.children && { 'aria-haspopup': 'true' as const })}
                 >
                   <LinkLabel href={item.href} label={item.label} />
                   <GithubStars href={item.href} className="bg-foreground/10 text-foreground" />
+                  {item.children && <ChevronDown className="size-3.5" aria-hidden />}
                 </a>
+                {item.children && (
+                  <ul className="invisible absolute top-full right-0 z-50 min-w-48 translate-y-1 rounded-lg border bg-popover p-1 opacity-0 shadow-lg transition-all group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    {item.children.map((child) => (
+                      <li key={child.href}>
+                        <a
+                          href={child.href}
+                          className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground"
+                        >
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
             <li>

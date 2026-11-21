@@ -4,6 +4,7 @@ import { withApiErrors } from '@/lib/api-errors'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { z } from 'zod'
+import { menuItemsJson } from '@/core/validators'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -14,7 +15,7 @@ const updateMenuSchema = z.object({
     .min(1)
     .regex(/^[a-z0-9-]+$/)
     .optional(),
-  items: z.string().optional(),
+  items: menuItemsJson.optional(),
 })
 
 export async function GET(request: Request, { params }: Params) {

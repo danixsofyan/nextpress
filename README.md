@@ -26,7 +26,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
   - Categories and tags panels, with new tags created inline
   - SEO panel with Google snippet preview and keyphrase highlighting
   - Screen Options to show or hide panels, remembered per browser
-- **Pages**, **Media library**, **Menus**, **Categories & tags**
+- **Pages**, **Media library**, **Menus** (with dropdown submenus), **Categories & tags**
 - **Comments** with moderation (Pending, Approved, Spam, Trash), bulk actions, and **Settings → Discussion**
 - **Lists everywhere** share one data table: search, status filters with counts, sortable columns, pagination, select all, and bulk actions. Search, filter, and page live in the URL, so views can be bookmarked
 - **Users** with roles (Administrator, Editor, Author), add/edit/delete, password generator with strength meter, and a **Profile** page for every user

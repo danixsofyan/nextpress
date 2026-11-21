@@ -4,6 +4,8 @@ import {
   BLOCK_ICONS,
   WIDGETS_SETTING,
   blocksSchema,
+  hrefSchema,
+  menuItemsSchema,
   parseWidgetAreas,
   widgetAreasSchema,
 } from '@/core/validators'
@@ -246,25 +248,33 @@ export function registerSiteTools(server: McpServer, db: Database) {
 
   server.tool(
     'set_navigation',
-    'Replace the site header navigation links',
+    'Replace the site header navigation links. An item may have children, shown as a dropdown submenu (one level).',
     {
       items: z
         .array(
           z.object({
             label: z.string().min(1).max(40),
-            href: z
-              .string()
-              .max(500)
-              .regex(/^(\/(?!\/)|#|https?:\/\/)/, 'href must start with /, # or http(s)://'),
+            href: hrefSchema,
+            children: z
+              .array(z.object({ label: z.string().min(1).max(40), href: hrefSchema }))
+              .max(10)
+              .optional(),
           })
         )
         .min(1)
         .max(8),
     },
     async ({ items }) => {
-      const serialized = JSON.stringify(
-        items.map((item, i) => ({ id: String(i + 1), label: item.label, url: item.href }))
-      )
+      const flat = items.flatMap((item, i) => [
+        { id: String(i + 1), label: item.label, url: item.href, parentId: null },
+        ...(item.children ?? []).map((child, j) => ({
+          id: `${i + 1}.${j + 1}`,
+          label: child.label,
+          url: child.href,
+          parentId: String(i + 1),
+        })),
+      ])
+      const serialized = JSON.stringify(menuItemsSchema.parse(flat))
       const existing = await menus.findBySlug('primary')
       if (existing) await menus.update(existing.id, { items: serialized })
       else await menus.create({ name: 'Primary', slug: 'primary', items: serialized })

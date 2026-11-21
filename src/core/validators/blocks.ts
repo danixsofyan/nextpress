@@ -36,7 +36,7 @@ export const DONATION_MAX = 100_000_000
 
 const text = (max: number) => z.string().trim().min(1).max(max)
 
-const href = z
+export const hrefSchema = z
   .string()
   .trim()
   .max(500)
@@ -44,7 +44,7 @@ const href = z
     message: 'Links must start with /, #, http(s):// or mailto:',
   })
 
-export const linkSchema = z.object({ label: text(60), href })
+export const linkSchema = z.object({ label: text(60), href: hrefSchema })
 
 const link = linkSchema
 

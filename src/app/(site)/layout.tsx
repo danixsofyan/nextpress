@@ -4,6 +4,7 @@ import type { CSSProperties } from 'react'
 import './site.css'
 import { AdminBar } from '@/components/admin-bar'
 import { FooterWidgets } from '@/components/widget-area'
+import { menuToNavigation } from '@/core/validators'
 import { db } from '@/lib/db'
 import { getActivePlugins } from '@/lib/plugins'
 import { getSiteSettings } from '@/lib/site'
@@ -16,15 +17,8 @@ const DEFAULT_NAVIGATION = [{ label: 'Blog', href: '/blog' }]
 async function getNavigation() {
   const menu = await new MenuRepository(db).findBySlug('primary').catch(() => null)
   if (!menu) return DEFAULT_NAVIGATION
-  try {
-    const items = JSON.parse(menu.items) as { label?: unknown; url?: unknown }[]
-    const links = items
-      .filter((i) => typeof i.label === 'string' && typeof i.url === 'string')
-      .map((i) => ({ label: i.label as string, href: i.url as string }))
-    return links.length > 0 ? links : DEFAULT_NAVIGATION
-  } catch {
-    return DEFAULT_NAVIGATION
-  }
+  const links = menuToNavigation(menu.items)
+  return links.length > 0 ? links : DEFAULT_NAVIGATION
 }
 
 async function getFooterLinks(privacyPageId: string) {

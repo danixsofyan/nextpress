@@ -1,12 +1,12 @@
 import type { Page, Post, Taxonomy } from '@/core/types'
-import type { Block, ThemeStyle } from '@/core/validators'
+import type { Block, NavLink, ThemeStyle } from '@/core/validators'
 import type { ComponentType } from 'react'
 
 export interface LayoutProps {
   children: React.ReactNode
   siteName: string
   logo?: string
-  navigation?: Array<{ label: string; href: string }>
+  navigation?: NavLink[]
   footerLinks?: Array<{ label: string; href: string }>
   footerWidgets?: React.ReactNode
 }
@@ -66,7 +66,7 @@ export interface BlocksProps {
   captcha?: { provider: 'turnstile' | 'recaptcha'; siteKey: string } | null
 }
 
-export type { Block }
+export type { Block, NavLink }
 
 export type { ThemeStyle }
 

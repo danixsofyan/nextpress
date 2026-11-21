@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Menus support one level of dropdown submenus: indent and outdent items in **Menus**, or pass `children` to the `set_navigation` MCP tool. Dropdowns open on hover and keyboard focus without JavaScript in both themes.
 - A **Featured image** panel in the post editor picks or uploads the cover image used on the post, in lists, and in Open Graph and JSON-LD (as an absolute URL).
 - A `pattern` page block reuses every block of another page, like WordPress synced patterns: edit the source page once and every page that includes it updates.
 - A **Sign in with Google** plugin for the admin. It needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, links Google to existing accounts by email, and never creates new users.
@@ -68,6 +69,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Security
 
+- Menu items are validated on save and on render. Before, editors could store any link, including `javascript:` URLs, in the public navigation.
 - Sign-in is limited to 5 attempts per 15 minutes per IP (previously per minute), sign-up and password reset to 3, and the REST API to 60 requests per minute per key.
 - Environment variables are read only through the validated `env` module.
 - The app connects as `nextpress_app`, a least-privilege role without BYPASSRLS or DDL rights, with an RLS policy per table (`pnpm db:roles`). Migrations still run as the owner.

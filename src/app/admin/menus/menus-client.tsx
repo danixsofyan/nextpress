@@ -6,9 +6,22 @@ import { DashboardLayout } from '@/components/admin/dashboard-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
+import { Plus, Trash2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useToast } from '@/components/admin/toast'
+import { apiFetch } from '@/lib/admin-fetch'
 
-type MenuItem = { id: string; label: string; url: string }
+type MenuItem = { id: string; label: string; url: string; parentId?: string | null }
+
+function normalize(list: MenuItem[]): MenuItem[] {
+  let parent: string | null = null
+  return list.map((item) => {
+    if (!item.parentId) {
+      parent = item.id
+      return { ...item, parentId: null }
+    }
+    return parent ? { ...item, parentId: parent } : { ...item, parentId: null }
+  })
+}
 type Menu = { id: string; name: string; slug: string; items: string }
 
 function toSlug(s: string) {
@@ -20,6 +33,7 @@ function toSlug(s: string) {
 
 export function MenusClient({ initialMenus }: { initialMenus?: Menu[] }) {
   const confirm = useConfirm()
+  const toast = useToast()
   const [menus, setMenus] = useState<Menu[]>(initialMenus ?? [])
   const [selected, setSelected] = useState<string | null>(null)
   const [name, setName] = useState('')
@@ -67,13 +81,16 @@ export function MenusClient({ initialMenus }: { initialMenus?: Menu[] }) {
   async function handleSave() {
     if (!selected) return
     setSaving(true)
-    await fetch(`/api/admin/menus/${selected}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, items: JSON.stringify(items) }),
-    })
+    const ok = await toast.run(
+      () =>
+        apiFetch(`/api/admin/menus/${selected}`, {
+          method: 'PUT',
+          body: JSON.stringify({ name, items: JSON.stringify(items) }),
+        }),
+      'Menu saved.'
+    )
     setSaving(false)
-    await fetchMenus()
+    if (ok) await fetchMenus()
   }
 
   async function handleDelete(id: string) {
@@ -93,12 +110,22 @@ export function MenusClient({ initialMenus }: { initialMenus?: Menu[] }) {
     setNewUrl('')
   }
 
+  const hasChildren = (id: string) => items.some((i) => i.parentId === id)
+
+  function indent(idx: number, nested: boolean) {
+    setItems((prev) =>
+      normalize(
+        prev.map((item, i) => (i === idx ? { ...item, parentId: nested ? 'x' : null } : item))
+      )
+    )
+  }
+
   function moveItem(idx: number, dir: -1 | 1) {
     const next = [...items]
     const target = idx + dir
     if (target < 0 || target >= next.length) return
     ;[next[idx], next[target]] = [next[target] as MenuItem, next[idx] as MenuItem]
-    setItems(next)
+    setItems(normalize(next))
   }
 
   return (
@@ -165,7 +192,7 @@ export function MenusClient({ initialMenus }: { initialMenus?: Menu[] }) {
               {items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 rounded-lg border border-border bg-card p-3"
+                  className={`flex items-center gap-2 rounded-lg border border-border bg-card p-3 ${item.parentId ? 'ml-8' : ''}`}
                 >
                   <div className="flex flex-col gap-0.5">
                     <button
@@ -189,9 +216,39 @@ export function MenusClient({ initialMenus }: { initialMenus?: Menu[] }) {
                     <p className="text-sm font-medium">{item.label}</p>
                     <p className="truncate text-xs text-muted-foreground">{item.url}</p>
                   </div>
+                  {item.parentId ? (
+                    <button
+                      type="button"
+                      onClick={() => indent(idx, false)}
+                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label={`Move ${item.label} out of its submenu`}
+                      title="Move out of submenu"
+                    >
+                      <ChevronLeft className="size-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => indent(idx, true)}
+                      disabled={idx === 0 || hasChildren(item.id)}
+                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30"
+                      aria-label={`Make ${item.label} a submenu item`}
+                      title="Make submenu item"
+                    >
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => setItems((prev) => prev.filter((i) => i.id !== item.id))}
+                    onClick={() =>
+                      setItems((prev) =>
+                        normalize(
+                          prev
+                            .filter((i) => i.id !== item.id)
+                            .map((i) => (i.parentId === item.id ? { ...i, parentId: null } : i))
+                        )
+                      )
+                    }
                     className="text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="size-3.5" />
