@@ -1,0 +1,43 @@
+name: Lighthouse
+
+on:
+  deployment_status:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Site to audit
+        default: https://nextpress-app.vercel.app
+
+jobs:
+  audit:
+    name: Performance budget
+    if: github.event_name != 'deployment_status' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Choose URLs
+        id: urls
+        env:
+          INPUT_URL: ${{ inputs.base_url }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          base="${INPUT_URL:-${SITE_URL:-https://nextpress-app.vercel.app}}"
+          base="${base%/}"
+          post="$(curl -fsS --retry 5 --retry-delay 5 --connect-timeout 20 "$base/sitemap.xml" | grep -o "<loc>[^<]*/blog/[^<]*</loc>" | head -1 | sed -e 's#<loc>##' -e 's#</loc>##' | sed "s#^https\?://[^/]*#$base#")"
+          {
+            echo "urls<<EOF"
+            echo "$base/"
+            echo "$base/blog"
+            [ -n "$post" ] && echo "$post"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: ${{ steps.urls.outputs.urls }}
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
