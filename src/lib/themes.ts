@@ -85,7 +85,7 @@ export async function saveAppearance(input: {
 
 export const appearanceInputSchema = z.object({
   active: z.enum(THEME_IDS).optional(),
-  styles: z.record(z.enum(THEME_IDS), themeStyleSchema.nullable()).optional(),
+  styles: z.partialRecord(z.enum(THEME_IDS), themeStyleSchema.nullable()).optional(),
 })
 
 const json = (value: unknown) => ({

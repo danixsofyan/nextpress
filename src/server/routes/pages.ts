@@ -11,7 +11,7 @@ const pageResponseSchema = z.object({
   slug: z.string(),
   title: z.string(),
   content: z.string(),
-  blocks: z.array(z.record(z.unknown())).nullable(),
+  blocks: z.array(z.record(z.string(), z.unknown())).nullable(),
   status: z.enum(['draft', 'published']),
   metaTitle: z.string().nullable(),
   metaDescription: z.string().nullable(),
