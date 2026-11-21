@@ -1,3 +1,4 @@
+import { beginRequestContext, setActor } from './request-context'
 import { apiError } from '@/lib/api-error'
 import { redis } from '@/server'
 import { account, session, user, verification } from '@/core/schema'
@@ -69,11 +70,18 @@ export const auth = betterAuth({
 export type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>
 
 export async function requireRole(request: Request, min: Role): Promise<Session | Response> {
+  beginRequestContext()
   const current = await auth.api.getSession({ headers: request.headers })
   if (!current) return apiError('Unauthorized', 401)
   if (current.user.banned || !hasRole(current.user.role, min)) {
     return apiError('You do not have permission to do that', 403)
   }
+  setActor({
+    actorType: 'user',
+    actorId: current.user.id,
+    userId: current.user.id,
+    requestId: request.headers.get('x-request-id'),
+  })
   return current
 }
 

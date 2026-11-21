@@ -1,4 +1,5 @@
 import { revalidatePublicSite } from '../revalidate'
+import { audit } from '../audit'
 import type { Database } from '@/core/db'
 import { menus } from '@/core/schema'
 import { eq } from 'drizzle-orm'
@@ -25,8 +26,10 @@ export class MenuRepository {
       .insert(menus)
       .values({ name: input.name, slug: input.slug, items: input.items ?? '[]' })
       .returning()
+    const row = result[0]!
+    await audit(this.db, 'menu.create', { type: 'menu', id: row.id }, { after: row })
     revalidatePublicSite()
-    return result[0]!
+    return row
   }
 
   async update(id: string, input: { name?: string; slug?: string; items?: string }) {
@@ -35,12 +38,14 @@ export class MenuRepository {
       .set({ ...input, updatedAt: new Date() })
       .where(eq(menus.id, id))
       .returning()
+    if (result[0]) await audit(this.db, 'menu.update', { type: 'menu', id }, { after: result[0] })
     revalidatePublicSite()
     return result[0] ?? null
   }
 
   async delete(id: string) {
-    await this.db.delete(menus).where(eq(menus.id, id))
+    const rows = await this.db.delete(menus).where(eq(menus.id, id)).returning()
+    if (rows[0]) await audit(this.db, 'menu.delete', { type: 'menu', id }, { before: rows[0] })
     revalidatePublicSite()
   }
 }

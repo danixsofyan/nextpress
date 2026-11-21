@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
+import { audit } from '../audit'
 import type { Database } from '@/core/db'
 import { apiKeys } from '@/core/schema'
 import { desc, eq } from 'drizzle-orm'
@@ -27,6 +28,7 @@ export class ApiKeyRepository {
       .insert(apiKeys)
       .values({ name, userId, prefix: key.slice(0, 10), keyHash: hashApiKey(key) })
       .returning({ id: apiKeys.id, name: apiKeys.name, prefix: apiKeys.prefix })
+    await audit(this.db, 'api_key.create', { type: 'api_key', id: row?.id }, { after: row })
     return { ...row, key }
   }
 
@@ -35,11 +37,16 @@ export class ApiKeyRepository {
       .update(apiKeys)
       .set({ lastUsedAt: new Date() })
       .where(eq(apiKeys.keyHash, hashApiKey(key)))
-      .returning({ id: apiKeys.id })
-    return Boolean(row)
+      .returning({ id: apiKeys.id, userId: apiKeys.userId })
+    return row ?? null
   }
 
   async delete(id: string) {
-    await this.db.delete(apiKeys).where(eq(apiKeys.id, id))
+    const rows = await this.db
+      .delete(apiKeys)
+      .where(eq(apiKeys.id, id))
+      .returning({ id: apiKeys.id, name: apiKeys.name, prefix: apiKeys.prefix })
+    if (rows[0])
+      await audit(this.db, 'api_key.revoke', { type: 'api_key', id }, { before: rows[0] })
   }
 }

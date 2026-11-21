@@ -5,7 +5,13 @@ import { isValidApiKey } from '../middleware/auth'
 import { type McpExtension, createMcpServer } from './server'
 
 export async function handleMcpRequest(db: Database, request: Request, extend?: McpExtension) {
-  if (!(await isValidApiKey(db, request.headers.get('X-Api-Key')))) {
+  if (
+    !(await isValidApiKey(
+      db,
+      request.headers.get('X-Api-Key'),
+      request.headers.get('x-request-id')
+    ))
+  ) {
     return apiError('Invalid or missing X-Api-Key header', 401)
   }
   const transport = new WebStandardStreamableHTTPServerTransport({

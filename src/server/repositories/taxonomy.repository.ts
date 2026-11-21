@@ -1,4 +1,5 @@
 import { revalidatePublicSite } from '../revalidate'
+import { audit } from '../audit'
 import type { Database } from '@/core/db'
 import { taxonomies, termRelationships } from '@/core/schema'
 import type { CreateTaxonomyInput, UpdateTaxonomyInput } from '@/core/validators'
@@ -44,8 +45,10 @@ export class TaxonomyRepository {
 
   async create(input: CreateTaxonomyInput) {
     const result = await this.db.insert(taxonomies).values(input).returning()
+    const row = result[0]!
+    await audit(this.db, 'taxonomy.create', { type: 'taxonomy', id: row.id }, { after: row })
     revalidatePublicSite()
-    return result[0]!
+    return row
   }
 
   async update(id: string, input: UpdateTaxonomyInput) {
@@ -54,15 +57,16 @@ export class TaxonomyRepository {
       .set(input)
       .where(eq(taxonomies.id, id))
       .returning()
+    if (result[0])
+      await audit(this.db, 'taxonomy.update', { type: 'taxonomy', id }, { after: result[0] })
     revalidatePublicSite()
     return result[0] ?? null
   }
 
   async delete(id: string) {
-    const rows = await this.db
-      .delete(taxonomies)
-      .where(eq(taxonomies.id, id))
-      .returning({ id: taxonomies.id })
+    const rows = await this.db.delete(taxonomies).where(eq(taxonomies.id, id)).returning()
+    if (rows[0])
+      await audit(this.db, 'taxonomy.delete', { type: 'taxonomy', id }, { before: rows[0] })
     revalidatePublicSite()
     return rows.length > 0
   }

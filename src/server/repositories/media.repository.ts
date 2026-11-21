@@ -1,4 +1,5 @@
 import type { Database } from '@/core/db'
+import { audit } from '../audit'
 import { media } from '@/core/schema'
 import { eq, sql } from 'drizzle-orm'
 
@@ -25,7 +26,9 @@ export class MediaRepository {
     alt?: string
   }) {
     const result = await this.db.insert(media).values(input).returning()
-    return result[0]!
+    const row = result[0]!
+    await audit(this.db, 'media.upload', { type: 'media', id: row.id }, { after: row })
+    return row
   }
 
   async update(id: string, input: { alt?: string }) {
@@ -34,6 +37,7 @@ export class MediaRepository {
   }
 
   async delete(id: string) {
-    await this.db.delete(media).where(eq(media.id, id))
+    const rows = await this.db.delete(media).where(eq(media.id, id)).returning()
+    if (rows[0]) await audit(this.db, 'media.delete', { type: 'media', id }, { before: rows[0] })
   }
 }
