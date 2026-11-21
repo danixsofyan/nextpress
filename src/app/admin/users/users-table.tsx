@@ -67,8 +67,14 @@ const filters: FilterOption<UserRow>[] = ROLES.map((role: Role) => ({
   match: (u: UserRow) => u.role === role,
 }))
 
-export function UsersTable({ currentUserId }: { currentUserId: string }) {
-  const [rows, setRows] = useState<UserRow[] | null>(null)
+export function UsersTable({
+  currentUserId,
+  initialRows,
+}: {
+  currentUserId: string
+  initialRows?: UserRow[]
+}) {
+  const [rows, setRows] = useState<UserRow[] | null>(initialRows ?? null)
   const toast = useToast()
   const confirm = useConfirm()
 
@@ -78,8 +84,8 @@ export function UsersTable({ currentUserId }: { currentUserId: string }) {
   }, [])
 
   useEffect(() => {
-    load()
-  }, [load])
+    if (!initialRows) load()
+  }, [load, initialRows])
 
   async function remove(items: UserRow[]) {
     const results = await Promise.all(

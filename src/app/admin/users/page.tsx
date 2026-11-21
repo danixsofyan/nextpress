@@ -3,13 +3,15 @@ import { UserPlus } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
+import { asJson } from '@/lib/as-json'
 import { getCurrentSession } from '@/lib/auth'
+import { listUsers } from '@/lib/users'
 import { UsersTable } from './users-table'
 
 export const metadata: Metadata = { title: 'Users' }
 
 export default async function UsersPage() {
-  const session = await getCurrentSession()
+  const [session, users] = await Promise.all([getCurrentSession(), listUsers()])
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between">
@@ -20,7 +22,7 @@ export default async function UsersPage() {
           </Link>
         </Button>
       </div>
-      <UsersTable currentUserId={session?.user.id ?? ''} />
+      <UsersTable currentUserId={session?.user.id ?? ''} initialRows={asJson(users)} />
     </DashboardLayout>
   )
 }

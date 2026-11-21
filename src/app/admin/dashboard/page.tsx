@@ -1,53 +1,40 @@
-'use client'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { FileText, File, Image, Tag, Plus, PenSquare } from 'lucide-react'
+import type { Metadata } from 'next'
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
+import { getDashboardStats } from '@/lib/dashboard'
 
-type Stats = {
-  totalPosts: number
-  publishedPosts: number
-  totalPages: number
-  totalMedia: number
-  totalTaxonomies: number
-}
+export const metadata: Metadata = { title: 'Dashboard' }
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats | null>(null)
-
-  useEffect(() => {
-    fetch('/api/admin/dashboard/stats')
-      .then((r) => r.json())
-      .then(setStats)
-      .catch(() => {})
-  }, [])
+export default async function DashboardPage() {
+  const stats = await getDashboardStats()
 
   const kpiCards = [
     {
       label: 'Total Posts',
       icon: FileText,
-      value: stats?.totalPosts ?? '—',
+      value: stats.totalPosts,
       href: '/admin/posts',
-      sub: `${stats?.publishedPosts ?? 0} published`,
+      sub: `${stats.publishedPosts} published`,
     },
     {
       label: 'Pages',
       icon: File,
-      value: stats?.totalPages ?? '—',
+      value: stats.totalPages,
       href: '/admin/pages',
       sub: 'static pages',
     },
     {
       label: 'Media Files',
       icon: Image,
-      value: stats?.totalMedia ?? '—',
+      value: stats.totalMedia,
       href: '/admin/media',
       sub: 'uploaded files',
     },
     {
       label: 'Taxonomies',
       icon: Tag,
-      value: stats?.totalTaxonomies ?? '—',
+      value: stats.totalTaxonomies,
       href: '/admin/taxonomies',
       sub: 'categories & tags',
     },

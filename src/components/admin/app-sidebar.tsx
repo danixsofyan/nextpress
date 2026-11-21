@@ -1,6 +1,7 @@
 'use client'
 
 import { type Role, hasRole } from '@/lib/roles'
+import { useAdminUser } from './admin-session'
 import {
   BookOpen,
   ChevronDown,
@@ -65,7 +66,6 @@ const navGroups: NavGroup[] = [
 ]
 
 const GROUPS_KEY = 'nextpress.sidebar.groups'
-let cachedRole: string | null = null
 let cachedClosedGroups: string[] | null = null
 
 const isActive = (pathname: string, href: string) =>
@@ -73,7 +73,7 @@ const isActive = (pathname: string, href: string) =>
 
 function SidebarNav({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname()
-  const [role, setRole] = useState<string | null>(cachedRole)
+  const role = useAdminUser()?.role ?? ''
   const [closed, setClosed] = useState<string[]>(cachedClosedGroups ?? [])
 
   useEffect(() => {
@@ -88,14 +88,6 @@ function SidebarNav({ collapsed }: { collapsed: boolean }) {
       }
       setClosed(cachedClosedGroups)
     }
-    if (cachedRole !== null) return
-    fetch('/api/auth/get-session')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((s) => {
-        cachedRole = s?.user?.role ?? ''
-        setRole(cachedRole)
-      })
-      .catch(() => setRole(''))
   }, [])
 
   function toggleGroup(key: string) {
@@ -110,7 +102,7 @@ function SidebarNav({ collapsed }: { collapsed: boolean }) {
   }
 
   const groups = navGroups
-    .map((g) => ({ ...g, items: g.items.filter((i) => role !== null && hasRole(role, i.min)) }))
+    .map((g) => ({ ...g, items: g.items.filter((i) => hasRole(role, i.min)) }))
     .filter((g) => g.items.length > 0)
 
   return (

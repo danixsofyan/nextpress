@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
+import { useAdminUser } from './admin-session'
 import Link from 'next/link'
 import { isRole, ROLE_LABELS } from '@/lib/roles'
 
@@ -78,13 +79,8 @@ function ThemeDropdown() {
 function UserDropdown() {
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
-  const [user, setUser] = useState<{ name: string; email: string; role?: string } | null>(null)
-  useEffect(() => {
-    setMounted(true)
-    fetch('/api/auth/get-session')
-      .then((r) => r.json())
-      .then((s) => setUser(s?.user ?? null))
-  }, [])
+  const user = useAdminUser()
+  useEffect(() => setMounted(true), [])
   if (!mounted) return <div className="size-8 w-24 animate-pulse rounded-lg bg-muted" />
 
   async function handleSignOut() {
