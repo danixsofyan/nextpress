@@ -7,6 +7,7 @@ import {
   ChevronDown,
   File,
   FileText,
+  HandHeart,
   Image,
   LayoutDashboard,
   Menu,
@@ -54,6 +55,7 @@ const navGroups: NavGroup[] = [
     label: 'Administration',
     items: [
       { href: '/admin/users', icon: Users, label: 'Users', min: 'administrator' },
+      { href: '/admin/donations', icon: HandHeart, label: 'Donations', min: 'administrator' },
       { href: '/admin/tools/import', icon: Upload, label: 'Import', min: 'administrator' },
       { href: '/admin/settings', icon: Settings, label: 'Settings', min: 'administrator' },
     ],

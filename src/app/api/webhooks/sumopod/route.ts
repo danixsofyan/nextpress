@@ -1,4 +1,6 @@
+import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { DonationRepository, donationStatus } from '@/server'
 import { logger, requestIdOf } from '@/lib/logger'
 import { verifySumopodSignature, verifySumopodToken } from '@/lib/sumopod-signature'
 
@@ -24,8 +26,12 @@ export async function POST(request: Request) {
   }
   const orderId = event.data?.order_id ?? ''
   if (orderId && !orderId.startsWith('NPD-')) return new Response(null, { status: 404 })
+  const status = donationStatus(event.event_type, event.data?.status)
+  const updated =
+    orderId && status ? await new DonationRepository(db).setStatus(orderId, status) : null
   logger.info('donation webhook', {
     requestId: requestIdOf(request),
+    recorded: Boolean(updated),
     event: event.event_type,
     orderId,
     amount: event.data?.amount,

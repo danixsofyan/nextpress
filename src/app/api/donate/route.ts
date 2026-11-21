@@ -7,7 +7,8 @@ import {
 } from '@/lib/donations'
 import { env } from '@/lib/env'
 import { logger, requestIdOf } from '@/lib/logger'
-import { redis } from '@/server'
+import { db } from '@/lib/db'
+import { DonationRepository, redis } from '@/server'
 
 const LIMIT_PER_MINUTE = 5
 
@@ -27,17 +28,25 @@ export async function POST(request: Request) {
   if (await rateLimited(request)) return back('/donate/error')
   const amount = parseDonationAmount(await request.formData().catch(() => new FormData()))
   if (!amount) return back('/donate/error')
+  const requestId = requestIdOf(request)
+  const orderId = donationOrderId()
+  const repo = new DonationRepository(db)
   try {
+    await repo.create({ orderId, amount, requestId })
     const link = await createDonationPayment({
-      orderId: donationOrderId(),
+      orderId,
       amount,
       successUrl: new URL('/donate/thanks', env.NEXT_PUBLIC_SITE_URL).toString(),
       cancelUrl: new URL('/', env.NEXT_PUBLIC_SITE_URL).toString(),
-      requestId: requestIdOf(request),
+      requestId,
     })
+    await repo.setPaymentUrl(orderId, link)
     return NextResponse.redirect(link, 303)
   } catch (error) {
-    logger.error('donation payment failed', { requestId: requestIdOf(request), amount, err: error })
+    logger.error('donation payment failed', { requestId, orderId, amount, err: error })
+    await repo
+      .setStatus(orderId, 'failed')
+      .catch((err) => logger.error('donation status update failed', { requestId, orderId, err }))
     return back('/donate/error')
   }
 }
