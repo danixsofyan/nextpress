@@ -12,7 +12,7 @@ function csp(extra: { script?: string; style?: string } = {}) {
     "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://pay.sumopod.com",
     "frame-ancestors 'none'",
   ].join('; ')
 }
@@ -22,6 +22,16 @@ const nextConfig: NextConfig = {
   images: { formats: ['image/avif', 'image/webp'] },
   outputFileTracingIncludes: {
     '/docs/[slug]': ['./docs/*.md'],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/blog',
+        has: [{ type: 'query', key: 'page', value: '(?<page>[1-9]\\d{0,4})' }],
+        destination: '/blog/page/:page',
+        permanent: true,
+      },
+    ]
   },
   async rewrites() {
     return [{ source: '/blog/:slug([a-z0-9-]+).md', destination: '/blog/:slug/md' }]

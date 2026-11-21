@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { getSiteSettings } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 const escapeXml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

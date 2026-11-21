@@ -2,7 +2,11 @@ import { db } from '@/lib/db'
 import { absoluteUrl, postMarkdown } from '@/lib/seo'
 import { PostRepository } from '@/server'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+
+export async function generateStaticParams() {
+  return []
+}
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const post = await new PostRepository(db).findBySlug((await params).slug)

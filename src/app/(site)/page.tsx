@@ -8,7 +8,7 @@ import { getActiveTheme } from '@/lib/themes'
 import { PageRepository, PostRepository } from '@/server'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 async function getFrontPage() {
   const site = await getSiteSettings()

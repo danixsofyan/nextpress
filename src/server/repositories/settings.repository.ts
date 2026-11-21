@@ -1,3 +1,4 @@
+import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { settings } from '@/core/schema'
 import { eq } from 'drizzle-orm'
@@ -20,6 +21,7 @@ export class SettingsRepository {
       .insert(settings)
       .values({ key, value })
       .onConflictDoUpdate({ target: settings.key, set: { value, updatedAt: new Date() } })
+    revalidatePublicSite()
   }
 
   async setMany(pairs: Record<string, string>): Promise<void> {

@@ -6,7 +6,11 @@ import { PageBody } from '@/components/page-body'
 import { db } from '@/lib/db'
 import { faqSchema, pageFaq } from '@/lib/seo'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+
+export async function generateStaticParams() {
+  return []
+}
 
 type Props = { params: Promise<{ slug: string }> }
 

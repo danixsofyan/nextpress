@@ -9,6 +9,7 @@ import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
 import { PostRepository } from '@/server'
 import type { Metadata } from 'next'
+import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
@@ -16,11 +17,16 @@ const getVisiblePost = cache(async (slug: string) => {
   const post = await new PostRepository(db).findBySlug(slug)
   if (!post) return null
   if (post.status === 'published') return { post, preview: false }
+  if (!(await draftMode()).isEnabled) return null
   const session = await getCurrentSession().catch(() => null)
   return session && hasRole(session.user.role, 'author') ? { post, preview: true } : null
 })
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+
+export async function generateStaticParams() {
+  return []
+}
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -84,9 +90,16 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       {preview && (
-        <p className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
-          Draft preview. Only signed-in staff can see this post until it is published.
-        </p>
+        <form
+          method="post"
+          action="/api/admin/appearance/preview"
+          className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+        >
+          <span>Draft preview. Only signed-in staff can see this post until it is published.</span>
+          <button type="submit" className="font-medium underline underline-offset-4">
+            Exit preview
+          </button>
+        </form>
       )}
       <JsonLd
         data={[
