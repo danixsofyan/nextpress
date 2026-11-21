@@ -1,7 +1,8 @@
 import { user } from './auth'
-import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { check, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 
-export const postStatusEnum = pgEnum('post_status', ['draft', 'published'])
+export const POST_STATUSES = ['draft', 'published'] as const
 
 export const posts = pgTable(
   'posts',
@@ -13,14 +14,19 @@ export const posts = pgTable(
     content: text('content').notNull().default(''),
     coverImage: text('cover_image'),
     publishedAt: timestamp('published_at', { withTimezone: true }),
-    status: postStatusEnum('status').notNull().default('draft'),
+    status: text('status', { enum: POST_STATUSES }).notNull().default('draft'),
     metaTitle: text('meta_title'),
     metaDescription: text('meta_description'),
     authorId: text('author_id').references(() => user.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
-  (table) => [index('idx_posts_author_id').on(table.authorId)]
+  (table) => [
+    index('idx_posts_author_id').on(table.authorId),
+    index('idx_posts_deleted_at').on(table.deletedAt),
+    check('chk_posts_status', sql`${table.status} in ('draft', 'published')`),
+  ]
 )
 
 export type Post = typeof posts.$inferSelect

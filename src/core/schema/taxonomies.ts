@@ -1,16 +1,21 @@
-import { pgTable, text, timestamp, uuid, pgEnum } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { check, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { posts } from './posts'
 
-export const taxonomyTypeEnum = pgEnum('taxonomy_type', ['category', 'tag', 'custom'])
+export const TAXONOMY_TYPES = ['category', 'tag', 'custom'] as const
 
-export const taxonomies = pgTable('taxonomies', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  type: taxonomyTypeEnum('type').notNull().default('tag'),
-  description: text('description'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-})
+export const taxonomies = pgTable(
+  'taxonomies',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    type: text('type', { enum: TAXONOMY_TYPES }).notNull().default('tag'),
+    description: text('description'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [check('chk_taxonomies_type', sql`${table.type} in ('category', 'tag', 'custom')`)]
+)
 
 export const termRelationships = pgTable('term_relationships', {
   postId: uuid('post_id')
