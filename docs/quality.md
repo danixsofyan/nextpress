@@ -30,7 +30,6 @@ Last measured: 2026-11-21
 
 | Gap                                          | Risk                                             | Plan                                                                         |
 | -------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------- |
-| No audit log of admin actions                | Cannot answer "who published or deleted this"    | Add an append-only `audit_logs` table written by the repositories            |
 | Rate limits are per instance without Redis   | Limits can be exceeded across instances          | Set `REDIS_URL` in production                                                |
 | Next.js 15 ships ~11 kB of runtime polyfills | Mobile performance fluctuates between 98 and 100 | Upgrade to Next.js 16, which pebisnice already uses                          |
 | No restore test                              | Backups are unproven                             | Restore the latest Supabase backup into a scratch project and record it here |

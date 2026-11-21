@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A WordPress-style Trash for posts and pages. Deleting moves an item to the Trash (`All | Trash` views with counts), from where it can be restored or deleted permanently. The REST API accepts `DELETE …?permanent=true` for trashed items.
+- An append-only `audit_logs` table that records every create, update, publish, trash, restore, and delete with the actor (user, API key, or system) and the request ID.
+- Donations are stored in a `donations` table. The SumoPod webhook updates their status, and administrators see them under **Donations**.
 - Structured JSON logging with redaction of passwords, tokens, keys, cookies, and signatures. Every response carries `X-Request-ID`, which is also forwarded to SumoPod.
 - Every API error has a stable `code` next to its message (for example `NP-4000` validation, `NP-4010` unauthorized, `NP-4040` not found, `NP-4290` rate limited). Validation errors from the REST API use the same shape and no longer leak schema internals.
 - REST API responses send `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`, plus `Retry-After` on 429.
@@ -24,6 +27,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- `posts.status`, `pages.status`, and `taxonomies.type` are `text` columns with `CHECK` constraints instead of Postgres enums.
+- The `delete_page` MCP tool moves the page to the Trash.
 - The database client keeps up to 10 pooled connections per instance and closes idle ones after 20 s. Builds prerender one page at a time and retry transient failures, because Supavisor's transaction mode hangs postgres.js queries that are pipelined when more queries are queued than connections.
 - Functions run in Tokyo (`hnd1`), next to the Supabase database, instead of Washington.
 - The admin renders its data on the server: one query for the dashboard counts, the initial rows for every list and settings screen, and the signed-in user for the sidebar and header. No more loading placeholders.
