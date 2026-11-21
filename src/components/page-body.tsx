@@ -3,11 +3,26 @@ import { donationsEnabled } from '@/lib/donations'
 import { getCaptcha } from '@/lib/plugins'
 import { getSiteSettings } from '@/lib/site'
 import { getActiveTheme } from '@/lib/themes'
-import { PostRepository } from '@/server'
+import { PageRepository, PostRepository } from '@/server'
+import type { Block } from '@/core/validators'
 import type { Page } from '@/core/types'
 
+async function expandPatterns(blocks: Block[], ownSlug: string): Promise<Block[]> {
+  if (!blocks.some((b) => b.type === 'pattern')) return blocks
+  const repo = new PageRepository(db)
+  const expanded = await Promise.all(
+    blocks.map(async (block) => {
+      if (block.type !== 'pattern') return [block]
+      if (block.slug === ownSlug) return []
+      const source = await repo.findBySlug(block.slug)
+      return (source?.blocks ?? []).filter((b) => b.type !== 'pattern')
+    })
+  )
+  return expanded.flat()
+}
+
 export async function PageBody({ page }: { page: Page }) {
-  const blocks = page.blocks ?? []
+  const blocks = await expandPatterns(page.blocks ?? [], page.slug)
   if (blocks.length === 0) {
     return (
       <article className="mx-auto max-w-2xl space-y-6">

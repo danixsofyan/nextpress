@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A `pattern` page block reuses every block of another page, like WordPress synced patterns: edit the source page once and every page that includes it updates.
 - A **Sign in with Google** plugin for the admin. It needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, links Google to existing accounts by email, and never creates new users.
 - Posts show a byline linking to the new author archive at `/author/<id>`, and `BlogPosting` JSON-LD names the author.
 - **Tools → Export** downloads a WordPress export file (WXR) of all content, posts, or pages, which NextPress and WordPress can both import.

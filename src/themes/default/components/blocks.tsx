@@ -510,6 +510,8 @@ function BlockView({
           </div>
         </section>
       )
+    case 'pattern':
+      return null
     case 'richText':
       return (
         <section

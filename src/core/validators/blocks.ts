@@ -146,6 +146,10 @@ export const blockSchema = z.discriminatedUnion('type', [
     loop: z.boolean().optional(),
   }),
   z.object({
+    type: z.literal('pattern'),
+    slug: z.string().regex(/^[a-z0-9-]{1,255}$/, 'Use the slug of the page whose blocks to reuse'),
+  }),
+  z.object({
     type: z.literal('richText'),
     html: z.string().max(20000),
   }),

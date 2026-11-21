@@ -115,6 +115,11 @@ export const BLOCK_SPEC = {
         label: 'A globe with glowing connections between cities',
       },
     },
+    pattern: {
+      fields:
+        'slug — reuses every block of another page (for example a shared call to action). Edit that page once and every page with this block updates. Patterns inside patterns are ignored.',
+      example: { type: 'pattern', slug: 'shared-cta' },
+    },
     richText: {
       fields: 'html — sanitized HTML (p, h2, h3, ul, ol, a, img, blockquote, code, pre)',
     },
@@ -140,7 +145,7 @@ export function registerSiteTools(server: McpServer, db: Database) {
 
   server.tool(
     'get_block_spec',
-    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, donate, lottie, richText) used to build landing pages',
+    'Describe the page blocks (hero, features, steps, stats, code, table, faq, cta, posts, donate, lottie, pattern, richText) used to build landing pages',
     {},
     async () => json(BLOCK_SPEC)
   )
