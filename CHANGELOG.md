@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- `/donate` page and `/api/webhooks/sumopod`, which verifies SumoPod's Svix signature (or webhook token) and records `NPD-` donation events. Several apps can share one SumoPod project when its single webhook relays `NPD-` orders here.
 - A `donate` page block that accepts QRIS donations through SumoPod. It is hidden until `SUMOPOD_API_KEY` is set, needs no client JavaScript, and has thank-you and error pages.
 - Posts and pages record their author, and the admin lists show an Author column. Authors can view, edit, and delete only their own posts; editors and administrators keep full access.
 - `pnpm db:seed` applies default categories, tags, and settings idempotently.
@@ -20,6 +21,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- The database client caps each instance at 3 pooled connections and closes idle ones after 20 s. Build-time prerendering uses at most 4 concurrent pages and retries transient failures.
 - Functions run in Tokyo (`hnd1`), next to the Supabase database, instead of Washington.
 - The admin renders its data on the server: one query for the dashboard counts, the initial rows for every list and settings screen, and the signed-in user for the sidebar and header. No more loading placeholders.
 - Every admin select uses an even, custom chevron, and buttons show the pointer cursor.
@@ -37,6 +39,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Security
 
+- The app connects as `nextpress_app`, a least-privilege role without BYPASSRLS or DDL rights, with an RLS policy per table (`pnpm db:roles`). Migrations still run as the owner.
 - Uploads are typed from their magic bytes. The stored extension and content type come from the detected type, never from the client's filename or MIME type, and HTML disguised as an image is rejected with 415.
 - Fixed every `pnpm audit` advisory:
   - high: drizzle-orm SQL identifier escaping, two PostCSS advisories, and zod memory exhaustion;

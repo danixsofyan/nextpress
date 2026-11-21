@@ -70,7 +70,7 @@ Do not run `next build` locally; CI and Vercel build. After the change reaches p
 - No `console.log`. No swallowed errors. No stack traces in responses.
 - Use parameterized queries (Drizzle) only.
 - User HTML is sanitized on write by the repositories. Uploads are typed from magic bytes (`src/lib/file-type.ts`).
-- Migrations are generated with drizzle-kit, make one change each, and are never edited after being applied.
+- Migrations are generated with drizzle-kit, make one change each, and are never edited after being applied. Migrations run as the database owner. After a migration that creates a table, rerun `pnpm db:roles` so the least-privilege app role gets its grants and RLS policy ([ADR 0005](docs/adr/0005-least-privilege-database-role.md)).
 - zod 4 update schemas are derived from a base without `.default()`; `src/core/validators/validators.test.ts` guards this.
 - Commits follow Conventional Commits in English, imperative, with a subject of at most 72 characters, one feature per commit. Add **no** `Co-Authored-By` trailers or AI attribution.
 - Never force-push or push directly to protected branches. Destructive or outward-facing actions need explicit approval in the conversation.
