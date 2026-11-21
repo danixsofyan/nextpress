@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { ZodError } from 'zod'
 
 function uniqueViolation(error: unknown) {
@@ -12,13 +13,10 @@ export function withApiErrors<A extends unknown[]>(handler: (...args: A) => Prom
     } catch (error) {
       if (error instanceof ZodError) {
         const issue = error.issues[0]
-        return Response.json(
-          { error: `${issue?.path.join('.') || 'input'}: ${issue?.message ?? 'invalid'}` },
-          { status: 400 }
-        )
+        return apiError(`${issue?.path.join('.') || 'input'}: ${issue?.message ?? 'invalid'}`, 400)
       }
       if (uniqueViolation(error)) {
-        return Response.json({ error: 'That slug is already in use' }, { status: 409 })
+        return apiError('That slug is already in use', 409)
       }
       throw error
     }

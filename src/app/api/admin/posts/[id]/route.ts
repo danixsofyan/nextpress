@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { PostRepository } from '@/server'
 import { withApiErrors } from '@/lib/api-errors'
 import { db } from '@/lib/db'
@@ -7,12 +8,11 @@ import { updatePostSchema } from '@/core/validators'
 
 type Params = { params: Promise<{ id: string }> }
 
-const forbidden = () =>
-  Response.json({ error: 'Authors can only change their own posts' }, { status: 403 })
+const forbidden = () => apiError('Authors can only change their own posts', 403)
 
 async function loadOwned(session: Session, id: string) {
   const post = await new PostRepository(db).findById(id)
-  if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!post) return apiError('Not found', 404)
   if (!hasRole(session.user.role, 'editor') && post.authorId !== session.user.id) return forbidden()
   return post
 }
@@ -32,7 +32,7 @@ async function putHandler(request: Request, { params }: Params) {
   if (owned instanceof Response) return owned
   const input = updatePostSchema.parse(await request.json())
   const post = await new PostRepository(db).update(id, input)
-  if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!post) return apiError('Not found', 404)
   return Response.json(post)
 }
 

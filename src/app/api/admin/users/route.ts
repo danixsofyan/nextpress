@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { z } from 'zod'
 import { auth, requireRole } from '@/lib/auth'
 import { emailTaken, firstIssue, listUsers, userFields } from '@/lib/users'
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
   const parsed = createSchema.safeParse(await request.json())
   if (!parsed.success) return Response.json({ error: firstIssue(parsed.error) }, { status: 400 })
   if (await emailTaken(parsed.data.email)) {
-    return Response.json({ error: 'A user with this email already exists' }, { status: 409 })
+    return apiError('A user with this email already exists', 409)
   }
   const { user } = await auth.api.createUser({ body: parsed.data, headers: request.headers })
   return Response.json({ id: user.id }, { status: 201 })

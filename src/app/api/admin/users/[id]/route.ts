@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { z } from 'zod'
 import { auth, requireRole } from '@/lib/auth'
 import { emailTaken, findUser, firstIssue, otherAdministrators, userFields } from '@/lib/users'
@@ -12,7 +13,7 @@ export async function GET(request: Request, { params }: Params) {
   const session = await requireRole(request, 'administrator')
   if (session instanceof Response) return session
   const found = await findUser((await params).id)
-  if (!found) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!found) return apiError('Not found', 404)
   return Response.json(found)
 }
 
@@ -21,7 +22,7 @@ export async function PUT(request: Request, { params }: Params) {
   if (session instanceof Response) return session
   const { id } = await params
   const target = await findUser(id)
-  if (!target) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!target) return apiError('Not found', 404)
 
   const parsed = updateSchema.safeParse(await request.json())
   if (!parsed.success) return Response.json({ error: firstIssue(parsed.error) }, { status: 400 })
@@ -29,14 +30,14 @@ export async function PUT(request: Request, { params }: Params) {
 
   if (role && role !== target.role && target.role === 'administrator') {
     if (id === session.user.id) {
-      return Response.json({ error: 'You cannot change your own role' }, { status: 400 })
+      return apiError('You cannot change your own role', 400)
     }
     if ((await otherAdministrators(id)) === 0) {
-      return Response.json({ error: 'The site needs at least one administrator' }, { status: 400 })
+      return apiError('The site needs at least one administrator', 400)
     }
   }
   if (email && email !== target.email && (await emailTaken(email, id))) {
-    return Response.json({ error: 'A user with this email already exists' }, { status: 409 })
+    return apiError('A user with this email already exists', 409)
   }
 
   const headers = request.headers
@@ -63,12 +64,12 @@ export async function DELETE(request: Request, { params }: Params) {
   if (session instanceof Response) return session
   const { id } = await params
   if (id === session.user.id) {
-    return Response.json({ error: 'You cannot delete your own account' }, { status: 400 })
+    return apiError('You cannot delete your own account', 400)
   }
   const target = await findUser(id)
-  if (!target) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!target) return apiError('Not found', 404)
   if (target.role === 'administrator' && (await otherAdministrators(id)) === 0) {
-    return Response.json({ error: 'The site needs at least one administrator' }, { status: 400 })
+    return apiError('The site needs at least one administrator', 400)
   }
   await auth.api.removeUser({ body: { userId: id }, headers: request.headers })
   return new Response(null, { status: 204 })

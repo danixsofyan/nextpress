@@ -6,6 +6,7 @@ import {
   parseDonationAmount,
 } from '@/lib/donations'
 import { env } from '@/lib/env'
+import { logger, requestIdOf } from '@/lib/logger'
 import { redis } from '@/server'
 
 const LIMIT_PER_MINUTE = 5
@@ -32,10 +33,11 @@ export async function POST(request: Request) {
       amount,
       successUrl: new URL('/donate/thanks', env.NEXT_PUBLIC_SITE_URL).toString(),
       cancelUrl: new URL('/', env.NEXT_PUBLIC_SITE_URL).toString(),
+      requestId: requestIdOf(request),
     })
     return NextResponse.redirect(link, 303)
   } catch (error) {
-    console.error(error)
+    logger.error('donation payment failed', { requestId: requestIdOf(request), amount, err: error })
     return back('/donate/error')
   }
 }

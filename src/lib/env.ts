@@ -17,6 +17,7 @@ const schema = z
     S3_SECRET_ACCESS_KEY: z.string().optional(),
     S3_PUBLIC_URL: z.string().url().optional(),
     MAX_UPLOAD_SIZE_MB: z.coerce.number().positive().default(4),
+    VERCEL_GIT_COMMIT_SHA: z.string().optional(),
     NEXTPRESS_DOCS: z.enum(['true', 'false']).default('false'),
     SUMOPOD_API_KEY: z.string().min(16).optional(),
     SUMOPOD_WEBHOOK_SECRET: z.string().min(16).optional(),

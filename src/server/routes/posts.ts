@@ -1,10 +1,11 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { errorBody } from '@/lib/api-error'
+import { createRoute, z } from '@hono/zod-openapi'
 import type { Database } from '@/core/db'
 import { createPostSchema, updatePostSchema, listPostsSchema } from '@/core/validators'
 import { PostRepository } from '../repositories/post.repository'
 import { apiKeyAuth } from '../middleware/auth'
 import { rateLimit } from '../middleware/rate-limit'
-import { conflict, idParams } from './shared'
+import { conflict, idParams, createRouter } from './shared'
 
 const postResponseSchema = z.object({
   id: z.string(),
@@ -22,10 +23,10 @@ const postResponseSchema = z.object({
 })
 
 export function postsRouter(db: Database) {
-  const app = new OpenAPIHono()
+  const app = createRouter()
   const repo = new PostRepository(db)
   const auth = apiKeyAuth(db)
-  const limit = rateLimit(100, 60_000)
+  const limit = rateLimit(60, 60_000)
 
   app.use('/api/posts/*', auth, limit)
   app.use('/api/posts', auth, limit)
@@ -91,7 +92,7 @@ export function postsRouter(db: Database) {
     async (c) => {
       const { id } = c.req.valid('param')
       const post = await repo.findById(id)
-      if (!post) return c.json({ error: 'Not found' }, 404)
+      if (!post) return c.json(errorBody('Not found', 404), 404)
       return c.json(post as unknown as z.infer<typeof postResponseSchema>, 200)
     }
   )
@@ -121,7 +122,7 @@ export function postsRouter(db: Database) {
       const { id } = c.req.valid('param')
       const body = c.req.valid('json')
       const post = await repo.update(id, body)
-      if (!post) return c.json({ error: 'Not found' }, 404)
+      if (!post) return c.json(errorBody('Not found', 404), 404)
       return c.json(post as unknown as z.infer<typeof postResponseSchema>, 200)
     }
   )
@@ -143,7 +144,7 @@ export function postsRouter(db: Database) {
     async (c) => {
       const { id } = c.req.valid('param')
       const existing = await repo.findById(id)
-      if (!existing) return c.json({ error: 'Not found' }, 404)
+      if (!existing) return c.json(errorBody('Not found', 404), 404)
       await repo.delete(id)
       return new Response(null, { status: 204 })
     }

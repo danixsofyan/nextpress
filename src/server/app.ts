@@ -1,29 +1,35 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { errorBody } from '@/lib/api-error'
 import { Scalar } from '@scalar/hono-api-reference'
 import type { Database } from '@/core/db'
 import { sql } from 'drizzle-orm'
+import { env } from '@/lib/env'
+import { logger } from '@/lib/logger'
 import { redis } from './middleware/rate-limit'
 import { postsRouter } from './routes/posts'
 import { pagesRouter } from './routes/pages'
-import { uniqueViolation } from './routes/shared'
+import { createRouter, uniqueViolation } from './routes/shared'
 import { taxonomiesRouter } from './routes/taxonomies'
 
 export function createApp(db: Database) {
-  const app = new OpenAPIHono()
+  const app = createRouter()
 
   app.onError((error, c) => {
     if (uniqueViolation(error)) {
-      return c.json({ error: 'A record with this slug already exists' }, 409)
+      return c.json(errorBody('A record with this slug already exists', 409), 409)
     }
-    console.error(error)
-    return c.json({ error: 'Internal server error' }, 500)
+    logger.error('api request failed', {
+      requestId: c.req.header('x-request-id'),
+      path: c.req.path,
+      err: error,
+    })
+    return c.json(errorBody('Internal server error', 500), 500)
   })
 
   app.get('/api/health', async (c) => {
     try {
       await db.execute(sql`select 1`)
       if (redis) await redis.ping()
-      return c.json({ status: 'ok', commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null })
+      return c.json({ status: 'ok', commit: env.VERCEL_GIT_COMMIT_SHA ?? null })
     } catch {
       return c.json({ status: 'error' }, 503)
     }

@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { MediaRepository } from '@/server'
 import { requireRole } from '@/lib/auth'
 import { db } from '@/lib/db'
@@ -17,22 +18,17 @@ export async function POST(request: Request) {
 
   const form = await request.formData()
   const file = form.get('file')
-  if (!(file instanceof File)) return Response.json({ error: 'No file' }, { status: 400 })
+  if (!(file instanceof File)) return apiError('No file', 400)
   if (file.size > env.MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
-    return Response.json(
-      { error: `File exceeds ${env.MAX_UPLOAD_SIZE_MB} MB limit` },
-      { status: 413 }
-    )
+    return apiError(`File exceeds ${env.MAX_UPLOAD_SIZE_MB} MB limit`, 413)
   }
 
   const buffer = await file.arrayBuffer()
   const type = detectFileType(new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 16)))
   if (!type) {
-    return Response.json(
-      {
-        error: 'File type not allowed. Upload PNG, JPEG, GIF, WebP, AVIF, MP4, WebM, MP3, or PDF.',
-      },
-      { status: 415 }
+    return apiError(
+      'File type not allowed. Upload PNG, JPEG, GIF, WebP, AVIF, MP4, WebM, MP3, or PDF.',
+      415
     )
   }
 

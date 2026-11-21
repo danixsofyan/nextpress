@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { TaxonomyRepository } from '@/server'
 import { withApiErrors } from '@/lib/api-errors'
 import { db } from '@/lib/db'
@@ -11,7 +12,7 @@ export async function GET(request: Request, { params }: Params) {
   if (session instanceof Response) return session
   const { id } = await params
   const item = await new TaxonomyRepository(db).findById(id)
-  if (!item) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!item) return apiError('Not found', 404)
   return Response.json(item)
 }
 
@@ -21,7 +22,7 @@ async function putHandler(request: Request, { params }: Params) {
   const { id } = await params
   const input = updateTaxonomySchema.parse(await request.json())
   const item = await new TaxonomyRepository(db).update(id, input)
-  if (!item) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!item) return apiError('Not found', 404)
   return Response.json(item)
 }
 

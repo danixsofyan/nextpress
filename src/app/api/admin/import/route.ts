@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { requireRole } from '@/lib/auth'
 import { parseFeed } from '@/lib/importers/feed'
 import { fetchFeed, MAX_IMPORT_BYTES } from '@/lib/importers/fetch-feed'
@@ -18,47 +19,38 @@ export async function POST(request: Request) {
   const url = String(form.get('url') ?? '').trim()
 
   if (type !== 'wordpress' && type !== 'rss') {
-    return Response.json({ error: 'Unknown importer' }, { status: 400 })
+    return apiError('Unknown importer', 400)
   }
 
   let xml: string
   try {
     if (file instanceof File && file.size > 0) {
       if (file.size > MAX_IMPORT_BYTES) {
-        return Response.json({ error: 'File is larger than 20 MB' }, { status: 413 })
+        return apiError('File is larger than 20 MB', 413)
       }
       xml = await file.text()
     } else if (type === 'rss' && url) {
       xml = await fetchFeed(url)
     } else {
-      return Response.json(
-        {
-          error:
-            type === 'rss'
-              ? 'Upload a feed file or enter a feed URL'
-              : 'Upload a WordPress export file',
-        },
-        { status: 400 }
+      return apiError(
+        type === 'rss'
+          ? 'Upload a feed file or enter a feed URL'
+          : 'Upload a WordPress export file',
+        400
       )
     }
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : 'Could not read the source' },
-      { status: 400 }
-    )
+    return apiError(error instanceof Error ? error.message : 'Could not read the source', 400)
   }
 
   let items: ReturnType<typeof parseWxr>
   try {
     items = type === 'wordpress' ? parseWxr(xml) : parseFeed(xml)
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : 'Could not parse the file' },
-      { status: 422 }
-    )
+    return apiError(error instanceof Error ? error.message : 'Could not parse the file', 422)
   }
   if (items.length === 0) {
-    return Response.json({ error: 'No posts or pages found to import' }, { status: 422 })
+    return apiError('No posts or pages found to import', 422)
   }
 
   return Response.json(await runImport(items, status, session.user.id))

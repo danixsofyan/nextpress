@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { MediaRepository } from '@/server'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
@@ -11,7 +12,7 @@ export async function DELETE(request: Request, { params }: Params) {
   const { id } = await params
   const repo = new MediaRepository(db)
   const item = await repo.findById(id)
-  if (!item) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (!item) return apiError('Not found', 404)
   await deleteObject(item.url)
   await repo.delete(id)
   return new Response(null, { status: 204 })

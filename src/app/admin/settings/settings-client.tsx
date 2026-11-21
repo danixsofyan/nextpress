@@ -87,9 +87,11 @@ function FormatChoice({
 export function SettingsClient({
   initialSettings,
   initialPages,
+  siteUrl,
 }: {
   initialSettings: Settings
   initialPages: PageOption[]
+  siteUrl: string
 }) {
   const [tab, setTabState] = useState<Tab>('general')
   const [settings, setSettings] = useState<Settings>(initialSettings)
@@ -217,9 +219,7 @@ export function SettingsClient({
           </div>
           <div>
             <Label>Site Address (URL)</Label>
-            <p className="mt-1 rounded-md bg-muted px-3 py-2 font-mono text-sm">
-              {process.env.NEXT_PUBLIC_SITE_URL}
-            </p>
+            <p className="mt-1 rounded-md bg-muted px-3 py-2 font-mono text-sm">{siteUrl}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Set by the NEXT_PUBLIC_SITE_URL environment variable.
             </p>
@@ -561,9 +561,7 @@ export function SettingsClient({
           <ApiKeysPanel />
           <div className="space-y-3 rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold">API Endpoint</h3>
-            <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm">
-              {process.env.NEXT_PUBLIC_SITE_URL}/api
-            </div>
+            <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm">{siteUrl}/api</div>
             <p className="text-xs text-muted-foreground">
               REST API base URL. Interactive reference at{' '}
               <a href="/api/docs" target="_blank" rel="noreferrer" className="underline">
@@ -574,9 +572,7 @@ export function SettingsClient({
           </div>
           <div className="space-y-3 rounded-xl border border-border bg-card p-4">
             <h3 className="text-sm font-semibold">MCP Server</h3>
-            <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm">
-              {process.env.NEXT_PUBLIC_SITE_URL}/api/mcp
-            </div>
+            <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm">{siteUrl}/api/mcp</div>
             <p className="text-xs text-muted-foreground">
               Streamable HTTP endpoint for AI agents (Claude, ChatGPT, Cursor). Send your key in the{' '}
               <code>X-Api-Key</code> header.

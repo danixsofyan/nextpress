@@ -1,10 +1,11 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { errorBody } from '@/lib/api-error'
+import { createRoute, z } from '@hono/zod-openapi'
 import type { Database } from '@/core/db'
 import { createTaxonomySchema, updateTaxonomySchema } from '@/core/validators'
 import { TaxonomyRepository } from '../repositories/taxonomy.repository'
 import { apiKeyAuth } from '../middleware/auth'
 import { rateLimit } from '../middleware/rate-limit'
-import { conflict, idParams, notFound } from './shared'
+import { conflict, idParams, notFound, createRouter } from './shared'
 
 const taxonomyResponseSchema = z.object({
   id: z.string(),
@@ -16,10 +17,10 @@ const taxonomyResponseSchema = z.object({
 })
 
 export function taxonomiesRouter(db: Database) {
-  const app = new OpenAPIHono()
+  const app = createRouter()
   const repo = new TaxonomyRepository(db)
   const auth = apiKeyAuth(db)
-  const limit = rateLimit(100, 60_000)
+  const limit = rateLimit(60, 60_000)
 
   app.use('/api/taxonomies/*', auth, limit)
   app.use('/api/taxonomies', auth, limit)
@@ -92,7 +93,7 @@ export function taxonomiesRouter(db: Database) {
       const { id } = c.req.valid('param')
       const body = c.req.valid('json')
       const taxonomy = await repo.update(id, body)
-      if (!taxonomy) return c.json({ error: 'Not found' }, 404)
+      if (!taxonomy) return c.json(errorBody('Not found', 404), 404)
       return c.json(taxonomy as unknown as z.infer<typeof taxonomyResponseSchema>, 200)
     }
   )
@@ -110,7 +111,7 @@ export function taxonomiesRouter(db: Database) {
     }),
     async (c) => {
       const { id } = c.req.valid('param')
-      if (!(await repo.delete(id))) return c.json({ error: 'Not found' }, 404)
+      if (!(await repo.delete(id))) return c.json(errorBody('Not found', 404), 404)
       return new Response(null, { status: 204 })
     }
   )

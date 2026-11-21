@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { PostRepository } from '@/server'
 import { withApiErrors } from '@/lib/api-errors'
 import { db } from '@/lib/db'
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
   const slug = url.searchParams.get('slug')
   if (slug) {
     const post = await new PostRepository(db).findBySlug(slug)
-    if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
+    if (!post) return apiError('Not found', 404)
     return Response.json(post)
   }
   return Response.json(await new PostRepository(db).findAllSummaries())

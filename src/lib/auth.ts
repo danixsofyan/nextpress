@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { redis } from '@/server'
 import { account, session, user, verification } from '@/core/schema'
 import { betterAuth } from 'better-auth'
@@ -57,8 +58,9 @@ export const auth = betterAuth({
     window: 60,
     max: 20,
     customRules: {
-      '/sign-in/email': { window: 60, max: 5 },
-      '/sign-up/email': { window: 60, max: 3 },
+      '/sign-in/email': { window: 900, max: 5 },
+      '/sign-up/email': { window: 900, max: 3 },
+      '/request-password-reset': { window: 900, max: 3 },
     },
     ...(redis ? { customStorage: redisRateLimitStorage(redis) } : { storage: 'memory' as const }),
   },
@@ -68,9 +70,9 @@ export type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>
 
 export async function requireRole(request: Request, min: Role): Promise<Session | Response> {
   const current = await auth.api.getSession({ headers: request.headers })
-  if (!current) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!current) return apiError('Unauthorized', 401)
   if (current.user.banned || !hasRole(current.user.role, min)) {
-    return Response.json({ error: 'You do not have permission to do that' }, { status: 403 })
+    return apiError('You do not have permission to do that', 403)
   }
   return current
 }

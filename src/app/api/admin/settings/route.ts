@@ -1,3 +1,4 @@
+import { apiError } from '@/lib/api-error'
 import { SettingsRepository } from '@/server'
 import { isValidTimeZone } from '@/themes/engine'
 import { z } from 'zod'
@@ -51,10 +52,7 @@ export async function PUT(request: Request) {
   const parsed = settingsSchema.safeParse(await request.json())
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
-    return Response.json(
-      { error: `${issue?.path.join('.') || 'settings'} ${issue?.message ?? 'is invalid'}` },
-      { status: 400 }
-    )
+    return apiError(`${issue?.path.join('.') || 'settings'} ${issue?.message ?? 'is invalid'}`, 400)
   }
   const values = Object.fromEntries(
     Object.entries(parsed.data).filter((entry): entry is [string, string] => entry[1] !== undefined)

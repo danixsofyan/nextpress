@@ -9,11 +9,16 @@ export async function createDonationPayment(input: {
   amount: number
   successUrl: string
   cancelUrl: string
+  requestId?: string | undefined
 }) {
   if (!env.SUMOPOD_API_KEY) throw new Error('Donations are not configured')
   const res = await fetch(`${env.SUMOPOD_API_BASE_URL.replace(/\/+$/, '')}/api/v1/payments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Api-Key': env.SUMOPOD_API_KEY },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Api-Key': env.SUMOPOD_API_KEY,
+      ...(input.requestId && { 'X-Request-ID': input.requestId }),
+    },
     body: JSON.stringify({
       order_id: input.orderId,
       amount: input.amount,

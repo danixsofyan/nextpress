@@ -1,7 +1,9 @@
+import { errorBody } from '@/lib/api-error'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { env } from '@/lib/env'
 
-const adminHost = process.env.ADMIN_URL ? new URL(process.env.ADMIN_URL).host : null
+const adminHost = env.ADMIN_URL ? new URL(env.ADMIN_URL).host : null
 
 function isAdminPath(pathname: string) {
   return (
@@ -20,32 +22,40 @@ function hasSession(request: NextRequest) {
 }
 
 export function middleware(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') || crypto.randomUUID()
+  const response = route(request, requestId)
+  response.headers.set('X-Request-ID', requestId)
+  return response
+}
+
+function route(request: NextRequest, requestId: string) {
   const { pathname, search } = request.nextUrl
+  const forwarded = new Headers(request.headers)
+  forwarded.set('x-request-id', requestId)
+  const next = () => NextResponse.next({ request: { headers: forwarded } })
   const adminPath = isAdminPath(pathname)
 
   if (adminHost) {
     const onAdminHost = request.headers.get('host') === adminHost
     if (onAdminHost && !adminPath) {
       if (pathname === '/') return NextResponse.redirect(new URL('/admin', request.url))
-      return NextResponse.redirect(
-        new URL(`${pathname}${search}`, process.env.NEXT_PUBLIC_SITE_URL)
-      )
+      return NextResponse.redirect(new URL(`${pathname}${search}`, env.NEXT_PUBLIC_SITE_URL))
     }
     if (!onAdminHost && adminPath) return new NextResponse(null, { status: 404 })
   }
 
   if (!adminPath || pathname.startsWith('/api/auth/') || pathname === '/admin/login') {
-    return NextResponse.next()
+    return next()
   }
 
   if (!hasSession(request)) {
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(errorBody('Unauthorized', 401), { status: 401 })
     }
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
-  const response = NextResponse.next()
+  const response = next()
   response.headers.set('Cache-Control', 'no-store')
   response.headers.set('X-Robots-Tag', 'noindex, nofollow')
   return response

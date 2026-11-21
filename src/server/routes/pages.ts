@@ -1,10 +1,11 @@
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { errorBody } from '@/lib/api-error'
+import { createRoute, z } from '@hono/zod-openapi'
 import type { Database } from '@/core/db'
 import { createPageSchema, updatePageSchema } from '@/core/validators'
 import { PageRepository } from '../repositories/page.repository'
 import { apiKeyAuth } from '../middleware/auth'
 import { rateLimit } from '../middleware/rate-limit'
-import { conflict, idParams, notFound } from './shared'
+import { conflict, idParams, notFound, createRouter } from './shared'
 
 const pageResponseSchema = z.object({
   id: z.string(),
@@ -20,10 +21,10 @@ const pageResponseSchema = z.object({
 })
 
 export function pagesRouter(db: Database) {
-  const app = new OpenAPIHono()
+  const app = createRouter()
   const repo = new PageRepository(db)
   const auth = apiKeyAuth(db)
-  const limit = rateLimit(100, 60_000)
+  const limit = rateLimit(60, 60_000)
 
   app.use('/api/pages/*', auth, limit)
   app.use('/api/pages', auth, limit)
@@ -84,7 +85,7 @@ export function pagesRouter(db: Database) {
     async (c) => {
       const { id } = c.req.valid('param')
       const page = await repo.findById(id)
-      if (!page) return c.json({ error: 'Not found' }, 404)
+      if (!page) return c.json(errorBody('Not found', 404), 404)
       return c.json(page as unknown as z.infer<typeof pageResponseSchema>, 200)
     }
   )
@@ -114,7 +115,7 @@ export function pagesRouter(db: Database) {
       const { id } = c.req.valid('param')
       const body = c.req.valid('json')
       const page = await repo.update(id, body)
-      if (!page) return c.json({ error: 'Not found' }, 404)
+      if (!page) return c.json(errorBody('Not found', 404), 404)
       return c.json(page as unknown as z.infer<typeof pageResponseSchema>, 200)
     }
   )
@@ -132,7 +133,7 @@ export function pagesRouter(db: Database) {
     }),
     async (c) => {
       const { id } = c.req.valid('param')
-      if (!(await repo.delete(id))) return c.json({ error: 'Not found' }, 404)
+      if (!(await repo.delete(id))) return c.json(errorBody('Not found', 404), 404)
       return new Response(null, { status: 204 })
     }
   )

@@ -1,4 +1,5 @@
 import { env } from '@/lib/env'
+import { logger, requestIdOf } from '@/lib/logger'
 import { verifySumopodSignature, verifySumopodToken } from '@/lib/sumopod-signature'
 
 export async function POST(request: Request) {
@@ -23,15 +24,12 @@ export async function POST(request: Request) {
   }
   const orderId = event.data?.order_id ?? ''
   if (orderId && !orderId.startsWith('NPD-')) return new Response(null, { status: 404 })
-  console.info(
-    JSON.stringify({
-      level: 'info',
-      msg: 'donation webhook',
-      event: event.event_type,
-      orderId,
-      amount: event.data?.amount,
-      status: event.data?.status,
-    })
-  )
+  logger.info('donation webhook', {
+    requestId: requestIdOf(request),
+    event: event.event_type,
+    orderId,
+    amount: event.data?.amount,
+    status: event.data?.status,
+  })
   return Response.json({ received: true })
 }
