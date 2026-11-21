@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A **Sign in with Google** plugin for the admin. It needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, links Google to existing accounts by email, and never creates new users.
 - Posts show a byline linking to the new author archive at `/author/<id>`, and `BlogPosting` JSON-LD names the author.
 - **Tools → Export** downloads a WordPress export file (WXR) of all content, posts, or pages, which NextPress and WordPress can both import.
 - Post revisions: every change to a post's title, excerpt, or content keeps the previous version (the latest 30), and the editor's **Revisions** panel restores any of them.

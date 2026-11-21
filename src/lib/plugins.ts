@@ -100,3 +100,7 @@ export async function getCaptcha(): Promise<CaptchaConfig | null> {
     ? { provider: active.plugin.captcha, siteKey: active.config.siteKey }
     : null
 }
+
+export async function isPluginActive(id: string) {
+  return (await getActivePlugins()).some((s) => s.plugin.id === id)
+}

@@ -4,7 +4,7 @@ import { PLUGINS, findPlugin } from '.'
 describe('plugins', () => {
   it('have unique ids and fields that match their config', () => {
     expect(new Set(PLUGINS.map((p) => p.id)).size).toBe(PLUGINS.length)
-    for (const plugin of PLUGINS) {
+    for (const plugin of PLUGINS.filter((p) => p.fields.length > 0)) {
       const sample = Object.fromEntries(plugin.fields.map((f) => [f.key, '']))
       expect(plugin.config.safeParse(sample).success).toBe(false)
     }
@@ -30,5 +30,11 @@ describe('plugins', () => {
       findPlugin('cloudflare-turnstile')!.config.safeParse({ siteKey: '0x4AAAAAAABkMYinukE8nzY' })
         .success
     ).toBe(true)
+  })
+
+  it('keeps Google sign-in behind environment credentials', () => {
+    const google = findPlugin('google-login')!
+    expect(google.requiredEnv).toEqual(['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'])
+    expect(google.config.safeParse({}).success).toBe(true)
   })
 })

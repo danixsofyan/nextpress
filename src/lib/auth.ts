@@ -13,6 +13,7 @@ import { and, eq } from 'drizzle-orm'
 import { db } from './db'
 import { env } from './env'
 import { clientIp, verifyCaptcha } from './captcha'
+import { isPluginActive } from './plugins'
 import { logger } from './logger'
 import { hashPassword, isArgon2id, verifyPassword } from './password'
 import { hasRole, type Role } from './roles'
@@ -47,6 +48,12 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === '/sign-in/social' || ctx.path.startsWith('/callback/')) {
+        if (!(await isPluginActive('google-login'))) {
+          throw new APIError('FORBIDDEN', { message: 'Google sign-in is turned off' })
+        }
+        return
+      }
       if (ctx.path !== '/sign-in/email' && ctx.path !== '/sign-up/email') return
       const headers = ctx.headers ?? new Headers()
       if (!(await verifyCaptcha(headers.get('x-captcha-token'), clientIp(headers)))) {
@@ -60,6 +67,18 @@ export const auth = betterAuth({
       if (userId && typeof password === 'string') await upgradeLegacyHash(userId, password)
     }),
   },
+  ...(env.GOOGLE_CLIENT_ID &&
+    env.GOOGLE_CLIENT_SECRET && {
+      socialProviders: {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+          disableSignUp: true,
+          disableImplicitSignUp: true,
+        },
+      },
+    }),
+  account: { accountLinking: { enabled: true, trustedProviders: ['google'] } },
   plugins: [admin({ ac, roles, defaultRole: 'author', adminRoles: ['administrator'] })],
   databaseHooks: {
     user: {

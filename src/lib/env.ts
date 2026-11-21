@@ -23,6 +23,8 @@ const schema = z
     SUMOPOD_WEBHOOK_SECRET: z.string().min(16).optional(),
     SUMOPOD_WEBHOOK_TOKEN: z.string().min(16).optional(),
     SUMOPOD_API_BASE_URL: z.string().url().default('https://api-pay.sumopod.com'),
+    GOOGLE_CLIENT_ID: z.string().min(10).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(10).optional(),
     TURNSTILE_SECRET_KEY: z.string().min(16).optional(),
     RECAPTCHA_SECRET_KEY: z.string().min(16).optional(),
   })
