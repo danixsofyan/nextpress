@@ -3,6 +3,7 @@ import { defaultScheme, themeSchemeCss, themeShapeVars } from '@/themes/engine'
 import type { CSSProperties } from 'react'
 import './site.css'
 import { AdminBar } from '@/components/admin-bar'
+import { FooterWidgets } from '@/components/widget-area'
 import { db } from '@/lib/db'
 import { getActivePlugins } from '@/lib/plugins'
 import { getSiteSettings } from '@/lib/site'
@@ -57,6 +58,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           {...(site.logo && { logo: site.logo })}
           navigation={navigation}
           footerLinks={footerLinks}
+          footerWidgets={<FooterWidgets />}
         >
           {children}
         </Layout>

@@ -44,7 +44,9 @@ const href = z
     message: 'Links must start with /, #, http(s):// or mailto:',
   })
 
-const link = z.object({ label: text(60), href })
+export const linkSchema = z.object({ label: text(60), href })
+
+const link = linkSchema
 
 export const blockSchema = z.discriminatedUnion('type', [
   z.object({

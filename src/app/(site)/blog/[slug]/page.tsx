@@ -8,6 +8,7 @@ import { getSiteSettings } from '@/lib/site'
 import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
 import { PostRepository } from '@/server'
+import { WithSidebar } from '@/components/widget-area'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -112,7 +113,9 @@ export default async function BlogPostPage({ params }: Props) {
           ...[faqSchema(extractFaq(post.content))].filter((s) => s !== null),
         ]}
       />
-      <PostDetail post={post} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+      <WithSidebar>
+        <PostDetail post={post} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+      </WithSidebar>
     </>
   )
 }

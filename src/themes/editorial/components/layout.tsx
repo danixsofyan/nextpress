@@ -11,6 +11,7 @@ export function Layout({
   logo,
   navigation = [],
   footerLinks = [],
+  footerWidgets,
 }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -57,6 +58,7 @@ export function Layout({
         )}
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-6">{children}</main>
+      {footerWidgets}
       <footer className="border-t border-border">
         <div className="mx-auto max-w-5xl space-y-2 px-4 py-8 text-center text-sm text-muted-foreground sm:px-6">
           {footerLinks.length > 0 && (

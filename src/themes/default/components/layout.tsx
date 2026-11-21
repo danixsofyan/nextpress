@@ -11,6 +11,7 @@ export function Layout({
   logo,
   navigation = [],
   footerLinks = [],
+  footerWidgets,
 }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -53,6 +54,7 @@ export function Layout({
         </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">{children}</main>
+      {footerWidgets}
       <footer className="border-t">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-6 text-sm text-muted-foreground sm:px-6">
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">

@@ -8,6 +8,7 @@ export interface LayoutProps {
   logo?: string
   navigation?: Array<{ label: string; href: string }>
   footerLinks?: Array<{ label: string; href: string }>
+  footerWidgets?: React.ReactNode
 }
 
 export interface HeaderProps {

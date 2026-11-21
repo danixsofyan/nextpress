@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Widgets: **Appearance → Widgets** manages a blog sidebar and a footer area with Search, Recent Posts, Categories, Tag Cloud, Text, and Links widgets. Empty areas render nothing.
+- Category and tag archives at `/category/<slug>` and `/tag/<slug>` (static, in the sitemap), and a site search at `/search` over published posts.
 - Plugins: a WordPress-style **Plugins** screen to activate, deactivate, and configure plugins that ship as code in `src/plugins`. The first two are Google Analytics 4 (replacing the Measurement ID field in Settings, which is migrated automatically) and Meta Pixel. See `docs/plugin-development.md`.
 - A `lottie` page block that plays a same-site Lottie animation with the lightweight player. The player and the animation load only when the block scrolls into view, pause off screen, and show a still frame under reduced motion. The landing page uses the free "Earth and connections" animation from LottieFiles (`public/lottie/globe.json`).
 - Buttons and navigation links that point to a GitHub repository show its live star count, fetched on the server and cached for an hour.

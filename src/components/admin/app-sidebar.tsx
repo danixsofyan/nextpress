@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Menu,
   Palette,
+  PanelsTopLeft,
   Plug,
   Settings,
   Tag,
@@ -49,6 +50,12 @@ const navGroups: NavGroup[] = [
       { href: '/admin/taxonomies', icon: Tag, label: 'Taxonomies', min: 'editor' },
       { href: '/admin/menus', icon: Menu, label: 'Menus', min: 'editor' },
       { href: '/admin/appearance', icon: Palette, label: 'Appearance', min: 'administrator' },
+      {
+        href: '/admin/appearance/widgets',
+        icon: PanelsTopLeft,
+        label: 'Widgets',
+        min: 'administrator',
+      },
       { href: '/admin/plugins', icon: Plug, label: 'Plugins', min: 'administrator' },
     ],
   },
@@ -72,8 +79,14 @@ const navGroups: NavGroup[] = [
 const GROUPS_KEY = 'nextpress.sidebar.groups'
 let cachedClosedGroups: string[] | null = null
 
-const isActive = (pathname: string, href: string) =>
+const matches = (pathname: string, href: string) =>
   pathname === href || pathname.startsWith(`${href}/`)
+
+const ALL_HREFS = navGroups.flatMap((g) => g.items.map((i) => i.href))
+
+const isActive = (pathname: string, href: string) =>
+  matches(pathname, href) &&
+  !ALL_HREFS.some((other) => other.length > href.length && matches(pathname, other))
 
 function SidebarNav({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname()

@@ -37,6 +37,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 - **Tools → Import**: WordPress export files (WXR) and RSS/Atom feeds (Blogger, Medium, Substack, Ghost, and others)
 - **Appearance → Themes**: switch themes, or open a live preview of another theme that only you see
 - **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy
+- **Appearance → Widgets**: blog sidebar and footer widgets (Search, Recent Posts, Categories, Tag Cloud, Text, Links), reordered with up and down buttons
 - **Plugins**: activate, deactivate, and configure plugins (Google Analytics 4, Meta Pixel), filtered by All, Active, and Inactive
 - **Trash** for posts and pages with restore and permanent delete, an append-only **audit log**, and a **Donations** list with donor names and messages
 - **Content and Blocks panels** in the page editor collapse independently
@@ -45,11 +46,13 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 ### Public site
 
 - Blog with pagination, single post pages, and pages at `/{slug}`
+- Category and tag archives (`/category/{slug}`, `/tag/{slug}`) and site search at `/search`
+- Dark mode by default with a light toggle remembered per visitor, plus blog sidebar and footer widgets
 - Developer documentation at `/docs` when `NEXTPRESS_DOCS=true`, rendered from the Markdown files in `docs/` (the same files GitHub shows)
-- **Block-based pages**: hero, features, steps, stats, code, table, FAQ, call to action, latest posts, and rich text, rendered by the active theme. Any page, including the homepage, can be a landing page
+- **Block-based pages**: hero, features, steps, stats, code, table, FAQ, call to action, latest posts, donations, Lottie animation, and rich text, rendered by the active theme. Any page, including the homepage, can be a landing page
 - Admin bar for signed-in users (Dashboard, New, Edit Post, Log out)
 - Dynamic Open Graph images at `/og`, canonical URLs, and `BlogPosting`, `BreadcrumbList`, `FAQPage`, and `WebSite` JSON-LD
-- RSS feed at `/feed.xml`, `sitemap.xml` (posts, pages, docs), and `robots.txt` that welcomes AI crawlers
+- RSS feed at `/feed.xml`, `sitemap.xml` (posts, pages, categories, tags, docs), and `robots.txt` that welcomes AI crawlers
 - Built for AI answer engines (GEO/AEO): `llms.txt` and `llms-full.txt` generated from your content, and a Markdown copy of every post at `/blog/<slug>.md`
 
 ### API & AI
