@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Buttons that link to a GitHub repository show its live star count, fetched on the server and cached for an hour.
 - Public sites default to dark mode, and visitors switch between dark and light with the sun and moon button in the header. The choice is remembered per browser and applied before the first paint. Administrators pick the default scheme in Appearance → Customize.
 - CodeQL scans the code with the `security-extended` queries on every push, pull request, and weekly.
 - A WordPress-style Trash for posts and pages. Deleting moves an item to the Trash (`All | Trash` views with counts), from where it can be restored or deleted permanently. The REST API accepts `DELETE …?permanent=true` for trashed items.
