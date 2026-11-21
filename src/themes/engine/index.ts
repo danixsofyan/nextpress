@@ -35,6 +35,7 @@ export interface PostListProps {
 
 export interface PostDetailProps {
   post: Post
+  author?: { name: string; href: string }
   timeZone?: string
   dateFormat?: string
   relatedPosts?: Post[]

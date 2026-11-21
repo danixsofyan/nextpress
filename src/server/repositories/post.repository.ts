@@ -65,6 +65,24 @@ export class PostRepository {
       .offset(offset)
   }
 
+  async findPublicByAuthor(authorId: string, limit = 50) {
+    return this.db
+      .select()
+      .from(posts)
+      .where(and(eq(posts.authorId, authorId), isPubliclyVisible()))
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit)
+  }
+
+  async findAuthor(authorId: string) {
+    const [row] = await this.db
+      .select({ id: user.id, name: user.name })
+      .from(user)
+      .where(eq(user.id, authorId))
+      .limit(1)
+    return row ?? null
+  }
+
   async findAllSummaries({ trashed = false }: { trashed?: boolean } = {}) {
     return this.db
       .select({

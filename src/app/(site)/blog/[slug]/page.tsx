@@ -72,6 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { post, preview } = visible
   const site = await getSiteSettings()
 
+  const author = post.authorId ? await new PostRepository(db).findAuthor(post.authorId) : null
   const url = `${env.NEXT_PUBLIC_SITE_URL}/blog/${post.slug}`
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -85,6 +86,13 @@ export default async function BlogPostPage({ params }: Props) {
     url,
     mainEntityOfPage: url,
     publisher: { '@type': 'Organization', name: site.title },
+    ...(author && {
+      author: {
+        '@type': 'Person',
+        name: author.name,
+        url: `${env.NEXT_PUBLIC_SITE_URL}/author/${author.id}`,
+      },
+    }),
   }
 
   const { PostDetail } = (await getActiveTheme()).theme.slots
@@ -115,7 +123,12 @@ export default async function BlogPostPage({ params }: Props) {
         ]}
       />
       <WithSidebar>
-        <PostDetail post={post} timeZone={site.timeZone} dateFormat={site.dateFormat} />
+        <PostDetail
+          post={post}
+          timeZone={site.timeZone}
+          dateFormat={site.dateFormat}
+          {...(author && { author: { name: author.name, href: `/author/${author.id}` } })}
+        />
         {!preview && <CommentsSection postId={post.id} />}
       </WithSidebar>
     </>

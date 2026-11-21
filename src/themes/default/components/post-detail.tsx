@@ -2,7 +2,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { formatDate, isOptimizableImage, type PostDetailProps } from '@/themes/engine'
 
-export function PostDetail({ post, timeZone, dateFormat, relatedPosts = [] }: PostDetailProps) {
+export function PostDetail({
+  post,
+  timeZone,
+  dateFormat,
+  author,
+  relatedPosts = [],
+}: PostDetailProps) {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-8 space-y-4">
@@ -16,13 +22,23 @@ export function PostDetail({ post, timeZone, dateFormat, relatedPosts = [] }: Po
         {post.excerpt && (
           <p className="text-lg leading-relaxed text-muted-foreground">{post.excerpt}</p>
         )}
-        {post.publishedAt && (
-          <time
-            dateTime={post.publishedAt.toISOString()}
-            className="block text-sm text-muted-foreground"
-          >
-            {formatDate(post.publishedAt, dateFormat, timeZone)}
-          </time>
+        {(post.publishedAt || author) && (
+          <p className="text-sm text-muted-foreground">
+            {author && (
+              <>
+                By{' '}
+                <Link href={author.href} className="font-medium text-foreground hover:underline">
+                  {author.name}
+                </Link>
+                {post.publishedAt && ' · '}
+              </>
+            )}
+            {post.publishedAt && (
+              <time dateTime={post.publishedAt.toISOString()}>
+                {formatDate(post.publishedAt, dateFormat, timeZone)}
+              </time>
+            )}
+          </p>
         )}
       </div>
 

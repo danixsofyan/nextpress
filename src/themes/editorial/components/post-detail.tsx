@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { formatDate, isOptimizableImage, type PostDetailProps } from '@/themes/engine'
 
-export function PostDetail({ post, timeZone, dateFormat }: PostDetailProps) {
+export function PostDetail({ post, timeZone, dateFormat, author }: PostDetailProps) {
   return (
     <article className="mx-auto max-w-2xl">
       <header className="mb-10 space-y-5 text-center">
@@ -17,6 +17,14 @@ export function PostDetail({ post, timeZone, dateFormat }: PostDetailProps) {
         <h1 className="text-4xl leading-tight font-bold sm:text-5xl">{post.title}</h1>
         {post.excerpt && (
           <p className="text-xl leading-relaxed text-muted-foreground italic">{post.excerpt}</p>
+        )}
+        {author && (
+          <p className="text-sm text-muted-foreground">
+            By{' '}
+            <Link href={author.href} className="font-semibold text-foreground hover:text-primary">
+              {author.name}
+            </Link>
+          </p>
         )}
       </header>
 

@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Posts show a byline linking to the new author archive at `/author/<id>`, and `BlogPosting` JSON-LD names the author.
 - **Tools → Export** downloads a WordPress export file (WXR) of all content, posts, or pages, which NextPress and WordPress can both import.
 - Post revisions: every change to a post's title, excerpt, or content keeps the previous version (the latest 30), and the editor's **Revisions** panel restores any of them.
 - The Publish box now saves what it shows: a publish date (a future date schedules the post, which appears within the hour), **Private** visibility, **Stick to the top of the blog**, and the post format. Password-protected visibility was removed because static pages cannot gate content.
