@@ -1,5 +1,6 @@
+import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
-import { posts, termRelationships } from '@/core/schema'
+import { posts, termRelationships, user } from '@/core/schema'
 import type { CreatePostInput, UpdatePostInput, ListPostsInput } from '@/core/validators'
 import { eq, and, sql } from 'drizzle-orm'
 import { sanitizeContent } from '../sanitize'
@@ -28,8 +29,11 @@ export class PostRepository {
         createdAt: posts.createdAt,
         updatedAt: posts.updatedAt,
         publishedAt: posts.publishedAt,
+        authorId: posts.authorId,
+        authorName: user.name,
       })
       .from(posts)
+      .leftJoin(user, eq(user.id, posts.authorId))
       .orderBy(sql`${posts.createdAt} desc`)
   }
 
@@ -43,12 +47,15 @@ export class PostRepository {
     return result[0] ?? null
   }
 
-  async create(input: CreatePostInput, options: { publishedAt?: Date | null } = {}) {
+  async create(
+    input: CreatePostInput,
+    options: { publishedAt?: Date | null; authorId?: string | null } = {}
+  ) {
     const { taxonomyIds, ...data } = sanitizeContent(input)
     const publishedAt = input.status === 'published' ? (options.publishedAt ?? new Date()) : null
     const result = await this.db
       .insert(posts)
-      .values({ ...data, publishedAt })
+      .values({ ...data, publishedAt, authorId: options.authorId ?? null })
       .returning()
     const post = result[0]!
     if (taxonomyIds?.length) {
@@ -56,6 +63,7 @@ export class PostRepository {
         .insert(termRelationships)
         .values(taxonomyIds.map((taxonomyId) => ({ postId: post.id, taxonomyId })))
     }
+    revalidatePublicSite()
     return post
   }
 
@@ -80,10 +88,12 @@ export class PostRepository {
           .values(taxonomyIds.map((taxonomyId) => ({ postId: id, taxonomyId })))
       }
     }
+    revalidatePublicSite()
     return result[0] ?? null
   }
 
   async delete(id: string) {
     await this.db.delete(posts).where(eq(posts.id, id))
+    revalidatePublicSite()
   }
 }

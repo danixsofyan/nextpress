@@ -7,14 +7,16 @@ import { createPageSchema } from '@/core/validators'
 export async function GET(request: Request) {
   const session = await requireRole(request, 'editor')
   if (session instanceof Response) return session
-  return Response.json(await new PageRepository(db).findMany())
+  return Response.json(await new PageRepository(db).findSummaries())
 }
 
 async function postHandler(request: Request) {
   const session = await requireRole(request, 'editor')
   if (session instanceof Response) return session
   const input = createPageSchema.parse(await request.json())
-  return Response.json(await new PageRepository(db).create(input), { status: 201 })
+  return Response.json(await new PageRepository(db).create(input, { authorId: session.user.id }), {
+    status: 201,
+  })
 }
 
 export const POST = withApiErrors(postHandler)

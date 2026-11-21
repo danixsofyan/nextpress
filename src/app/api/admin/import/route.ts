@@ -61,5 +61,5 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No posts or pages found to import' }, { status: 422 })
   }
 
-  return Response.json(await runImport(items, status))
+  return Response.json(await runImport(items, status, session.user.id))
 }

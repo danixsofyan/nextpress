@@ -18,6 +18,7 @@ type PostRow = {
   id: string
   title: string
   slug: string
+  authorName: string | null
   status: 'draft' | 'published'
   createdAt: string
   publishedAt: string | null
@@ -38,10 +39,10 @@ const columns: Column<PostRow>[] = [
     ),
   },
   {
-    key: 'slug',
-    header: 'Slug',
-    sortValue: (p) => p.slug,
-    cell: (p) => <span className="text-muted-foreground">/{p.slug}</span>,
+    key: 'author',
+    header: 'Author',
+    sortValue: (p) => p.authorName ?? '',
+    cell: (p) => <span className="text-muted-foreground">{p.authorName ?? '—'}</span>,
   },
   {
     key: 'status',
@@ -70,8 +71,8 @@ const filters: FilterOption<PostRow>[] = [
   { value: 'draft', label: 'Drafts', match: (p) => p.status === 'draft' },
 ]
 
-export function PostsTable() {
-  const [rows, setRows] = useState<PostRow[] | null>(null)
+export function PostsTable({ initialRows }: { initialRows?: PostRow[] }) {
+  const [rows, setRows] = useState<PostRow[] | null>(initialRows ?? null)
   const toast = useToast()
   const confirm = useConfirm()
 
@@ -81,8 +82,8 @@ export function PostsTable() {
   }, [])
 
   useEffect(() => {
-    load()
-  }, [load])
+    if (!initialRows) load()
+  }, [load, initialRows])
 
   async function setStatus(items: PostRow[], status: PostRow['status']) {
     try {

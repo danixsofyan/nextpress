@@ -12,7 +12,8 @@ export type ImportSummary = {
 
 export async function runImport(
   items: ImportItem[],
-  statusMode: 'keep' | 'draft'
+  statusMode: 'keep' | 'draft',
+  authorId: string
 ): Promise<ImportSummary> {
   const posts = new PostRepository(db)
   const pages = new PageRepository(db)
@@ -52,7 +53,7 @@ export async function runImport(
 
       const status = statusMode === 'draft' ? 'draft' : item.status
       if (item.kind === 'page') {
-        await pages.create({ title: item.title, slug, content: item.content, status })
+        await pages.create({ title: item.title, slug, content: item.content, status }, { authorId })
       } else {
         const taxonomyIds: string[] = []
         for (const t of item.categories) taxonomyIds.push(await termId(t, 'category'))
@@ -66,7 +67,7 @@ export async function runImport(
             ...(item.excerpt && { excerpt: item.excerpt }),
             ...(taxonomyIds.length > 0 && { taxonomyIds: [...new Set(taxonomyIds)] }),
           },
-          { publishedAt: item.publishedAt }
+          { publishedAt: item.publishedAt, authorId }
         )
       }
       summary.created++

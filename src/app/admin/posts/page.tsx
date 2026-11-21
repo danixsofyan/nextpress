@@ -3,11 +3,14 @@ import { Plus } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
+import { asJson } from '@/lib/as-json'
+import { db } from '@/lib/db'
+import { PostRepository } from '@/server'
 import { PostsTable } from './posts-table'
 
 export const metadata: Metadata = { title: 'Posts' }
 
-export default function PostsPage() {
+export default async function PostsPage() {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between">
@@ -18,7 +21,7 @@ export default function PostsPage() {
           </Link>
         </Button>
       </div>
-      <PostsTable />
+      <PostsTable initialRows={asJson(await new PostRepository(db).findAllSummaries())} />
     </DashboardLayout>
   )
 }

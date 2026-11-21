@@ -23,7 +23,7 @@ async function postHandler(request: Request) {
   const body = await request.json()
   const input = createPostSchema.parse(body)
   const repo = new PostRepository(db)
-  return Response.json(await repo.create(input), { status: 201 })
+  return Response.json(await repo.create(input, { authorId: session.user.id }), { status: 201 })
 }
 
 export const POST = withApiErrors(postHandler)

@@ -339,7 +339,12 @@ export default function EditPostPage() {
                   size="sm"
                   variant="outline"
                   className="text-xs"
-                  onClick={() => window.open(`/blog/${slug}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `/api/admin/preview?path=${encodeURIComponent(`/blog/${slug}`)}`,
+                      '_blank'
+                    )
+                  }
                 >
                   <Eye className="mr-1 size-3.5" /> {isPublished ? 'Preview Changes' : 'Preview'}
                 </Button>

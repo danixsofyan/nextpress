@@ -18,6 +18,7 @@ type PageRow = {
   id: string
   title: string
   slug: string
+  authorName: string | null
   status: 'draft' | 'published'
   createdAt: string
   updatedAt: string
@@ -36,10 +37,10 @@ const columns: Column<PageRow>[] = [
     ),
   },
   {
-    key: 'slug',
-    header: 'Slug',
-    sortValue: (p) => p.slug,
-    cell: (p) => <span className="text-muted-foreground">/{p.slug}</span>,
+    key: 'author',
+    header: 'Author',
+    sortValue: (p) => p.authorName ?? '',
+    cell: (p) => <span className="text-muted-foreground">{p.authorName ?? '—'}</span>,
   },
   {
     key: 'status',
@@ -64,8 +65,8 @@ const filters: FilterOption<PageRow>[] = [
   { value: 'draft', label: 'Drafts', match: (p) => p.status === 'draft' },
 ]
 
-export function PagesTable() {
-  const [rows, setRows] = useState<PageRow[] | null>(null)
+export function PagesTable({ initialRows }: { initialRows?: PageRow[] }) {
+  const [rows, setRows] = useState<PageRow[] | null>(initialRows ?? null)
   const toast = useToast()
   const confirm = useConfirm()
 
@@ -75,8 +76,8 @@ export function PagesTable() {
   }, [])
 
   useEffect(() => {
-    load()
-  }, [load])
+    if (!initialRows) load()
+  }, [load, initialRows])
 
   async function setStatus(items: PageRow[], status: PageRow['status']) {
     try {

@@ -3,11 +3,14 @@ import { Plus } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
+import { asJson } from '@/lib/as-json'
+import { db } from '@/lib/db'
+import { PageRepository } from '@/server'
 import { PagesTable } from './pages-table'
 
 export const metadata: Metadata = { title: 'Pages' }
 
-export default function PagesPage() {
+export default async function PagesPage() {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between">
@@ -18,7 +21,7 @@ export default function PagesPage() {
           </Link>
         </Button>
       </div>
-      <PagesTable />
+      <PagesTable initialRows={asJson(await new PageRepository(db).findSummaries())} />
     </DashboardLayout>
   )
 }
