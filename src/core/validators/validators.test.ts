@@ -12,3 +12,11 @@ test('update schemas never inject defaults into omitted fields', () => {
   expect(updatePageSchema.parse({ title: 'A' })).toEqual({ title: 'A' })
   expect(updateTaxonomySchema.parse({ name: 'A' })).toEqual({ name: 'A' })
 })
+
+test('cover images accept library paths and https URLs only', () => {
+  const ok = ['/media/a1.png', '/uploads/x-y.webp', 'https://cdn.example.com/a.jpg']
+  const bad = ['javascript:alert(1)', '//evil.com/a.png', 'http://x.com/a.png', '/a"onerror=1']
+  for (const coverImage of ok) expect(updatePostSchema.safeParse({ coverImage }).success).toBe(true)
+  for (const coverImage of bad)
+    expect(updatePostSchema.safeParse({ coverImage }).success).toBe(false)
+})

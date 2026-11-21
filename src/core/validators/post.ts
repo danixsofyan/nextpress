@@ -9,7 +9,14 @@ const postFields = z.object({
   title: z.string().min(1).max(500),
   excerpt: z.string().max(1000).optional(),
   content: z.string(),
-  coverImage: z.string().url().optional(),
+  coverImage: z
+    .string()
+    .max(500)
+    .refine((v) => /^\/(?!\/)[\w./-]+$/.test(v) || /^https:\/\/[^\s"']+$/.test(v), {
+      message: 'Use an image from the media library or an https:// URL',
+    })
+    .nullable()
+    .optional(),
   status: z.enum(['draft', 'published']),
   metaTitle: z.string().max(60).optional(),
   metaDescription: z.string().max(160).optional(),

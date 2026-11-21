@@ -16,9 +16,18 @@ type Props = {
   value: string
   onChange: (value: string) => void
   previewClassName?: string
+  compact?: boolean
 }
 
-export function ImageField({ id, label, hint, value, onChange, previewClassName }: Props) {
+export function ImageField({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+  previewClassName,
+  compact = false,
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -45,8 +54,10 @@ export function ImageField({ id, label, hint, value, onChange, previewClassName 
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <div className="flex items-start gap-4">
+      <Label htmlFor={id} className={compact ? 'sr-only' : undefined}>
+        {label}
+      </Label>
+      <div className={compact ? 'flex flex-col gap-3' : 'flex items-start gap-4'}>
         <div
           className={`flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted ${previewClassName ?? 'size-16'}`}
         >
@@ -63,10 +74,10 @@ export function ImageField({ id, label, hint, value, onChange, previewClassName 
             <span className="text-[10px] text-muted-foreground">None</span>
           )}
         </div>
-        <div className="flex-1 space-y-2">
-          <div className="flex gap-2">
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className={compact ? 'flex flex-wrap gap-2' : 'flex gap-2'}>
             <Input
-              className="min-w-0"
+              className={compact ? 'w-full min-w-0' : 'min-w-0'}
               id={id}
               value={value}
               onChange={(e) => onChange(e.target.value)}

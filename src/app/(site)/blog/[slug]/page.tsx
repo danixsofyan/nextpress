@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { JsonLd } from '@/components/json-ld'
 import { extractFaq } from '@/lib/markdown'
-import { breadcrumbSchema, faqSchema } from '@/lib/seo'
+import { absoluteUrl, breadcrumbSchema, faqSchema } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/site'
 import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       publishedTime: post.publishedAt?.toISOString(),
       images: post.coverImage
-        ? [{ url: post.coverImage }]
+        ? [{ url: absoluteUrl(post.coverImage) }]
         : [{ url: `/og?title=${encodeURIComponent(post.title)}` }],
     },
     twitter: {
@@ -79,8 +79,9 @@ export default async function BlogPostPage({ params }: Props) {
     '@type': 'BlogPosting',
     headline: post.metaTitle ?? post.title,
     description: post.metaDescription ?? post.excerpt ?? undefined,
-    image:
-      post.coverImage ?? `${env.NEXT_PUBLIC_SITE_URL}/og?title=${encodeURIComponent(post.title)}`,
+    image: post.coverImage
+      ? absoluteUrl(post.coverImage)
+      : `${env.NEXT_PUBLIC_SITE_URL}/og?title=${encodeURIComponent(post.title)}`,
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     url,

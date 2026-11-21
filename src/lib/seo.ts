@@ -2,7 +2,8 @@ import type { Block } from '@/core/validators'
 import { env } from './env'
 import { extractFaq, type FaqItem, htmlToMarkdown } from './markdown'
 
-export const absoluteUrl = (path: string) => `${env.NEXT_PUBLIC_SITE_URL}${path}`
+export const absoluteUrl = (path: string) =>
+  /^https?:\/\//.test(path) ? path : `${env.NEXT_PUBLIC_SITE_URL}${path}`
 
 type MarkdownPost = {
   title: string

@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- A **Featured image** panel in the post editor picks or uploads the cover image used on the post, in lists, and in Open Graph and JSON-LD (as an absolute URL).
 - A `pattern` page block reuses every block of another page, like WordPress synced patterns: edit the source page once and every page that includes it updates.
 - A **Sign in with Google** plugin for the admin. It needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, links Google to existing accounts by email, and never creates new users.
 - Posts show a byline linking to the new author archive at `/author/<id>`, and `BlogPosting` JSON-LD names the author.

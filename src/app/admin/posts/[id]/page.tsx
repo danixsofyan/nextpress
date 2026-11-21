@@ -7,6 +7,7 @@ import { useToast } from '@/components/admin/toast'
 import { apiFetch, errorMessage } from '@/lib/admin-fetch'
 import { DashboardLayout } from '@/components/admin/dashboard-layout'
 import { TaxonomyBoxes } from '@/components/admin/editor/taxonomy-boxes'
+import { ImageField } from '@/components/admin/image-field'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -52,6 +53,7 @@ export default function EditPostPage() {
   const [format, setFormat] = useState('standard')
   const [visibility, setVisibility] = useState<'public' | 'private'>('public')
   const [isSticky, setIsSticky] = useState(false)
+  const [coverImage, setCoverImage] = useState('')
   const [publishDate, setPublishDate] = useState('')
   const [showStatus, setShowStatus] = useState(false)
   const [showVisibility, setShowVisibility] = useState(false)
@@ -88,6 +90,7 @@ export default function EditPostPage() {
         setVisibility(post.visibility === 'private' ? 'private' : 'public')
         setFormat(post.format ?? 'standard')
         setIsSticky(Boolean(post.isSticky))
+        setCoverImage(post.coverImage ?? '')
         if (post.publishedAt) setPublishDate(toLocalInput(post.publishedAt))
         setLoading(false)
       })
@@ -124,6 +127,7 @@ export default function EditPostPage() {
           visibility,
           format,
           isSticky: visibility === 'public' && isSticky,
+          coverImage: coverImage || null,
           ...(publishDate && { publishedAt: new Date(publishDate).toISOString() }),
         }),
       })
@@ -572,6 +576,19 @@ export default function EditPostPage() {
           )}
 
           <RevisionsPanel postId={id} onRestored={() => window.location.reload()} />
+
+          <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold">Featured image</h3>
+            <ImageField
+              id="cover_image"
+              label="Featured image"
+              hint="Shown on the post, in post lists, and when the post is shared. About 1200×630 px works well."
+              value={coverImage}
+              onChange={setCoverImage}
+              previewClassName="aspect-[1200/630] w-full"
+              compact
+            />
+          </div>
 
           <TaxonomyBoxes
             selected={selectedTaxIds}
