@@ -2,7 +2,7 @@ import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { posts, termRelationships, user } from '@/core/schema'
 import type { CreatePostInput, UpdatePostInput, ListPostsInput } from '@/core/validators'
-import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, desc, eq, ilike, isNotNull, isNull, or, sql } from 'drizzle-orm'
 import { audit } from '../audit'
 import { restoredSlug, trashedSlug } from './trash'
 import { sanitizeContent } from '../sanitize'
@@ -42,6 +42,43 @@ export class PostRepository {
       .leftJoin(user, eq(user.id, posts.authorId))
       .where(trashed ? isNotNull(posts.deletedAt) : isNull(posts.deletedAt))
       .orderBy(sql`${posts.createdAt} desc`)
+  }
+
+  async findPublishedByTaxonomy(taxonomyId: string, limit = 50) {
+    return this.db
+      .select({ post: posts })
+      .from(posts)
+      .innerJoin(termRelationships, eq(termRelationships.postId, posts.id))
+      .where(
+        and(
+          eq(termRelationships.taxonomyId, taxonomyId),
+          eq(posts.status, 'published'),
+          isNull(posts.deletedAt)
+        )
+      )
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit)
+      .then((rows) => rows.map((r) => r.post))
+  }
+
+  async search(query: string, limit = 20) {
+    const pattern = `%${query.replace(/[\\%_]/g, (c) => `\\${c}`)}%`
+    return this.db
+      .select()
+      .from(posts)
+      .where(
+        and(
+          eq(posts.status, 'published'),
+          isNull(posts.deletedAt),
+          or(
+            ilike(posts.title, pattern),
+            ilike(posts.excerpt, pattern),
+            ilike(posts.content, pattern)
+          )
+        )
+      )
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit)
   }
 
   async findBySlug(slug: string) {

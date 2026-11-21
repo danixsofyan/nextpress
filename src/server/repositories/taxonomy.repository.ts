@@ -1,9 +1,9 @@
 import { revalidatePublicSite } from '../revalidate'
 import { audit } from '../audit'
 import type { Database } from '@/core/db'
-import { taxonomies, termRelationships } from '@/core/schema'
+import { posts, taxonomies, termRelationships } from '@/core/schema'
 import type { CreateTaxonomyInput, UpdateTaxonomyInput } from '@/core/validators'
-import { asc, count, eq } from 'drizzle-orm'
+import { and, asc, count, desc, eq, isNull } from 'drizzle-orm'
 
 export class TaxonomyRepository {
   constructor(private readonly db: Database) {}
@@ -31,6 +31,25 @@ export class TaxonomyRepository {
       .where(type ? eq(taxonomies.type, type) : undefined)
       .groupBy(taxonomies.id)
       .orderBy(asc(taxonomies.name))
+  }
+
+  async findPublishedWithCounts(type: 'category' | 'tag', limit = 50) {
+    return this.db
+      .select({ name: taxonomies.name, slug: taxonomies.slug, count: count(posts.id) })
+      .from(taxonomies)
+      .innerJoin(termRelationships, eq(termRelationships.taxonomyId, taxonomies.id))
+      .innerJoin(
+        posts,
+        and(
+          eq(posts.id, termRelationships.postId),
+          eq(posts.status, 'published'),
+          isNull(posts.deletedAt)
+        )
+      )
+      .where(eq(taxonomies.type, type))
+      .groupBy(taxonomies.id)
+      .orderBy(desc(count(posts.id)), asc(taxonomies.name))
+      .limit(limit)
   }
 
   async findBySlug(slug: string) {
