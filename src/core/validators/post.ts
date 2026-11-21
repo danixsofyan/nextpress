@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const createPostSchema = z.object({
+const postFields = z.object({
   slug: z
     .string()
     .min(1)
@@ -10,13 +10,17 @@ export const createPostSchema = z.object({
   excerpt: z.string().max(1000).optional(),
   content: z.string(),
   coverImage: z.string().url().optional(),
-  status: z.enum(['draft', 'published']).default('draft'),
+  status: z.enum(['draft', 'published']),
   metaTitle: z.string().max(60).optional(),
   metaDescription: z.string().max(160).optional(),
   taxonomyIds: z.array(z.string().uuid()).optional(),
 })
 
-export const updatePostSchema = createPostSchema.partial()
+export const createPostSchema = postFields.extend({
+  status: postFields.shape.status.default('draft'),
+})
+
+export const updatePostSchema = postFields.partial()
 
 export const listPostsSchema = z.object({
   status: z.enum(['draft', 'published']).optional(),

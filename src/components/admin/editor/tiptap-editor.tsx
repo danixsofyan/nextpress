@@ -3,8 +3,6 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import ImageExt from '@tiptap/extension-image'
-import LinkExt from '@tiptap/extension-link'
-import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import {
   Bold,
@@ -71,11 +69,10 @@ function Divider() {
 export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     extensions: [
-      StarterKit,
+      StarterKit.configure({ link: { openOnClick: false } }),
       ImageExt,
-      LinkExt.configure({ openOnClick: false }),
-      Underline,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content,
