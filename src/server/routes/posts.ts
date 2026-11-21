@@ -132,9 +132,16 @@ export function postsRouter(db: Database) {
       method: 'delete',
       path: '/api/posts/:id',
       tags: ['Posts'],
-      request: { params: idParams },
+      request: {
+        params: idParams,
+        query: z.object({
+          permanent: z.enum(['true', 'false']).optional().openapi({
+            description: 'Delete a trashed item for good instead of moving it to the Trash',
+          }),
+        }),
+      },
       responses: {
-        204: { description: 'Deleted' },
+        204: { description: 'Moved to the Trash, or deleted permanently' },
         404: {
           content: { 'application/json': { schema: z.object({ error: z.string() }) } },
           description: 'Not found',
@@ -143,9 +150,9 @@ export function postsRouter(db: Database) {
     }),
     async (c) => {
       const { id } = c.req.valid('param')
-      const existing = await repo.findById(id)
-      if (!existing) return c.json(errorBody('Not found', 404), 404)
-      await repo.delete(id)
+      const { permanent } = c.req.valid('query')
+      const done = permanent === 'true' ? await repo.purge(id) : await repo.delete(id)
+      if (!done) return c.json(errorBody('Not found', 404), 404)
       return new Response(null, { status: 204 })
     }
   )

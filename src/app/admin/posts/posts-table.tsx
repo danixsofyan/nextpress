@@ -1,8 +1,9 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import { ExternalLink, Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/admin-fetch'
 import { useConfirm } from '@/components/admin/confirm-dialog'
@@ -71,15 +72,22 @@ const filters: FilterOption<PostRow>[] = [
   { value: 'draft', label: 'Drafts', match: (p) => p.status === 'draft' },
 ]
 
-export function PostsTable({ initialRows }: { initialRows?: PostRow[] }) {
+export function PostsTable({
+  initialRows,
+  view = 'all',
+}: {
+  initialRows?: PostRow[]
+  view?: 'all' | 'trash'
+}) {
   const [rows, setRows] = useState<PostRow[] | null>(initialRows ?? null)
   const toast = useToast()
   const confirm = useConfirm()
+  const router = useRouter()
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/admin/posts')
+    const res = await fetch(`/api/admin/posts${view === 'trash' ? '?trashed=1' : ''}`)
     setRows(res.ok ? await res.json() : [])
-  }, [])
+  }, [view])
 
   useEffect(() => {
     if (!initialRows) load()
@@ -101,71 +109,126 @@ export function PostsTable({ initialRows }: { initialRows?: PostRow[] }) {
     }
   }
 
-  async function remove(items: PostRow[]) {
+  async function each(items: PostRow[], request: (p: PostRow) => Promise<unknown>) {
     try {
-      await Promise.all(
-        items.map((p) => apiFetch(`/api/admin/posts/${p.id}`, { method: 'DELETE' }))
-      )
+      await Promise.all(items.map(request))
     } finally {
       await load()
+      router.refresh()
     }
   }
 
-  const bulkActions: BulkAction<PostRow>[] = [
-    { label: 'Publish', run: (items) => setStatus(items, 'published') },
-    { label: 'Move to Draft', run: (items) => setStatus(items, 'draft') },
-    {
-      label: 'Delete permanently',
-      run: remove,
-      confirm: (n) => `Delete ${n} post${n === 1 ? '' : 's'} permanently? This cannot be undone.`,
-    },
-  ]
+  const trash = (items: PostRow[]) =>
+    each(items, (p) => apiFetch(`/api/admin/posts/${p.id}`, { method: 'DELETE' }))
+  const restore = (items: PostRow[]) =>
+    each(items, (p) => apiFetch(`/api/admin/posts/${p.id}/restore`, { method: 'POST' }))
+  const purge = (items: PostRow[]) =>
+    each(items, (p) => apiFetch(`/api/admin/posts/${p.id}?permanent=1`, { method: 'DELETE' }))
+
+  const shownColumns: Column<PostRow>[] =
+    view === 'trash'
+      ? columns.map((c) =>
+          c.key === 'title'
+            ? { ...c, cell: (p) => <span className="font-medium">{p.title}</span> }
+            : c
+        )
+      : columns
+
+  const bulkActions: BulkAction<PostRow>[] =
+    view === 'trash'
+      ? [
+          { label: 'Restore', run: restore },
+          {
+            label: 'Delete permanently',
+            run: purge,
+            confirm: (n) =>
+              `Delete ${n} post${n === 1 ? '' : 's'} permanently? This cannot be undone.`,
+          },
+        ]
+      : [
+          { label: 'Publish', run: (items) => setStatus(items, 'published') },
+          { label: 'Move to Draft', run: (items) => setStatus(items, 'draft') },
+          {
+            label: 'Move to Trash',
+            run: trash,
+            confirm: (n) => `Move ${n} post${n === 1 ? '' : 's'} to the Trash?`,
+          },
+        ]
 
   return (
     <DataTable
       rows={rows}
       rowId={(p) => p.id}
-      columns={columns}
+      columns={shownColumns}
       searchText={(p) => `${p.title} ${p.slug}`}
       searchPlaceholder="Search posts"
-      filters={filters}
+      {...(view === 'all' && { filters })}
       bulkActions={bulkActions}
       defaultSort={{ key: 'date', dir: 'desc' }}
-      emptyMessage="No posts yet."
-      rowActions={(p) => (
-        <>
-          <Link
-            href={`/admin/posts/${p.id}`}
-            className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label={`Edit ${p.title}`}
-          >
-            <Pencil className="size-4" />
-          </Link>
-          {p.status === 'published' && (
-            <a
-              href={`/blog/${p.slug}`}
-              target="_blank"
-              rel="noreferrer"
+      emptyMessage={view === 'trash' ? 'The Trash is empty.' : 'No posts yet.'}
+      rowActions={(p) =>
+        view === 'trash' ? (
+          <>
+            <button
+              type="button"
+              onClick={() => toast.run(() => restore([p]), 'Post restored.')}
               className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label={`View ${p.title}`}
+              aria-label={`Restore ${p.title}`}
             >
-              <ExternalLink className="size-4" />
-            </a>
-          )}
-          <button
-            type="button"
-            onClick={async () => {
-              if (await confirm(`Delete "${p.title}" permanently? This cannot be undone.`)) {
-                toast.run(() => remove([p]), 'Post deleted.')
-              }
-            }}
-            className="rounded-md p-2 text-destructive hover:bg-destructive/10"
-            aria-label={`Delete ${p.title}`}
-          >
-            <Trash2 className="size-4" />
-          </button>
-        </>
-      )}
+              <RotateCcw className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (await confirm(`Delete "${p.title}" permanently? This cannot be undone.`)) {
+                  toast.run(() => purge([p]), 'Post deleted permanently.')
+                }
+              }}
+              className="rounded-md p-2 text-destructive hover:bg-destructive/10"
+              aria-label={`Delete ${p.title} permanently`}
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              href={`/admin/posts/${p.id}`}
+              className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label={`Edit ${p.title}`}
+            >
+              <Pencil className="size-4" />
+            </Link>
+            {p.status === 'published' && (
+              <a
+                href={`/blog/${p.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label={`View ${p.title}`}
+              >
+                <ExternalLink className="size-4" />
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={async () => {
+                const ok = await confirm({
+                  title: `Move "${p.title}" to the Trash?`,
+                  description: 'You can restore it from the Trash.',
+                  confirmLabel: 'Move to Trash',
+                  destructive: true,
+                })
+                if (ok) toast.run(() => trash([p]), 'Post moved to the Trash.')
+              }}
+              className="rounded-md p-2 text-destructive hover:bg-destructive/10"
+              aria-label={`Move ${p.title} to the Trash`}
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </>
+        )
+      }
     />
   )
 }

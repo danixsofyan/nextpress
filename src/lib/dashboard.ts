@@ -12,9 +12,9 @@ export type DashboardStats = {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const rows = await db.execute<DashboardStats>(sql`
     select
-      (select count(*) from posts)::int as "totalPosts",
-      (select count(*) from posts where status = 'published')::int as "publishedPosts",
-      (select count(*) from pages)::int as "totalPages",
+      (select count(*) from posts where deleted_at is null)::int as "totalPosts",
+      (select count(*) from posts where deleted_at is null and status = 'published')::int as "publishedPosts",
+      (select count(*) from pages where deleted_at is null)::int as "totalPages",
       (select count(*) from media)::int as "totalMedia",
       (select count(*) from taxonomies)::int as "totalTaxonomies"
   `)

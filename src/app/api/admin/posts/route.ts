@@ -15,7 +15,8 @@ export async function GET(request: Request) {
     if (!post) return apiError('Not found', 404)
     return Response.json(post)
   }
-  return Response.json(await new PostRepository(db).findAllSummaries())
+  const trashed = url.searchParams.get('trashed') === '1'
+  return Response.json(await new PostRepository(db).findAllSummaries({ trashed }))
 }
 
 async function postHandler(request: Request) {

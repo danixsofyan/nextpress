@@ -30,7 +30,12 @@ export async function DELETE(request: Request, { params }: Params) {
   const session = await requireRole(request, 'editor')
   if (session instanceof Response) return session
   const { id } = await params
-  await new PageRepository(db).delete(id)
+  const repo = new PageRepository(db)
+  const done =
+    new URL(request.url).searchParams.get('permanent') === '1'
+      ? await repo.purge(id)
+      : await repo.delete(id)
+  if (!done) return apiError('Not found', 404)
   return new Response(null, { status: 204 })
 }
 

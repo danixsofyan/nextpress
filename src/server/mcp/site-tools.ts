@@ -185,9 +185,9 @@ export function registerSiteTools(server: McpServer, db: Database) {
 
   server.tool(
     'delete_page',
-    'Delete a page permanently by ID',
+    'Move a page to the Trash by ID (restore it from the admin)',
     { id: z.string().uuid() },
-    async ({ id }) => ((await pages.delete(id)) ? json({ deleted: id }) : fail('Page not found'))
+    async ({ id }) => ((await pages.delete(id)) ? json({ trashed: id }) : fail('Page not found'))
   )
 
   server.tool(

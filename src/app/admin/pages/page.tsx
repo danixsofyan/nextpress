@@ -10,7 +10,19 @@ import { PagesTable } from './pages-table'
 
 export const metadata: Metadata = { title: 'Pages' }
 
-export default async function PagesPage() {
+export default async function PagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>
+}) {
+  const view = (await searchParams).view === 'trash' ? 'trash' : 'all'
+  const repo = new PageRepository(db)
+  const [live, trashed] = await Promise.all([
+    repo.findSummaries(),
+    repo.findSummaries({ trashed: true }),
+  ])
+  const tab = (active: boolean) =>
+    active ? 'font-semibold text-foreground' : 'text-primary hover:underline'
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between">
@@ -21,7 +33,16 @@ export default async function PagesPage() {
           </Link>
         </Button>
       </div>
-      <PagesTable initialRows={asJson(await new PageRepository(db).findSummaries())} />
+      <nav className="flex gap-2 text-sm text-muted-foreground" aria-label="Page views">
+        <Link href="/admin/pages" className={tab(view === 'all')}>
+          All ({live.length})
+        </Link>
+        |
+        <Link href="/admin/pages?view=trash" className={tab(view === 'trash')}>
+          Trash ({trashed.length})
+        </Link>
+      </nav>
+      <PagesTable key={view} view={view} initialRows={asJson(view === 'trash' ? trashed : live)} />
     </DashboardLayout>
   )
 }

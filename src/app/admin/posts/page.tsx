@@ -10,7 +10,19 @@ import { PostsTable } from './posts-table'
 
 export const metadata: Metadata = { title: 'Posts' }
 
-export default async function PostsPage() {
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>
+}) {
+  const view = (await searchParams).view === 'trash' ? 'trash' : 'all'
+  const repo = new PostRepository(db)
+  const [live, trashed] = await Promise.all([
+    repo.findAllSummaries(),
+    repo.findAllSummaries({ trashed: true }),
+  ])
+  const tab = (active: boolean) =>
+    active ? 'font-semibold text-foreground' : 'text-primary hover:underline'
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between">
@@ -21,7 +33,16 @@ export default async function PostsPage() {
           </Link>
         </Button>
       </div>
-      <PostsTable initialRows={asJson(await new PostRepository(db).findAllSummaries())} />
+      <nav className="flex gap-2 text-sm text-muted-foreground" aria-label="Post views">
+        <Link href="/admin/posts" className={tab(view === 'all')}>
+          All ({live.length})
+        </Link>
+        |
+        <Link href="/admin/posts?view=trash" className={tab(view === 'trash')}>
+          Trash ({trashed.length})
+        </Link>
+      </nav>
+      <PostsTable key={view} view={view} initialRows={asJson(view === 'trash' ? trashed : live)} />
     </DashboardLayout>
   )
 }

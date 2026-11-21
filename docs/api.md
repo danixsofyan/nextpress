@@ -28,17 +28,19 @@ Base URL: `https://your-site.com/api`
 | POST   | `/api/posts`          | Create a post                            |
 | GET    | `/api/posts/:id`      | Get a post                               |
 | PUT    | `/api/posts/:id`      | Update a post                            |
-| DELETE | `/api/posts/:id`      | Delete a post                            |
+| DELETE | `/api/posts/:id`      | Move a post to the Trash                 |
 | GET    | `/api/pages`          | List pages                               |
 | POST   | `/api/pages`          | Create a page                            |
 | GET    | `/api/pages/:id`      | Get a page                               |
 | PUT    | `/api/pages/:id`      | Update a page                            |
-| DELETE | `/api/pages/:id`      | Delete a page                            |
+| DELETE | `/api/pages/:id`      | Move a page to the Trash                 |
 | GET    | `/api/taxonomies`     | List categories and tags (`type`)        |
 | POST   | `/api/taxonomies`     | Create a category or tag                 |
 | PUT    | `/api/taxonomies/:id` | Update a category or tag                 |
 | DELETE | `/api/taxonomies/:id` | Delete a category or tag                 |
-| GET    | `/api/health`         | Health check, no key required            |
+
+Deleting a post or page moves it to the Trash. Send `DELETE` again with `?permanent=true` to remove a trashed item for good. Every write is recorded in the append-only `audit_logs` table with the actor and the request ID.
+| GET | `/api/health` | Health check, no key required |
 
 HTML in `content` is sanitized on write. Scripts, event handlers, and `javascript:` links are removed.
 
@@ -68,7 +70,7 @@ Errors are JSON, for example `{"error": "Not found"}`.
 | `get_page`             | Get a page and its blocks by slug                                     |
 | `create_page`          | Create a page from blocks (or HTML)                                   |
 | `update_page`          | Update a page; passing `blocks` replaces them all                     |
-| `delete_page`          | Delete a page                                                         |
+| `delete_page`          | Move a page to the Trash                                              |
 | `set_homepage`         | Show the latest posts or a published page on the homepage             |
 | `set_navigation`       | Replace the header navigation links                                   |
 | `update_site_identity` | Update site title, tagline, and default meta description              |

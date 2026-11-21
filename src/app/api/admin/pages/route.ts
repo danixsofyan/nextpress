@@ -7,7 +7,8 @@ import { createPageSchema } from '@/core/validators'
 export async function GET(request: Request) {
   const session = await requireRole(request, 'editor')
   if (session instanceof Response) return session
-  return Response.json(await new PageRepository(db).findSummaries())
+  const trashed = new URL(request.url).searchParams.get('trashed') === '1'
+  return Response.json(await new PageRepository(db).findSummaries({ trashed }))
 }
 
 async function postHandler(request: Request) {
