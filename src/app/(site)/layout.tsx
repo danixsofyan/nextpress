@@ -1,10 +1,10 @@
 import { MenuRepository, PageRepository } from '@/server'
 import { defaultScheme, themeSchemeCss, themeShapeVars } from '@/themes/engine'
-import Script from 'next/script'
 import type { CSSProperties } from 'react'
 import './site.css'
 import { AdminBar } from '@/components/admin-bar'
 import { db } from '@/lib/db'
+import { getActivePlugins } from '@/lib/plugins'
 import { getSiteSettings } from '@/lib/site'
 import { THEMES, getActiveTheme } from '@/lib/themes'
 
@@ -34,10 +34,11 @@ async function getFooterLinks(privacyPageId: string) {
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const site = await getSiteSettings()
-  const [footerLinks, navigation, active] = await Promise.all([
+  const [footerLinks, navigation, active, plugins] = await Promise.all([
     getFooterLinks(site.privacyPage),
     getNavigation(),
     getActiveTheme(),
+    getActivePlugins(),
   ])
   const { Layout } = active.theme.slots
   return (
@@ -60,16 +61,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           {children}
         </Layout>
       </div>
-      {site.gaId && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${site.gaId}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","${site.gaId}")`}
-          </Script>
-        </>
+      {plugins.map(({ plugin, config }) =>
+        plugin.PublicScripts ? <plugin.PublicScripts key={plugin.id} config={config} /> : null
       )}
     </>
   )

@@ -456,19 +456,6 @@ export function SettingsClient({
             </p>
           </div>
           <div>
-            <Label htmlFor="ga_id">Google Analytics 4 Measurement ID</Label>
-            <Input
-              id="ga_id"
-              value={settings.ga_id ?? ''}
-              onChange={(e) => set('ga_id', e.target.value.trim())}
-              placeholder="G-XXXXXXXXXX"
-              className="mt-1"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Loaded on the public site only, never in the admin.
-            </p>
-          </div>
-          <div>
             <Label htmlFor="robots_txt">Custom robots.txt</Label>
             <textarea
               id="robots_txt"

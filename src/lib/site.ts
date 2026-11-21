@@ -28,7 +28,6 @@ export const getSiteSettings = cache(async () => {
     feedFullText: s.rss_use_excerpt !== '1',
     discourageSearch: s.blog_public === '0',
     privacyPage: s.privacy_policy_page || '',
-    gaId: /^G-[A-Z0-9]+$/.test(s.ga_id ?? '') ? (s.ga_id as string) : '',
     robotsTxt: s.robots_txt || '',
   }
 })

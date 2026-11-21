@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Menu,
   Palette,
+  Plug,
   Settings,
   Tag,
   Upload,
@@ -48,6 +49,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/taxonomies', icon: Tag, label: 'Taxonomies', min: 'editor' },
       { href: '/admin/menus', icon: Menu, label: 'Menus', min: 'editor' },
       { href: '/admin/appearance', icon: Palette, label: 'Appearance', min: 'administrator' },
+      { href: '/admin/plugins', icon: Plug, label: 'Plugins', min: 'administrator' },
     ],
   },
   {

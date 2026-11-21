@@ -31,12 +31,14 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
   - **General**: site title, tagline, timezone, date and time formats (WordPress format characters)
   - **Reading**: latest posts or a static homepage, posts per page, feed length, full text or excerpt in feeds, discourage search engines
   - **Branding**: custom logo, site icon (favicon), default social (Open Graph) image
-  - **SEO**: default meta description, Google Analytics 4, custom `robots.txt`
+  - **SEO**: default meta description, custom `robots.txt`
   - **Privacy**: create or choose a Privacy Policy page, linked in the site footer
   - **API**: create, list, and revoke API keys
 - **Tools → Import**: WordPress export files (WXR) and RSS/Atom feeds (Blogger, Medium, Substack, Ghost, and others)
 - **Appearance → Themes**: switch themes, or open a live preview of another theme that only you see
 - **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy
+- **Plugins**: activate, deactivate, and configure plugins (Google Analytics 4, Meta Pixel), filtered by All, Active, and Inactive
+- **Trash** for posts and pages with restore and permanent delete, an append-only **audit log**, and a **Donations** list with donor names and messages
 - **Content and Blocks panels** in the page editor collapse independently
 - Light / dark / system admin color scheme
 
@@ -327,6 +329,12 @@ export const theme = defineTheme({
 Themes are code, so a new theme ships with the repository: copy a theme folder in `src/themes/`, register it in `THEMES` in `src/lib/themes.ts`, and deploy. It then appears in **Appearance → Themes**. Theme code is never uploaded at runtime, because running uploaded code would let anyone with admin access execute anything on the server. Styles are data, so they change without a deploy.
 
 See the [theme development guide](docs/theme-development.md), or call the MCP tool `get_theme_spec` for the full interface schema.
+
+## Plugins
+
+Plugins add integrations such as analytics and ad pixels. Like themes, they ship as code in `src/plugins/<id>` and are registered in `src/plugins/index.ts`; administrators activate and configure them under **Plugins** without a deploy. Secrets stay in environment variables. Bundled plugins: Google Analytics 4 and Meta Pixel.
+
+See the [plugin development guide](docs/plugin-development.md) and [ADR 0009](docs/adr/0009-plugins-ship-as-code.md).
 
 ## Contributing
 
