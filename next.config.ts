@@ -12,7 +12,7 @@ function csp(extra: { script?: string; style?: string } = {}) {
     "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self' https://pay.sumopod.com",
+    "form-action 'self' https://pay.sumopod.com https://checkout.pymnt.app",
     "frame-ancestors 'none'",
   ].join('; ')
 }
