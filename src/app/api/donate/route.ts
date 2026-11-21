@@ -6,6 +6,7 @@ import {
   parseDonationAmount,
   parseDonor,
 } from '@/lib/donations'
+import { clientIp, verifyCaptcha } from '@/lib/captcha'
 import { env } from '@/lib/env'
 import { logger, requestIdOf } from '@/lib/logger'
 import { db } from '@/lib/db'
@@ -31,6 +32,12 @@ export async function POST(request: Request) {
   const amount = parseDonationAmount(form)
   const donor = parseDonor(form)
   if (!amount || !donor) return back('/donate/error')
+  const captcha = form.get('captcha')
+  if (
+    !(await verifyCaptcha(typeof captcha === 'string' ? captcha : null, clientIp(request.headers)))
+  ) {
+    return back('/donate/error')
+  }
   const requestId = requestIdOf(request)
   const orderId = donationOrderId()
   const repo = new DonationRepository(db)

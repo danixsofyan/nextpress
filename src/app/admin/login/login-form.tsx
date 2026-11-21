@@ -4,8 +4,16 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, BookOpen } from 'lucide-react'
 import { ThemeToggle } from '@/components/admin/theme-toggle'
+import { CaptchaWidget } from '@/components/captcha-widget'
+import type { CaptchaConfig } from '@/lib/plugins'
 
-export function LoginForm({ needsSetup }: { needsSetup: boolean }) {
+export function LoginForm({
+  needsSetup,
+  captcha,
+}: {
+  needsSetup: boolean
+  captcha: CaptchaConfig | null
+}) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -13,6 +21,8 @@ export function LoginForm({ needsSetup }: { needsSetup: boolean }) {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const [attempt, setAttempt] = useState(0)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -20,14 +30,25 @@ export function LoginForm({ needsSetup }: { needsSetup: boolean }) {
     setError('')
     const res = await fetch(needsSetup ? '/api/auth/sign-up/email' : '/api/auth/sign-in/email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(captchaToken && { 'x-captcha-token': captchaToken }),
+      },
       body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
     })
     if (res.ok) {
       router.push('/admin/dashboard')
       router.refresh()
     } else {
-      setError(needsSetup ? 'Could not create the account' : 'Invalid email or password')
+      setError(
+        res.status === 403 && captcha
+          ? 'The security check failed. Please try again.'
+          : needsSetup
+            ? 'Could not create the account'
+            : 'Invalid email or password'
+      )
+      setCaptchaToken('')
+      setAttempt((n) => n + 1)
     }
     setLoading(false)
   }
@@ -127,6 +148,15 @@ export function LoginForm({ needsSetup }: { needsSetup: boolean }) {
                   </div>
                 </div>
 
+                {captcha && (
+                  <CaptchaWidget
+                    key={attempt}
+                    provider={captcha.provider}
+                    siteKey={captcha.siteKey}
+                    onToken={setCaptchaToken}
+                  />
+                )}
+
                 {error && (
                   <p role="alert" className="text-sm text-destructive">
                     {error}
@@ -135,7 +165,7 @@ export function LoginForm({ needsSetup }: { needsSetup: boolean }) {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || (captcha !== null && !captchaToken)}
                   className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
                   {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}

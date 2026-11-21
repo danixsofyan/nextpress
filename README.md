@@ -38,7 +38,7 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 - **Appearance → Themes**: switch themes, or open a live preview of another theme that only you see
 - **Appearance → Customize**: colors, font, and corner radius per theme with a live preview, Reset, and Export/Import JSON. Saved in the database and applied without a deploy
 - **Appearance → Widgets**: blog sidebar and footer widgets (Search, Recent Posts, Categories, Tag Cloud, Text, Links), reordered with up and down buttons
-- **Plugins**: activate, deactivate, and configure plugins (Google Analytics 4, Meta Pixel), filtered by All, Active, and Inactive
+- **Plugins**: activate, deactivate, and configure plugins (Google Analytics 4, Meta Pixel, Cloudflare Turnstile, Google reCAPTCHA), filtered by All, Active, and Inactive
 - **Trash** for posts and pages with restore and permanent delete, an append-only **audit log**, and a **Donations** list with donor names and messages
 - **Content and Blocks panels** in the page editor collapse independently
 - Light / dark / system admin color scheme
@@ -336,7 +336,7 @@ See the [theme development guide](docs/theme-development.md), or call the MCP to
 
 ## Plugins
 
-Plugins add integrations such as analytics and ad pixels. Like themes, they ship as code in `src/plugins/<id>` and are registered in `src/plugins/index.ts`; administrators activate and configure them under **Plugins** without a deploy. Secrets stay in environment variables. Bundled plugins: Google Analytics 4 and Meta Pixel.
+Plugins add integrations such as analytics and ad pixels. Like themes, they ship as code in `src/plugins/<id>` and are registered in `src/plugins/index.ts`; administrators activate and configure them under **Plugins** without a deploy. Secrets stay in environment variables. Bundled plugins: Google Analytics 4, Meta Pixel, Cloudflare Turnstile, and Google reCAPTCHA (sign-in and donation form protection).
 
 See the [plugin development guide](docs/plugin-development.md) and [ADR 0009](docs/adr/0009-plugins-ship-as-code.md).
 

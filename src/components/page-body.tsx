@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { donationsEnabled } from '@/lib/donations'
+import { getCaptcha } from '@/lib/plugins'
 import { getSiteSettings } from '@/lib/site'
 import { getActiveTheme } from '@/lib/themes'
 import { PostRepository } from '@/server'
@@ -34,6 +35,7 @@ export async function PageBody({ page }: { page: Page }) {
       timeZone={site.timeZone}
       dateFormat={site.dateFormat}
       donations={donationsEnabled()}
+      captcha={await getCaptcha()}
     />
   )
 }

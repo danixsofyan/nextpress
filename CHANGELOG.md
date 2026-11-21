@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Cloudflare Turnstile and Google reCAPTCHA plugins protect the admin sign-in and the donation form. The widget loads only when a visitor starts filling in the donation form, tokens are verified on the server, the secret keys come from `TURNSTILE_SECRET_KEY` and `RECAPTCHA_SECRET_KEY`, and only one captcha can be active.
 - Widgets: **Appearance → Widgets** manages a blog sidebar and a footer area with Search, Recent Posts, Categories, Tag Cloud, Text, and Links widgets. Empty areas render nothing. AI agents manage them with the new `get_widgets` and `set_widgets` MCP tools (22 tools in total).
 - Category and tag archives at `/category/<slug>` and `/tag/<slug>` (static, in the sitemap), and a site search at `/search` over published posts.
 - Plugins: a WordPress-style **Plugins** screen to activate, deactivate, and configure plugins that ship as code in `src/plugins`. The first two are Google Analytics 4 (replacing the Measurement ID field in Settings, which is migrated automatically) and Meta Pixel. See `docs/plugin-development.md`.

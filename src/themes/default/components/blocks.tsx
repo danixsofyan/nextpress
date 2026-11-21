@@ -34,6 +34,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
+import { CaptchaWidget } from '@/components/captcha-widget'
 import { GithubStars } from '@/components/github-stars'
 import { LottiePlayer } from '@/components/lottie-player'
 import { PostCard } from './post-card'
@@ -139,7 +140,13 @@ const rupiah = new Intl.NumberFormat('id-ID', {
 const field =
   'mt-1.5 w-full rounded-xl border bg-background/60 px-3.5 text-sm outline-none transition-shadow focus:border-transparent focus:ring-2 focus:ring-[var(--color-glow-1)]'
 
-function DonateForm({ block }: { block: Extract<Block, { type: 'donate' }> }) {
+function DonateForm({
+  block,
+  captcha,
+}: {
+  block: Extract<Block, { type: 'donate' }>
+  captcha: BlocksProps['captcha']
+}) {
   const amounts = [...new Set(block.amounts)].sort((a, b) => a - b)
   return (
     <section className="relative py-16">
@@ -215,6 +222,7 @@ function DonateForm({ block }: { block: Extract<Block, { type: 'donate' }> }) {
               className={`${field} py-2.5`}
             />
           </div>
+          {captcha && <CaptchaWidget provider={captcha.provider} siteKey={captcha.siteKey} lazy />}
           <button
             type="submit"
             className="np-glow-button inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform duration-300 hover:-translate-y-0.5"
@@ -238,6 +246,7 @@ function BlockView({
   timeZone,
   dateFormat,
   donations,
+  captcha,
 }: { block: Block } & Omit<BlocksProps, 'blocks'>) {
   switch (block.type) {
     case 'hero':
@@ -490,7 +499,7 @@ function BlockView({
       )
     }
     case 'donate':
-      return donations ? <DonateForm block={block} /> : null
+      return donations ? <DonateForm block={block} captcha={captcha} /> : null
     case 'lottie':
       return (
         <section className="relative py-16">

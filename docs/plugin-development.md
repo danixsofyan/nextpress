@@ -30,6 +30,10 @@ Plugins add integrations to a NextPress site. They ship as code (see [ADR 0009](
 4. If it needs a secret, add the variable to `src/lib/env.ts` and `.env.example`, and list its name in `requiredEnv`.
 5. Add a test next to the plugin that checks its config schema rejects unsafe values.
 
+## Captcha plugins
+
+A plugin with `captcha: 'turnstile'` or `captcha: 'recaptcha'` protects the admin sign-in and the donation form. Only one captcha plugin can be active. The widget renders through `components/captcha-widget.tsx` (lazily on public forms, so it never affects the first paint), and `verifyCaptcha()` in `src/lib/captcha.ts` checks the token on the server with the secret from the environment.
+
 ## Rules
 
 - Validate every setting with a strict schema. Values end up inside scripts, so allow only the characters an ID can contain.

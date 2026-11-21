@@ -23,6 +23,8 @@ const schema = z
     SUMOPOD_WEBHOOK_SECRET: z.string().min(16).optional(),
     SUMOPOD_WEBHOOK_TOKEN: z.string().min(16).optional(),
     SUMOPOD_API_BASE_URL: z.string().url().default('https://api-pay.sumopod.com'),
+    TURNSTILE_SECRET_KEY: z.string().min(16).optional(),
+    RECAPTCHA_SECRET_KEY: z.string().min(16).optional(),
   })
   .refine(
     (e) =>

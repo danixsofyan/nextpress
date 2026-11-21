@@ -5,11 +5,12 @@ const dev = process.env.NODE_ENV !== 'production'
 function csp(extra: { script?: string; style?: string } = {}) {
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}${extra.script ? ` ${extra.script}` : ''} https://www.googletagmanager.com https://connect.facebook.net`,
+    `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}${extra.script ? ` ${extra.script}` : ''} https://www.googletagmanager.com https://connect.facebook.net https://challenges.cloudflare.com https://www.google.com https://www.gstatic.com`,
     `style-src 'self' 'unsafe-inline'${extra.style ? ` ${extra.style}` : ''}`,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.facebook.com https://connect.facebook.net",
+    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://challenges.cloudflare.com",
+    'frame-src https://challenges.cloudflare.com https://www.google.com https://recaptcha.google.com',
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://pay.sumopod.com https://checkout.pymnt.app",

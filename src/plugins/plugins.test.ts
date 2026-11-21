@@ -18,4 +18,17 @@ describe('plugins', () => {
     expect(pixel.config.safeParse({ pixelId: '123456789012345' }).success).toBe(true)
     expect(pixel.config.safeParse({ pixelId: "1');x('" }).success).toBe(false)
   })
+
+  it('declares captcha plugins with a secret in the environment', () => {
+    const captchas = PLUGINS.filter((p) => p.captcha)
+    expect(captchas.map((p) => p.captcha).sort()).toEqual(['recaptcha', 'turnstile'])
+    for (const plugin of captchas) {
+      expect(plugin.requiredEnv?.length).toBe(1)
+      expect(plugin.config.safeParse({ siteKey: '<script>alert(1)</script>' }).success).toBe(false)
+    }
+    expect(
+      findPlugin('cloudflare-turnstile')!.config.safeParse({ siteKey: '0x4AAAAAAABkMYinukE8nzY' })
+        .success
+    ).toBe(true)
+  })
 })

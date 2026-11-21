@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import type { z } from 'zod'
 
+export type CaptchaProvider = 'turnstile' | 'recaptcha'
+
 export type PluginCategory = 'analytics' | 'marketing' | 'security'
 
 export type PluginField = {
@@ -20,6 +22,7 @@ export type PluginDefinition<Config extends Record<string, string> = Record<stri
   fields: PluginField[]
   requiredEnv?: string[]
   PublicScripts?: (props: { config: Config }) => ReactNode
+  captcha?: CaptchaProvider
 }
 
 export const definePlugin = <Config extends Record<string, string>>(

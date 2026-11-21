@@ -62,6 +62,7 @@ export interface BlocksProps {
   timeZone?: string
   dateFormat?: string
   donations?: boolean
+  captcha?: { provider: 'turnstile' | 'recaptcha'; siteKey: string } | null
 }
 
 export type { Block }

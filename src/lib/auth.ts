@@ -12,6 +12,7 @@ import { headers } from 'next/headers'
 import { and, eq } from 'drizzle-orm'
 import { db } from './db'
 import { env } from './env'
+import { clientIp, verifyCaptcha } from './captcha'
 import { logger } from './logger'
 import { hashPassword, isArgon2id, verifyPassword } from './password'
 import { hasRole, type Role } from './roles'
@@ -45,6 +46,13 @@ export const auth = betterAuth({
     password: { hash: hashPassword, verify: verifyPassword },
   },
   hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/sign-in/email' && ctx.path !== '/sign-up/email') return
+      const headers = ctx.headers ?? new Headers()
+      if (!(await verifyCaptcha(headers.get('x-captcha-token'), clientIp(headers)))) {
+        throw new APIError('FORBIDDEN', { message: 'The security check failed' })
+      }
+    }),
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path !== '/sign-in/email') return
       const userId = ctx.context.newSession?.user.id

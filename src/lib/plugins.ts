@@ -1,5 +1,5 @@
 import { SettingsRepository } from '@/server'
-import { PLUGINS, findPlugin } from '@/plugins'
+import { PLUGINS, type PluginDefinition, findPlugin } from '@/plugins'
 import { cache } from 'react'
 import { z } from 'zod'
 import { db } from './db'
@@ -80,7 +80,23 @@ export async function savePlugin(
   if (active && missing.length > 0) {
     return { error: `Set ${missing.join(', ')} in the environment first`, status: 400 }
   }
+  const otherCaptcha =
+    active &&
+    plugin.captcha &&
+    PLUGINS.find((p) => p.id !== id && p.captcha && stored[p.id]?.active)
+  if (otherCaptcha) {
+    return { error: `Deactivate ${otherCaptcha.name} first`, status: 409 }
+  }
   stored[id] = { active, config: nextConfig }
   await repo.set(PLUGINS_SETTING, JSON.stringify(stored))
   return { ok: true }
+}
+
+export type CaptchaConfig = { provider: NonNullable<PluginDefinition['captcha']>; siteKey: string }
+
+export async function getCaptcha(): Promise<CaptchaConfig | null> {
+  const active = (await getActivePlugins()).find((s) => s.plugin.captcha)
+  return active?.plugin.captcha && active.config.siteKey
+    ? { provider: active.plugin.captcha, siteKey: active.config.siteKey }
+    : null
 }
