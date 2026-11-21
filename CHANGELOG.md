@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- **Tools → Privacy** finds a person's data by name or email (account, comments, donations), downloads it as JSON, and erases it: comments become "Anonymous" and donations lose their name and message. The audit log records only the counts.
 - Email through any SMTP provider (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`): **Lost your password?** on the sign-in page with a one-hour reset link, invitations that let new users choose their own password, and new comment notifications for administrators and the post author (Settings → Discussion). Everything stays off until SMTP is configured, and the reset request is protected by the active captcha.
 - Embeds: an `embed` page block for YouTube, Vimeo, and Spotify, and a link to one of them on its own line in a post becomes an embedded player, like WordPress. Videos in blocks show a thumbnail and load the privacy-friendly player (youtube-nocookie, Vimeo `dnt`) only when clicked.
 - **Tools → Site Health** checks the database connection and latency, whether every table and column in the code exists (unapplied migrations), Redis, media storage, HTTPS, search engine visibility, comment spam protection, plugins waiting for environment variables, and the running version.

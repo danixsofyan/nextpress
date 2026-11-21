@@ -18,6 +18,7 @@ import {
   PanelsTopLeft,
   Plug,
   Settings,
+  ShieldCheck,
   Tag,
   Upload,
   UserRound,
@@ -71,6 +72,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/donations', icon: HandHeart, label: 'Donations', min: 'administrator' },
       { href: '/admin/tools/import', icon: Upload, label: 'Import', min: 'administrator' },
       { href: '/admin/tools/export', icon: Download, label: 'Export', min: 'administrator' },
+      { href: '/admin/tools/privacy', icon: ShieldCheck, label: 'Privacy', min: 'administrator' },
       {
         href: '/admin/tools/site-health',
         icon: HeartPulse,
