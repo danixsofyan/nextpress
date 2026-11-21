@@ -179,6 +179,7 @@ All variables are documented in [`.env.example`](.env.example). Site title, logo
 | `NEXT_PUBLIC_SITE_NAME` | no        | Fallback site name until a Site Title is saved, default `NextPress`                                      |
 | `NEXTPRESS_API_KEY`     | no        | Extra API key from the environment; keys are normally created in the admin                               |
 | `NEXTPRESS_DOCS`        | no        | `true` serves this repository's developer documentation at `/docs`, default `false`                      |
+| `SUMOPOD_API_KEY`       | no        | Enables the `donate` block (QRIS donations through SumoPod)                                              |
 | `ADMIN_URL`             | no        | Serve the admin panel only on its own domain                                                             |
 | `REDIS_URL`             | no        | Shared rate limiting across instances                                                                    |
 | `STORAGE_DRIVER`        | no        | `local` (default, development) or `s3`                                                                   |
@@ -226,12 +227,13 @@ No instance keeps state on its own server, so every instance is disposable and y
 | `pnpm format`      | Format with Prettier (`pnpm format:check` only checks)       |
 | `pnpm db:generate` | Generate a migration from schema changes                     |
 | `pnpm db:migrate`  | Apply migrations (needs `DATABASE_URL`)                      |
+| `pnpm db:seed`     | Add default categories, tags, and settings (safe to rerun)   |
 
 ## Deploy to Vercel
 
 1. Import this repository as a Vercel project. No root directory or build settings are needed.
 2. Add the environment variables from the table above, with `STORAGE_DRIVER=s3`.
-3. Run the migrations once against your production database: `DATABASE_URL=... pnpm db:migrate`
+3. Run the migrations and the seed once against your production database: `DATABASE_URL=... pnpm db:migrate && DATABASE_URL=... pnpm db:seed`
 4. Deploy, then open `/admin` right away to create your administrator account.
 
 Vercel detects Next.js and pnpm automatically. Run `pnpm db:migrate` again whenever an update adds a migration.
@@ -321,11 +323,13 @@ See the [theme development guide](docs/theme-development.md), or call the MCP to
 
 ## Contributing
 
+Read [AGENTS.md](AGENTS.md) and the [engineering standard](docs/engineering-standard.md) first. They apply to humans and AI agents alike. The [quality bar](docs/quality.md) shows what is measured and what is still open, and [docs/adr/](docs/adr/) explains the main design decisions.
+
 1. Fork the repository
-2. Create a branch: `git checkout -b feat/your-feature`
+2. Create a branch: `git checkout -b feature/your-feature`
 3. Make sure `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, and `pnpm test` pass
 4. Commit using [Conventional Commits](https://www.conventionalcommits.org): `feat: add X`
-5. Open a pull request
+5. Open a pull request using the template, and add an entry to [CHANGELOG.md](CHANGELOG.md)
 
 ## License
 

@@ -87,18 +87,19 @@ Errors are JSON, for example `{"error": "Not found"}`.
 
 Pages can be built from an ordered list of blocks instead of HTML. The REST API accepts the same `blocks` array on `POST /api/pages` and `PUT /api/pages/:id`.
 
-| Block      | Fields                                                                                   |
-| ---------- | ---------------------------------------------------------------------------------------- |
-| `hero`     | `eyebrow?`, `heading`, `subheading?`, `primary?`, `secondary?`                           |
-| `features` | `heading?`, `intro?`, `columns?` (2, 3, 4), `items[]` of `icon?`, `title`, `description` |
-| `steps`    | `heading?`, `items[]` of `title`, `description`                                          |
-| `stats`    | `heading?`, `items[]` of `value`, `label`                                                |
-| `code`     | `heading?`, `intro?`, `language?`, `code`, `caption?`                                    |
-| `table`    | `heading?`, `intro?`, `columns[]`, `rows[][]`                                            |
-| `faq`      | `heading?`, `items[]` of `question`, `answer`                                            |
-| `cta`      | `heading`, `text?`, `primary`, `secondary?`                                              |
-| `posts`    | `heading?`, `count` (latest published posts)                                             |
-| `richText` | `html` (sanitized)                                                                       |
+| Block      | Fields                                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| `hero`     | `eyebrow?`, `heading`, `subheading?`, `primary?`, `secondary?`                                                    |
+| `features` | `heading?`, `intro?`, `columns?` (2, 3, 4), `items[]` of `icon?`, `title`, `description`                          |
+| `steps`    | `heading?`, `items[]` of `title`, `description`                                                                   |
+| `stats`    | `heading?`, `items[]` of `value`, `label`                                                                         |
+| `code`     | `heading?`, `intro?`, `language?`, `code`, `caption?`                                                             |
+| `table`    | `heading?`, `intro?`, `columns[]`, `rows[][]`                                                                     |
+| `faq`      | `heading?`, `items[]` of `question`, `answer`                                                                     |
+| `cta`      | `heading`, `text?`, `primary`, `secondary?`                                                                       |
+| `donate`   | `heading`, `text?`, `amounts[]` (1–6 presets in rupiah), `buttonLabel?`; shown only when `SUMOPOD_API_KEY` is set |
+| `posts`    | `heading?`, `count` (latest published posts)                                                                      |
+| `richText` | `html` (sanitized)                                                                                                |
 
 Links are `{ "label": "...", "href": "..." }` and the `href` must start with `/`, `#`, `http(s)://`, or `mailto:`.
 
