@@ -1,0 +1,36 @@
+import { PageRepository } from '@/server'
+import { withApiErrors } from '@/lib/api-errors'
+import { db } from '@/lib/db'
+import { requireRole } from '@/lib/auth'
+import { updatePageSchema } from '@/core/validators'
+
+type Params = { params: Promise<{ id: string }> }
+
+export async function GET(request: Request, { params }: Params) {
+  const session = await requireRole(request, 'editor')
+  if (session instanceof Response) return session
+  const { id } = await params
+  const page = await new PageRepository(db).findById(id)
+  if (!page) return Response.json({ error: 'Not found' }, { status: 404 })
+  return Response.json(page)
+}
+
+async function putHandler(request: Request, { params }: Params) {
+  const session = await requireRole(request, 'editor')
+  if (session instanceof Response) return session
+  const { id } = await params
+  const input = updatePageSchema.parse(await request.json())
+  const page = await new PageRepository(db).update(id, input)
+  if (!page) return Response.json({ error: 'Not found' }, { status: 404 })
+  return Response.json(page)
+}
+
+export async function DELETE(request: Request, { params }: Params) {
+  const session = await requireRole(request, 'editor')
+  if (session instanceof Response) return session
+  const { id } = await params
+  await new PageRepository(db).delete(id)
+  return new Response(null, { status: 204 })
+}
+
+export const PUT = withApiErrors(putHandler)
