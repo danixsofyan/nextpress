@@ -1,7 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from 'lucide-react'
+import type { ComponentProps } from 'react'
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { useConfirm } from './confirm-dialog'
 import { useToast } from './toast'
@@ -55,6 +64,28 @@ function writeParams(values: Record<string, string>) {
     else url.searchParams.delete(key)
   }
   window.history.replaceState(null, '', url)
+}
+
+function SelectBox({
+  className = '',
+  size = 'md',
+  children,
+  ...props
+}: Omit<ComponentProps<'select'>, 'size'> & { size?: 'sm' | 'md' }) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className={`${size === 'sm' ? 'h-8 pr-8 pl-2.5' : 'h-9 pr-9 pl-3'} w-full appearance-none rounded-md border border-input bg-background text-sm focus:ring-2 focus:ring-ring focus:outline-none ${className}`}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        aria-hidden
+        className={`pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground ${size === 'sm' ? 'right-2' : 'right-3'}`}
+      />
+    </div>
+  )
 }
 
 export function DataTable<T>({
@@ -218,11 +249,10 @@ export function DataTable<T>({
           </div>
         )}
         {filters && filters.length > 0 && (
-          <select
+          <SelectBox
             aria-label="Filter"
             value={filter}
             onChange={(e) => update({ filter: e.target.value, page: 1 })}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
           >
             <option value={ALL}>All ({searched.length})</option>
             {filters.map((f) => (
@@ -230,15 +260,15 @@ export function DataTable<T>({
                 {f.label} ({counts[f.value] ?? 0})
               </option>
             ))}
-          </select>
+          </SelectBox>
         )}
         {sortableColumns.length > 0 && (
           <div className="flex items-center">
-            <select
+            <SelectBox
               aria-label="Sort by"
               value={sort?.key ?? ''}
               onChange={(e) => setSort({ key: e.target.value, dir: sort?.dir ?? 'asc' })}
-              className="h-9 rounded-md rounded-r-none border border-input bg-background px-2 text-sm"
+              className="rounded-r-none"
             >
               <option value="" disabled>
                 Sort by
@@ -248,7 +278,7 @@ export function DataTable<T>({
                   {c.header}
                 </option>
               ))}
-            </select>
+            </SelectBox>
             <button
               type="button"
               disabled={!sort}
@@ -256,7 +286,7 @@ export function DataTable<T>({
                 sort && setSort({ key: sort.key, dir: sort.dir === 'asc' ? 'desc' : 'asc' })
               }
               aria-label={sort?.dir === 'desc' ? 'Sort ascending' : 'Sort descending'}
-              className="inline-flex h-9 items-center rounded-md rounded-l-none border border-l-0 border-input px-2 hover:bg-muted/40 disabled:opacity-50"
+              className="inline-flex size-9 items-center justify-center rounded-md rounded-l-none border border-l-0 border-input hover:bg-muted/40 disabled:opacity-50"
             >
               {!sort ? (
                 <ArrowUpDown className="size-4" />
@@ -272,11 +302,10 @@ export function DataTable<T>({
 
       {hasBulk && (
         <div className="flex flex-wrap items-center gap-2">
-          <select
+          <SelectBox
             aria-label="Bulk actions"
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
           >
             <option value="">Bulk actions</option>
             {bulkActions?.map((b) => (
@@ -284,7 +313,7 @@ export function DataTable<T>({
                 {b.label}
               </option>
             ))}
-          </select>
+          </SelectBox>
           <Button
             type="button"
             variant="outline"
@@ -447,18 +476,18 @@ export function DataTable<T>({
             </span>
             <label className="flex items-center gap-1">
               <span className="hidden sm:inline">Rows</span>
-              <select
+              <SelectBox
                 aria-label="Rows per page"
                 value={pageSize}
                 onChange={(e) => update({ perPage: Number(e.target.value), page: 1 })}
-                className="h-8 rounded-md border border-input bg-background px-1.5 text-sm"
+                size="sm"
               >
                 {pageSizes.map((size) => (
                   <option key={size} value={size}>
                     {size}
                   </option>
                 ))}
-              </select>
+              </SelectBox>
             </label>
           </div>
           {totalPages > 1 && (
