@@ -1,6 +1,7 @@
 import { isOptimizableImage } from '@/themes/engine'
 import Image from 'next/image'
 import Link from 'next/link'
+import { SchemeToggle } from '@/components/scheme-toggle'
 import type { LayoutProps } from '@/themes/engine'
 
 export function Layout({
@@ -43,6 +44,9 @@ export function Layout({
                 </a>
               </li>
             ))}
+            <li>
+              <SchemeToggle />
+            </li>
           </ul>
         </nav>
       </header>

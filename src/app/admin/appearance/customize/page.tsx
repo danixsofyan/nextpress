@@ -195,6 +195,22 @@ export default function CustomizePage() {
               </div>
             </div>
 
+            <div>
+              <Label htmlFor="scheme">Default color scheme</Label>
+              <select
+                id="scheme"
+                className={select}
+                value={style.scheme ?? 'dark'}
+                onChange={(e) => set('scheme', e.target.value as 'dark' | 'light')}
+              >
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Visitors can still switch with the sun and moon button.
+              </p>
+            </div>
+
             <div className="flex flex-wrap gap-2 border-t pt-4">
               <Button
                 disabled={saving}

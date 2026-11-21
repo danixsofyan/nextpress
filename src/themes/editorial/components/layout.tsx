@@ -1,6 +1,7 @@
 import { isOptimizableImage } from '@/themes/engine'
 import Image from 'next/image'
 import Link from 'next/link'
+import { SchemeToggle } from '@/components/scheme-toggle'
 import type { LayoutProps } from '@/themes/engine'
 
 export function Layout({
@@ -13,7 +14,10 @@ export function Layout({
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="border-b-4 border-double border-foreground/80">
-        <div className="mx-auto max-w-5xl px-4 pt-8 pb-4 text-center sm:px-6">
+        <div className="relative mx-auto max-w-5xl px-4 pt-8 pb-4 text-center sm:px-6">
+          <div className="absolute top-3 right-4 sm:right-6">
+            <SchemeToggle />
+          </div>
           <Link href="/" className="inline-block transition-opacity hover:opacity-80">
             {logo ? (
               <Image

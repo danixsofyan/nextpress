@@ -422,7 +422,7 @@ function BlockView({
       )
     case 'cta':
       return (
-        <section className="np-reveal relative isolate my-16 overflow-hidden rounded-3xl bg-neutral-950 px-6 py-16 text-center text-white sm:py-20">
+        <section className="np-reveal relative isolate my-16 overflow-hidden rounded-3xl bg-neutral-950 px-6 py-16 text-center text-white ring-1 ring-white/10 sm:py-20">
           <div className="np-aurora absolute inset-0 -z-10 opacity-90" />
           <div className="np-grid absolute inset-0 -z-10 opacity-60 invert" />
           <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-balance sm:text-4xl">

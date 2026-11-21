@@ -93,6 +93,13 @@ export function defineTheme(config: ThemeConfig): ThemeConfig {
 }
 
 export { formatDate, isValidTimeZone } from './format-date'
-export { themeStyleVars } from './style'
+export {
+  COLOR_SCHEMES,
+  type ColorScheme,
+  defaultScheme,
+  themeSchemeCss,
+  themeShapeVars,
+  themeStyleVars,
+} from './style'
 
 export const isOptimizableImage = (src: string) => src.startsWith('/') && !/\.svg($|\?)/i.test(src)

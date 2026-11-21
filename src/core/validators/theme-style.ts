@@ -15,6 +15,7 @@ export const themeStyleSchema = z.object({
   accent: hex,
   font: z.enum(THEME_FONTS),
   radius: z.enum(THEME_RADII),
+  scheme: z.enum(['dark', 'light']).optional(),
 })
 
 export type ThemeStyle = z.infer<typeof themeStyleSchema>

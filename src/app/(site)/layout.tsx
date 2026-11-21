@@ -1,5 +1,5 @@
 import { MenuRepository, PageRepository } from '@/server'
-import { themeStyleVars } from '@/themes/engine'
+import { defaultScheme, themeSchemeCss, themeShapeVars } from '@/themes/engine'
 import Script from 'next/script'
 import type { CSSProperties } from 'react'
 import './site.css'
@@ -7,6 +7,8 @@ import { AdminBar } from '@/components/admin-bar'
 import { db } from '@/lib/db'
 import { getSiteSettings } from '@/lib/site'
 import { THEMES, getActiveTheme } from '@/lib/themes'
+
+const SCHEME_SCRIPT = `try{var s=localStorage.getItem('np-scheme');if(s==='light'||s==='dark')document.currentScript.parentElement.dataset.scheme=s}catch(e){}`
 
 const DEFAULT_NAVIGATION = [{ label: 'Blog', href: '/blog' }]
 
@@ -41,10 +43,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <>
       <AdminBar {...(active.preview && { previewTheme: THEMES[active.id].label })} />
+      <style dangerouslySetInnerHTML={{ __html: themeSchemeCss(active.style, '.np-site') }} />
       <div
-        style={themeStyleVars(active.style) as CSSProperties}
-        className="bg-background text-foreground"
+        data-scheme={defaultScheme(active.style)}
+        suppressHydrationWarning
+        style={themeShapeVars(active.style) as CSSProperties}
+        className="np-site bg-background text-foreground"
       >
+        <script dangerouslySetInnerHTML={{ __html: SCHEME_SCRIPT }} />
         <Layout
           siteName={site.title}
           {...(site.logo && { logo: site.logo })}
