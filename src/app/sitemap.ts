@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const repo = new PostRepository(db)
   const taxonomies = new TaxonomyRepository(db)
   const [posts, pages, categories, tags] = await Promise.all([
-    repo.findMany({ status: 'published', limit: 1000, offset: 0 }),
+    repo.findPublic({ limit: 1000 }),
     new PageRepository(db).findMany(),
     taxonomies.findPublishedWithCounts('category', 1000),
     taxonomies.findPublishedWithCounts('tag', 1000),

@@ -23,9 +23,18 @@ type PostRow = {
   status: 'draft' | 'published'
   createdAt: string
   publishedAt: string | null
+  visibility?: 'public' | 'private'
+  isSticky?: boolean
 }
 
 const formatDate = (value: string) => new Date(value).toLocaleDateString()
+
+const isScheduled = (p: PostRow) =>
+  p.status === 'published' &&
+  p.publishedAt !== null &&
+  new Date(p.publishedAt).getTime() > Date.now()
+
+const statusLabel = (p: PostRow) => (isScheduled(p) ? 'scheduled' : p.status)
 
 const columns: Column<PostRow>[] = [
   {
@@ -35,7 +44,19 @@ const columns: Column<PostRow>[] = [
     cell: (p) => (
       <Link href={`/admin/posts/${p.id}`} className="font-medium hover:underline">
         {p.title}
-        {p.status === 'draft' && <span className="text-muted-foreground"> — Draft</span>}
+        {[
+          p.status === 'draft' && 'Draft',
+          isScheduled(p) && 'Scheduled',
+          p.visibility === 'private' && 'Private',
+          p.isSticky && 'Sticky',
+        ]
+          .filter(Boolean)
+          .map((label) => (
+            <span key={label as string} className="text-muted-foreground">
+              {' '}
+              — {label}
+            </span>
+          ))}
       </Link>
     ),
   },
@@ -48,9 +69,11 @@ const columns: Column<PostRow>[] = [
   {
     key: 'status',
     header: 'Status',
-    sortValue: (p) => p.status,
+    sortValue: statusLabel,
     cell: (p) => (
-      <Badge variant={p.status === 'published' ? 'default' : 'secondary'}>{p.status}</Badge>
+      <Badge variant={statusLabel(p) === 'published' ? 'default' : 'secondary'}>
+        {statusLabel(p)}
+      </Badge>
     ),
   },
   {
@@ -59,7 +82,7 @@ const columns: Column<PostRow>[] = [
     sortValue: (p) => p.publishedAt ?? p.createdAt,
     cell: (p) => (
       <span className="text-muted-foreground">
-        {p.status === 'published' ? 'Published' : 'Last modified'}
+        {isScheduled(p) ? 'Scheduled' : p.status === 'published' ? 'Published' : 'Last modified'}
         <br />
         {formatDate(p.publishedAt ?? p.createdAt)}
       </span>
@@ -68,8 +91,14 @@ const columns: Column<PostRow>[] = [
 ]
 
 const filters: FilterOption<PostRow>[] = [
-  { value: 'published', label: 'Published', match: (p) => p.status === 'published' },
+  {
+    value: 'published',
+    label: 'Published',
+    match: (p) => p.status === 'published' && !isScheduled(p),
+  },
   { value: 'draft', label: 'Drafts', match: (p) => p.status === 'draft' },
+  { value: 'scheduled', label: 'Scheduled', match: isScheduled },
+  { value: 'private', label: 'Private', match: (p) => p.visibility === 'private' },
 ]
 
 export function PostsTable({

@@ -59,10 +59,9 @@ export default async function HomePage() {
       </>
     )
 
-  const posts = await new PostRepository(db).findMany({
-    status: 'published',
+  const posts = await new PostRepository(db).findPublic({
     limit: site.postsPerPage,
-    offset: 0,
+    stickyFirst: true,
   })
 
   const { PostList } = (await getActiveTheme()).theme.slots

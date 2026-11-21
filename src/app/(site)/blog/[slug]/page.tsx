@@ -7,7 +7,7 @@ import { breadcrumbSchema, faqSchema } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/site'
 import { hasRole } from '@/lib/roles'
 import { getActiveTheme } from '@/lib/themes'
-import { PostRepository } from '@/server'
+import { PostRepository, isPostPublic } from '@/server'
 import { CommentsSection } from '@/components/comments-section'
 import { WithSidebar } from '@/components/widget-area'
 import type { Metadata } from 'next'
@@ -18,7 +18,7 @@ import { cache } from 'react'
 const getVisiblePost = cache(async (slug: string) => {
   const post = await new PostRepository(db).findBySlug(slug)
   if (!post) return null
-  if (post.status === 'published') return { post, preview: false }
+  if (isPostPublic(post)) return { post, preview: false }
   if (!(await draftMode()).isEnabled) return null
   const session = await getCurrentSession().catch(() => null)
   return session && hasRole(session.user.role, 'author') ? { post, preview: true } : null

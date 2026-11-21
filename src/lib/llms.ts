@@ -7,7 +7,7 @@ import { absoluteUrl, postMarkdown } from './seo'
 export async function getLlmsContent() {
   const [site, posts, pages, docs] = await Promise.all([
     getSiteSettings(),
-    new PostRepository(db).findMany({ status: 'published', limit: 200, offset: 0 }),
+    new PostRepository(db).findPublic({ limit: 200 }),
     new PageRepository(db).findMany(),
     isDocsEnabled() ? getDocList() : Promise.resolve([]),
   ])

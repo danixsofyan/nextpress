@@ -31,11 +31,7 @@ async function WidgetView({ widget, id }: { widget: Widget; id: string }) {
         </form>
       )
     case 'recentPosts': {
-      const posts = await new PostRepository(db).findMany({
-        status: 'published',
-        limit: widget.count,
-        offset: 0,
-      })
+      const posts = await new PostRepository(db).findPublic({ limit: widget.count })
       return (
         <ul className="space-y-2 text-sm">
           {posts.map((post) => (

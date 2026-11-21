@@ -14,6 +14,10 @@ const postFields = z.object({
   metaTitle: z.string().max(60).optional(),
   metaDescription: z.string().max(160).optional(),
   taxonomyIds: z.array(z.string().uuid()).optional(),
+  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  visibility: z.enum(['public', 'private']).optional(),
+  format: z.enum(['standard', 'gallery', 'video', 'audio']).optional(),
+  isSticky: z.boolean().optional(),
 })
 
 export const createPostSchema = postFields.extend({

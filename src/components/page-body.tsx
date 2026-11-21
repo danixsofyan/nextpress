@@ -23,10 +23,7 @@ export async function PageBody({ page }: { page: Page }) {
   const site = await getSiteSettings()
   const { Blocks } = (await getActiveTheme()).theme.slots
   const postCount = Math.max(0, ...blocks.map((b) => (b.type === 'posts' ? b.count : 0)))
-  const posts =
-    postCount > 0
-      ? await new PostRepository(db).findMany({ status: 'published', limit: postCount, offset: 0 })
-      : []
+  const posts = postCount > 0 ? await new PostRepository(db).findPublic({ limit: postCount }) : []
 
   return (
     <Blocks

@@ -1,11 +1,34 @@
 import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
-import { posts, termRelationships, user } from '@/core/schema'
+import { type Post, postRevisions, posts, termRelationships, user } from '@/core/schema'
 import type { CreatePostInput, UpdatePostInput, ListPostsInput } from '@/core/validators'
-import { and, desc, eq, ilike, isNotNull, isNull, or, sql } from 'drizzle-orm'
+import { and, desc, eq, ilike, inArray, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
+import { currentActor } from '@/lib/request-context'
 import { audit } from '../audit'
 import { restoredSlug, trashedSlug } from './trash'
 import { sanitizeContent } from '../sanitize'
+
+const MAX_REVISIONS = 30
+
+export const isPubliclyVisible = () =>
+  and(
+    eq(posts.status, 'published'),
+    eq(posts.visibility, 'public'),
+    isNull(posts.deletedAt),
+    lte(posts.publishedAt, sql`now()`)
+  )
+
+export const isPostPublic = (post: {
+  status: string
+  visibility: string
+  deletedAt: Date | null
+  publishedAt: Date | null
+}) =>
+  post.status === 'published' &&
+  post.visibility === 'public' &&
+  !post.deletedAt &&
+  post.publishedAt !== null &&
+  post.publishedAt.getTime() <= Date.now()
 
 export class PostRepository {
   constructor(private readonly db: Database) {}
@@ -24,6 +47,24 @@ export class PostRepository {
       .orderBy(sql`${posts.createdAt} desc`)
   }
 
+  async findPublic({
+    limit,
+    offset = 0,
+    stickyFirst = false,
+  }: {
+    limit: number
+    offset?: number
+    stickyFirst?: boolean
+  }) {
+    return this.db
+      .select()
+      .from(posts)
+      .where(isPubliclyVisible())
+      .orderBy(...(stickyFirst ? [desc(posts.isSticky)] : []), desc(posts.publishedAt))
+      .limit(limit)
+      .offset(offset)
+  }
+
   async findAllSummaries({ trashed = false }: { trashed?: boolean } = {}) {
     return this.db
       .select({
@@ -37,6 +78,8 @@ export class PostRepository {
         authorId: posts.authorId,
         authorName: user.name,
         deletedAt: posts.deletedAt,
+        visibility: posts.visibility,
+        isSticky: posts.isSticky,
       })
       .from(posts)
       .leftJoin(user, eq(user.id, posts.authorId))
@@ -49,13 +92,7 @@ export class PostRepository {
       .select({ post: posts })
       .from(posts)
       .innerJoin(termRelationships, eq(termRelationships.postId, posts.id))
-      .where(
-        and(
-          eq(termRelationships.taxonomyId, taxonomyId),
-          eq(posts.status, 'published'),
-          isNull(posts.deletedAt)
-        )
-      )
+      .where(and(eq(termRelationships.taxonomyId, taxonomyId), isPubliclyVisible()))
       .orderBy(desc(posts.publishedAt))
       .limit(limit)
       .then((rows) => rows.map((r) => r.post))
@@ -68,8 +105,7 @@ export class PostRepository {
       .from(posts)
       .where(
         and(
-          eq(posts.status, 'published'),
-          isNull(posts.deletedAt),
+          isPubliclyVisible(),
           or(
             ilike(posts.title, pattern),
             ilike(posts.excerpt, pattern),
@@ -103,8 +139,12 @@ export class PostRepository {
     input: CreatePostInput,
     options: { publishedAt?: Date | null; authorId?: string | null } = {}
   ) {
-    const { taxonomyIds, ...data } = sanitizeContent(input)
-    const publishedAt = input.status === 'published' ? (options.publishedAt ?? new Date()) : null
+    const { taxonomyIds, publishedAt: chosen, ...data } = sanitizeContent(input)
+    const publishedAt = chosen
+      ? new Date(chosen)
+      : input.status === 'published'
+        ? (options.publishedAt ?? new Date())
+        : null
     const result = await this.db
       .insert(posts)
       .values({ ...data, publishedAt, authorId: options.authorId ?? null })
@@ -123,15 +163,22 @@ export class PostRepository {
   async update(id: string, input: UpdatePostInput) {
     const before = await this.findById(id)
     if (!before) return null
-    const { taxonomyIds, ...data } = sanitizeContent(input)
+    const { taxonomyIds, publishedAt: chosen, ...data } = sanitizeContent(input)
+    const contentChanged =
+      (data.title !== undefined && data.title !== before.title) ||
+      (data.content !== undefined && data.content !== before.content) ||
+      (data.excerpt !== undefined && data.excerpt !== before.excerpt)
+    if (contentChanged) await this.saveRevision(before)
     const result = await this.db
       .update(posts)
       .set({
         ...data,
         updatedAt: new Date(),
-        ...(data.status === 'published' && {
-          publishedAt: sql`coalesce(${posts.publishedAt}, now())`,
-        }),
+        ...(chosen !== undefined
+          ? { publishedAt: chosen ? new Date(chosen) : null }
+          : data.status === 'published' && {
+              publishedAt: sql`coalesce(${posts.publishedAt}, now())`,
+            }),
       })
       .where(and(eq(posts.id, id), isNull(posts.deletedAt)))
       .returning()
@@ -151,6 +198,65 @@ export class PostRepository {
     await audit(this.db, action, { type: 'post', id }, { before, after })
     revalidatePublicSite()
     return after
+  }
+
+  private async saveRevision(post: Post) {
+    const actor = currentActor()
+    await this.db.insert(postRevisions).values({
+      postId: post.id,
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.content,
+      authorId: actor.userId,
+      authorName: actor.actorType === 'api_key' ? 'API key' : null,
+    })
+    const stale = await this.db
+      .select({ id: postRevisions.id })
+      .from(postRevisions)
+      .where(eq(postRevisions.postId, post.id))
+      .orderBy(desc(postRevisions.createdAt))
+      .offset(MAX_REVISIONS)
+    if (stale.length > 0) {
+      await this.db.delete(postRevisions).where(
+        inArray(
+          postRevisions.id,
+          stale.map((r) => r.id)
+        )
+      )
+    }
+  }
+
+  async findRevisions(postId: string) {
+    return this.db
+      .select({
+        id: postRevisions.id,
+        title: postRevisions.title,
+        createdAt: postRevisions.createdAt,
+        authorName: sql<string | null>`coalesce(${user.name}, ${postRevisions.authorName})`,
+      })
+      .from(postRevisions)
+      .leftJoin(user, eq(user.id, postRevisions.authorId))
+      .where(eq(postRevisions.postId, postId))
+      .orderBy(desc(postRevisions.createdAt))
+  }
+
+  async findRevision(postId: string, revisionId: string) {
+    const [row] = await this.db
+      .select()
+      .from(postRevisions)
+      .where(and(eq(postRevisions.id, revisionId), eq(postRevisions.postId, postId)))
+      .limit(1)
+    return row ?? null
+  }
+
+  async restoreRevision(postId: string, revisionId: string) {
+    const revision = await this.findRevision(postId, revisionId)
+    if (!revision) return null
+    return this.update(postId, {
+      title: revision.title,
+      content: revision.content,
+      ...(revision.excerpt !== null && { excerpt: revision.excerpt }),
+    })
   }
 
   async delete(id: string) {

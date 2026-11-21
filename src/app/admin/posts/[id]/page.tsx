@@ -12,7 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TiptapEditor } from '@/components/admin/editor/tiptap-editor'
 import { SeoPanel } from '@/components/admin/editor/seo-panel'
-import { FileText, LayoutGrid, Film, Music2, Globe, Lock, EyeOff, Eye } from 'lucide-react'
+import { RevisionsPanel } from '@/components/admin/editor/revisions-panel'
+import { FileText, LayoutGrid, Film, Music2, Globe, EyeOff, Eye } from 'lucide-react'
 
 type ScreenOpts = {
   format: boolean
@@ -31,6 +32,11 @@ const POST_FORMATS = [
 
 const SCREEN_OPTS_KEY = 'nextpress-screen-options-post'
 
+const toLocalInput = (iso: string) => {
+  const d = new Date(iso)
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+}
+
 export default function EditPostPage() {
   const router = useRouter()
   const toast = useToast()
@@ -44,8 +50,8 @@ export default function EditPostPage() {
   const [status, setStatus] = useState('draft')
   const [savedStatus, setSavedStatus] = useState('draft')
   const [format, setFormat] = useState('standard')
-  const [visibility, setVisibility] = useState<'public' | 'private' | 'password'>('public')
-  const [password, setPassword] = useState('')
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
+  const [isSticky, setIsSticky] = useState(false)
   const [publishDate, setPublishDate] = useState('')
   const [showStatus, setShowStatus] = useState(false)
   const [showVisibility, setShowVisibility] = useState(false)
@@ -79,6 +85,10 @@ export default function EditPostPage() {
         setMetaTitle(post.metaTitle ?? '')
         setMetaDescription(post.metaDescription ?? '')
         if (post.taxonomyIds?.length) setSelectedTaxIds(new Set(post.taxonomyIds))
+        setVisibility(post.visibility === 'private' ? 'private' : 'public')
+        setFormat(post.format ?? 'standard')
+        setIsSticky(Boolean(post.isSticky))
+        if (post.publishedAt) setPublishDate(toLocalInput(post.publishedAt))
         setLoading(false)
       })
     try {
@@ -111,6 +121,10 @@ export default function EditPostPage() {
           metaTitle: metaTitle || undefined,
           metaDescription: metaDescription || undefined,
           taxonomyIds: [...selectedTaxIds],
+          visibility,
+          format,
+          isSticky: visibility === 'public' && isSticky,
+          ...(publishDate && { publishedAt: new Date(publishDate).toISOString() }),
         }),
       })
       if (!res.ok) {
@@ -119,7 +133,13 @@ export default function EditPostPage() {
         toast.error(message)
         return
       }
-      toast.success((overrideStatus ?? status) === 'published' ? 'Post published.' : 'Post saved.')
+      toast.success(
+        scheduled
+          ? 'Post scheduled.'
+          : (overrideStatus ?? status) === 'published'
+            ? 'Post published.'
+            : 'Post saved.'
+      )
       router.push('/admin/posts')
     } finally {
       setSaving(false)
@@ -151,11 +171,9 @@ export default function EditPostPage() {
   }
 
   const visibilityLabel =
-    visibility === 'password'
-      ? 'Password protected'
-      : visibility.charAt(0).toUpperCase() + visibility.slice(1)
-  const VisibilityIcon =
-    visibility === 'password' ? Lock : visibility === 'private' ? EyeOff : Globe
+    visibility === 'private' ? 'Private' : isSticky ? 'Public, sticky' : 'Public'
+  const VisibilityIcon = visibility === 'private' ? EyeOff : Globe
+  const scheduled = Boolean(publishDate) && new Date(publishDate).getTime() > Date.now()
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
   if (loading)
@@ -405,7 +423,6 @@ export default function EditPostPage() {
                     {(
                       [
                         { value: 'public', label: 'Public', Icon: Globe },
-                        { value: 'password', label: 'Password protected', Icon: Lock },
                         { value: 'private', label: 'Private', Icon: EyeOff },
                       ] as const
                     ).map(({ value, label, Icon }) => (
@@ -420,13 +437,15 @@ export default function EditPostPage() {
                         <Icon className="size-3" /> {label}
                       </label>
                     ))}
-                    {visibility === 'password' && (
-                      <Input
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        className="mt-1 h-7 text-xs"
-                      />
+                    {visibility === 'public' && (
+                      <label className="mt-1 flex cursor-pointer items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={isSticky}
+                          onChange={(e) => setIsSticky(e.target.checked)}
+                        />
+                        Stick to the top of the blog
+                      </label>
                     )}
                     <div className="flex gap-1 pt-1">
                       <Button
@@ -497,7 +516,7 @@ export default function EditPostPage() {
                   <span className="flex items-center gap-2 text-sm">
                     <span>
                       {publishDate
-                        ? new Date(publishDate).toLocaleDateString()
+                        ? `${scheduled ? 'Scheduled for ' : ''}${new Date(publishDate).toLocaleString()}`
                         : status === 'published'
                           ? 'Published'
                           : 'Immediately'}
@@ -524,7 +543,7 @@ export default function EditPostPage() {
                   Delete
                 </button>
                 <Button type="submit" disabled={saving}>
-                  {saving ? 'Saving…' : isPublished ? 'Update' : 'Publish'}
+                  {saving ? 'Saving…' : scheduled ? 'Schedule' : isPublished ? 'Update' : 'Publish'}
                 </Button>
               </div>
             </div>
@@ -551,6 +570,8 @@ export default function EditPostPage() {
               </div>
             </div>
           )}
+
+          <RevisionsPanel postId={id} onRestored={() => window.location.reload()} />
 
           <TaxonomyBoxes
             selected={selectedTaxIds}

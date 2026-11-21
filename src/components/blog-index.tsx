@@ -10,10 +10,10 @@ export const blogPageHref = (page: number) => (page <= 1 ? '/blog' : `/blog/page
 
 export async function BlogIndex({ page }: { page: number }) {
   const site = await getSiteSettings()
-  const rows = await new PostRepository(db).findMany({
-    status: 'published',
+  const rows = await new PostRepository(db).findPublic({
     limit: site.postsPerPage + 1,
     offset: (page - 1) * site.postsPerPage,
+    stickyFirst: true,
   })
   const posts = rows.slice(0, site.postsPerPage)
   if (page > 1 && posts.length === 0) notFound()

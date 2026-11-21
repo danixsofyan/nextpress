@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { absoluteUrl, postMarkdown } from '@/lib/seo'
-import { PostRepository } from '@/server'
+import { PostRepository, isPostPublic } from '@/server'
 
 export const revalidate = 3600
 
@@ -10,7 +10,7 @@ export async function generateStaticParams() {
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const post = await new PostRepository(db).findBySlug((await params).slug)
-  if (!post || post.status !== 'published') return new Response('Not found', { status: 404 })
+  if (!post || !isPostPublic(post)) return new Response('Not found', { status: 404 })
   return new Response(`${postMarkdown(post)}\n`, {
     headers: {
       'Content-Type': 'text/markdown; charset=utf-8',

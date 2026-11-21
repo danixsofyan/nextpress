@@ -64,6 +64,20 @@
       "when": 1795247745061,
       "tag": "0008_comments",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795248334124,
+      "tag": "0009_post_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795248339612,
+      "tag": "0010_post_display_options",
+      "breakpoints": true
     }
   ]
 }

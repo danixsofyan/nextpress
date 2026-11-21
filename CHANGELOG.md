@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Post revisions: every change to a post's title, excerpt, or content keeps the previous version (the latest 30), and the editor's **Revisions** panel restores any of them.
+- The Publish box now saves what it shows: a publish date (a future date schedules the post, which appears within the hour), **Private** visibility, **Stick to the top of the blog**, and the post format. Password-protected visibility was removed because static pages cannot gate content.
 - Comments: visitors comment and reply (one level) under posts without client JavaScript, with a honeypot, rate limiting, and the active captcha plugin. Editors moderate them under **Comments** (approve, unapprove, spam, trash, delete permanently), and **Settings → Discussion** turns comments and moderation on or off. Comments keep no email address.
 - Cloudflare Turnstile and Google reCAPTCHA plugins protect the admin sign-in and the donation form. The widget loads only when a visitor starts filling in the donation form, tokens are verified on the server, the secret keys come from `TURNSTILE_SECRET_KEY` and `RECAPTCHA_SECRET_KEY`, and only one captcha can be active.
 - Widgets: **Appearance → Widgets** manages a blog sidebar and a footer area with Search, Recent Posts, Categories, Tag Cloud, Text, and Links widgets. Empty areas render nothing. AI agents manage them with the new `get_widgets` and `set_widgets` MCP tools (22 tools in total).

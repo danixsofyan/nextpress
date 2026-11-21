@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TiptapEditor } from '@/components/admin/editor/tiptap-editor'
 import { SeoPanel } from '@/components/admin/editor/seo-panel'
-import { FileText, LayoutGrid, Film, Music2, Globe, Lock, EyeOff, Eye } from 'lucide-react'
+import { FileText, LayoutGrid, Film, Music2, Globe, EyeOff, Eye } from 'lucide-react'
 
 type ScreenOpts = {
   format: boolean
@@ -47,8 +47,8 @@ export default function NewPostPage() {
   const [content, setContent] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [status, setStatus] = useState('draft')
-  const [visibility, setVisibility] = useState<'public' | 'private' | 'password'>('public')
-  const [password, setPassword] = useState('')
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
+  const [isSticky, setIsSticky] = useState(false)
   const [publishDate, setPublishDate] = useState('')
   const [showStatus, setShowStatus] = useState(false)
   const [showVisibility, setShowVisibility] = useState(false)
@@ -105,6 +105,10 @@ export default function NewPostPage() {
           metaTitle: metaTitle || undefined,
           metaDescription: metaDescription || undefined,
           taxonomyIds: [...selectedTaxIds],
+          visibility,
+          format,
+          isSticky: visibility === 'public' && isSticky,
+          ...(publishDate && { publishedAt: new Date(publishDate).toISOString() }),
         }),
       })
       if (!res.ok) {
@@ -113,7 +117,13 @@ export default function NewPostPage() {
         toast.error(data.error ?? 'Failed to save')
         return
       }
-      toast.success((overrideStatus ?? status) === 'published' ? 'Post published.' : 'Post saved.')
+      toast.success(
+        scheduled
+          ? 'Post scheduled.'
+          : (overrideStatus ?? status) === 'published'
+            ? 'Post published.'
+            : 'Post saved.'
+      )
       router.push('/admin/posts')
     } finally {
       setLoading(false)
@@ -126,11 +136,9 @@ export default function NewPostPage() {
   }
 
   const visibilityLabel =
-    visibility === 'password'
-      ? 'Password protected'
-      : visibility.charAt(0).toUpperCase() + visibility.slice(1)
-  const VisibilityIcon =
-    visibility === 'password' ? Lock : visibility === 'private' ? EyeOff : Globe
+    visibility === 'private' ? 'Private' : isSticky ? 'Public, sticky' : 'Public'
+  const VisibilityIcon = visibility === 'private' ? EyeOff : Globe
+  const scheduled = Boolean(publishDate) && new Date(publishDate).getTime() > Date.now()
 
   return (
     <DashboardLayout>
@@ -367,7 +375,6 @@ export default function NewPostPage() {
                     {(
                       [
                         { value: 'public', label: 'Public', Icon: Globe },
-                        { value: 'password', label: 'Password protected', Icon: Lock },
                         { value: 'private', label: 'Private', Icon: EyeOff },
                       ] as const
                     ).map(({ value, label, Icon }) => (
@@ -382,13 +389,15 @@ export default function NewPostPage() {
                         <Icon className="size-3" /> {label}
                       </label>
                     ))}
-                    {visibility === 'password' && (
-                      <Input
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        className="mt-1 h-7 text-xs"
-                      />
+                    {visibility === 'public' && (
+                      <label className="mt-1 flex cursor-pointer items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={isSticky}
+                          onChange={(e) => setIsSticky(e.target.checked)}
+                        />
+                        Stick to the top of the blog
+                      </label>
                     )}
                     <div className="flex gap-1 pt-1">
                       <Button
@@ -458,7 +467,9 @@ export default function NewPostPage() {
                 ) : (
                   <span className="flex items-center gap-2 text-sm">
                     <span>
-                      {publishDate ? new Date(publishDate).toLocaleDateString() : 'Immediately'}
+                      {publishDate
+                        ? `${scheduled ? 'Scheduled for ' : ''}${new Date(publishDate).toLocaleString()}`
+                        : 'Immediately'}
                     </span>
                     <button
                       type="button"
@@ -475,7 +486,7 @@ export default function NewPostPage() {
 
               <div className="-mx-4 -mb-4 flex justify-end border-t border-border bg-muted/40 px-4 py-3">
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Publishing…' : 'Publish'}
+                  {loading ? 'Publishing…' : scheduled ? 'Schedule' : 'Publish'}
                 </Button>
               </div>
             </div>

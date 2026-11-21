@@ -13,11 +13,7 @@ const cdata = (value: string) => `<![CDATA[${value.replace(/]]>/g, ']]]]><![CDAT
 export async function GET() {
   const site = await getSiteSettings()
   const base = env.NEXT_PUBLIC_SITE_URL
-  const posts = await new PostRepository(db).findMany({
-    status: 'published',
-    limit: site.feedCount,
-    offset: 0,
-  })
+  const posts = await new PostRepository(db).findPublic({ limit: site.feedCount })
 
   const items = posts
     .map((post) => {

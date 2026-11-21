@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { logger, requestIdOf } from '@/lib/logger'
 import { getSiteSettings } from '@/lib/site'
-import { CommentRepository, PostRepository, redis } from '@/server'
+import { CommentRepository, PostRepository, isPostPublic, redis } from '@/server'
 
 const LIMIT_PER_MINUTE = 3
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       new URL(post ? `/blog/${post.slug}#${hash}` : '/blog', env.NEXT_PUBLIC_SITE_URL),
       303
     )
-  if (!parsed.success || !post || post.status !== 'published') return back('comment-error')
+  if (!parsed.success || !post || !isPostPublic(post)) return back('comment-error')
   if (field(form, 'website')) return back('comment-pending')
 
   const site = await getSiteSettings()

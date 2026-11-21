@@ -39,7 +39,7 @@ Base URL: `https://your-site.com/api`
 | PUT    | `/api/taxonomies/:id` | Update a category or tag                 |
 | DELETE | `/api/taxonomies/:id` | Delete a category or tag                 |
 
-Deleting a post or page moves it to the Trash. Send `DELETE` again with `?permanent=true` to remove a trashed item for good. Every write is recorded in the append-only `audit_logs` table with the actor and the request ID.
+Posts accept `publishedAt` (ISO 8601; a future date schedules the post), `visibility` (`public` or `private`), `isSticky`, and `format` (`standard`, `gallery`, `video`, `audio`). Deleting a post or page moves it to the Trash. Send `DELETE` again with `?permanent=true` to remove a trashed item for good. Every write is recorded in the append-only `audit_logs` table with the actor and the request ID.
 | GET | `/api/health` | Health check, no key required |
 
 HTML in `content` is sanitized on write. Scripts, event handlers, and `javascript:` links are removed.

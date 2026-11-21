@@ -20,7 +20,8 @@ One app, one deployment: the admin panel lives at `/admin` on the same domain, l
 - **Post editor** modeled on WordPress:
   - Tiptap rich-text editor
   - Permalink bar with inline slug editing
-  - Publish box: status, visibility, publish date, preview, save draft, move to trash
+  - Publish box: status, visibility (public, private, sticky), scheduled publish date, preview, save draft, move to trash
+  - Revisions panel to restore earlier versions
   - Categories and tags panels, with new tags created inline
   - SEO panel with Google snippet preview and keyphrase highlighting
   - Screen Options to show or hide panels, remembered per browser
