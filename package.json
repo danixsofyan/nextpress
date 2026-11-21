@@ -15,7 +15,8 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "node scripts/seed.mjs"
+    "db:seed": "node scripts/seed.mjs",
+    "db:roles": "node scripts/db-roles.mjs"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.6.3",

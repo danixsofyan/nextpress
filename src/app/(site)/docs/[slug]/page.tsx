@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { DOCS, docsEditUrl, getDoc, getDocList, isDocSlug, isDocsEnabled } from '@/lib/docs'
+import { docsEditUrl, getDoc, getDocList, isDocSlug, isDocsEnabled } from '@/lib/docs'
 
 export const revalidate = 3600
 
 export function generateStaticParams() {
-  return DOCS.map((slug) => ({ slug }))
+  return []
 }
 
 type Props = { params: Promise<{ slug: string }> }

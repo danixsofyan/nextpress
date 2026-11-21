@@ -19,6 +19,11 @@ function csp(extra: { script?: string; style?: string } = {}) {
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    cpus: 1,
+    staticGenerationMaxConcurrency: 1,
+    staticGenerationRetryCount: 3,
+  },
   images: { formats: ['image/avif', 'image/webp'] },
   outputFileTracingIncludes: {
     '/docs/[slug]': ['./docs/*.md'],
