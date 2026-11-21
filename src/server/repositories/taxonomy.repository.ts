@@ -1,3 +1,4 @@
+import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { taxonomies, termRelationships } from '@/core/schema'
 import type { CreateTaxonomyInput, UpdateTaxonomyInput } from '@/core/validators'
@@ -43,6 +44,7 @@ export class TaxonomyRepository {
 
   async create(input: CreateTaxonomyInput) {
     const result = await this.db.insert(taxonomies).values(input).returning()
+    revalidatePublicSite()
     return result[0]!
   }
 
@@ -52,6 +54,7 @@ export class TaxonomyRepository {
       .set(input)
       .where(eq(taxonomies.id, id))
       .returning()
+    revalidatePublicSite()
     return result[0] ?? null
   }
 
@@ -60,6 +63,7 @@ export class TaxonomyRepository {
       .delete(taxonomies)
       .where(eq(taxonomies.id, id))
       .returning({ id: taxonomies.id })
+    revalidatePublicSite()
     return rows.length > 0
   }
 }

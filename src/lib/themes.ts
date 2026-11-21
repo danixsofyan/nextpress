@@ -2,7 +2,7 @@ import { type McpExtension, SettingsRepository } from '@/server'
 import { type ThemeStyle, themeStyleSchema } from '@/core/validators'
 import defaultTheme from '@/themes/default'
 import editorialTheme from '@/themes/editorial'
-import { cookies } from 'next/headers'
+import { cookies, draftMode } from 'next/headers'
 import { cache } from 'react'
 import { z } from 'zod'
 import { getCurrentSession } from './auth'
@@ -57,7 +57,9 @@ export const getActiveTheme = cache(async () => {
   const appearance = await getAppearance()
   let id = appearance.active
   let preview = false
-  const wanted = (await cookies()).get(PREVIEW_COOKIE)?.value
+  const wanted = (await draftMode()).isEnabled
+    ? (await cookies()).get(PREVIEW_COOKIE)?.value
+    : undefined
   if (isThemeId(wanted) && wanted !== id) {
     const session = await getCurrentSession().catch(() => null)
     if (session && hasRole(session.user.role, 'administrator')) {

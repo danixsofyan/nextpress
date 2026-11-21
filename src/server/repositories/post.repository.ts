@@ -1,3 +1,4 @@
+import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { posts, termRelationships } from '@/core/schema'
 import type { CreatePostInput, UpdatePostInput, ListPostsInput } from '@/core/validators'
@@ -56,6 +57,7 @@ export class PostRepository {
         .insert(termRelationships)
         .values(taxonomyIds.map((taxonomyId) => ({ postId: post.id, taxonomyId })))
     }
+    revalidatePublicSite()
     return post
   }
 
@@ -80,10 +82,12 @@ export class PostRepository {
           .values(taxonomyIds.map((taxonomyId) => ({ postId: id, taxonomyId })))
       }
     }
+    revalidatePublicSite()
     return result[0] ?? null
   }
 
   async delete(id: string) {
     await this.db.delete(posts).where(eq(posts.id, id))
+    revalidatePublicSite()
   }
 }

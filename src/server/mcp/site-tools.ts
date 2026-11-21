@@ -58,6 +58,12 @@ export const BLOCK_SPEC = {
   description:
     'A page is an ordered list of blocks. Compose any landing page from these blocks; the active theme renders them. Raw HTML/CSS/JS is not allowed except sanitized HTML inside richText.',
   links: 'Every href must start with /, #, http(s):// or mailto:',
+  performance: [
+    'Pages must keep PageSpeed (Lighthouse) at 100 for accessibility, best practices, and SEO, and at least 90 for performance on mobile and desktop. A scheduled audit flags regressions.',
+    'Blocks render on the server with no client JavaScript, so any combination is fast. Keep the first block (usually hero) text-only so it is the fast largest contentful paint.',
+    'Prefer fewer, focused blocks: around 6 to 10 sections per landing page. Long pages slow the speed index and dilute the message.',
+    'Keep the richText HTML semantic and small. Do not paste embeds, iframes, or inline images of text.',
+  ],
   icons: BLOCK_ICONS,
   blocks: {
     hero: {

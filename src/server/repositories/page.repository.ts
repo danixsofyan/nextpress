@@ -1,3 +1,4 @@
+import { revalidatePublicSite } from '../revalidate'
 import type { Database } from '@/core/db'
 import { pages } from '@/core/schema'
 import type { CreatePageInput, UpdatePageInput } from '@/core/validators'
@@ -29,6 +30,7 @@ export class PageRepository {
       .insert(pages)
       .values(sanitizeBlocks(sanitizeContent(input)))
       .returning()
+    revalidatePublicSite()
     return result[0]!
   }
 
@@ -38,11 +40,13 @@ export class PageRepository {
       .set({ ...sanitizeBlocks(sanitizeContent(input)), updatedAt: new Date() })
       .where(eq(pages.id, id))
       .returning()
+    revalidatePublicSite()
     return result[0] ?? null
   }
 
   async delete(id: string) {
     const rows = await this.db.delete(pages).where(eq(pages.id, id)).returning({ id: pages.id })
+    revalidatePublicSite()
     return rows.length > 0
   }
 }

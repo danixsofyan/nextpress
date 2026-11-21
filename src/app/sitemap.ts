@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { DOCS, isDocsEnabled } from '@/lib/docs'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = env.NEXT_PUBLIC_SITE_URL

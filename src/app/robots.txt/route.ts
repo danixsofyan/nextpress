@@ -1,7 +1,7 @@
 import { env } from '@/lib/env'
 import { getSiteSettings } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export async function GET() {
   const site = await getSiteSettings()

@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/docs/[slug]': ['./docs/*.md'],
   },
+  async redirects() {
+    return [
+      {
+        source: '/blog',
+        has: [{ type: 'query', key: 'page', value: '(?<page>[1-9]\\d{0,4})' }],
+        destination: '/blog/page/:page',
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [{ source: '/blog/:slug([a-z0-9-]+).md', destination: '/blog/:slug/md' }]
   },

@@ -1,15 +1,26 @@
+import { cookies, draftMode } from 'next/headers'
+import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth'
 import { PREVIEW_COOKIE, isThemeId } from '@/lib/themes'
 
 export async function POST(request: Request) {
-  const session = await requireRole(request, 'administrator')
-  if (session instanceof Response) return session
   const theme = (await request.formData().catch(() => null))?.get('theme')
-  const response = new Response(null, { status: 303, headers: { Location: '/' } })
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : ''
-  const cookie = isThemeId(theme)
-    ? `${PREVIEW_COOKIE}=${theme}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600${secure}`
-    : `${PREVIEW_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`
-  response.headers.append('Set-Cookie', cookie)
-  return response
+  const session = await requireRole(request, isThemeId(theme) ? 'administrator' : 'author')
+  if (session instanceof Response) return session
+  const store = await cookies()
+  const draft = await draftMode()
+  if (isThemeId(theme)) {
+    draft.enable()
+    store.set(PREVIEW_COOKIE, theme, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: new URL(request.url).protocol === 'https:',
+      path: '/',
+      maxAge: 3600,
+    })
+  } else {
+    draft.disable()
+    store.delete(PREVIEW_COOKIE)
+  }
+  return NextResponse.redirect(new URL('/', request.url), 303)
 }
