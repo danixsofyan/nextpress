@@ -23,7 +23,7 @@ export function createApp(db: Database) {
     try {
       await db.execute(sql`select 1`)
       if (redis) await redis.ping()
-      return c.json({ status: 'ok' })
+      return c.json({ status: 'ok', commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null })
     } catch {
       return c.json({ status: 'error' }, 503)
     }

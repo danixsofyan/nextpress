@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next'
 import { PageRepository, PostRepository } from '@/server'
 import { db } from '@/lib/db'
+import { env } from '@/lib/env'
 import { DOCS, isDocsEnabled } from '@/lib/docs'
 
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const siteUrl = env.NEXT_PUBLIC_SITE_URL
   const repo = new PostRepository(db)
   const [posts, pages] = await Promise.all([
     repo.findMany({ status: 'published', limit: 1000, offset: 0 }),
