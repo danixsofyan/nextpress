@@ -49,7 +49,7 @@ Update it after each milestone, before long-running commands, and before you sto
 | Lint (0 warnings)                 | `pnpm lint`                                                                                                                                    |
 | Format check                      | `pnpm format:check` (fix with `pnpm format`)                                                                                                   |
 | Typecheck                         | `pnpm typecheck`                                                                                                                               |
-| Tests                             | `pnpm test`                                                                                                                                    |
+| Tests                             | `pnpm test` (add `TEST_DATABASE_URL=postgresql://…/postgres` to include the integration tests)                                                 |
 | Generate a migration              | `pnpm db:generate`                                                                                                                             |
 | Apply migrations                  | `DATABASE_URL=… pnpm db:migrate`                                                                                                               |
 | Dependency audit                  | `pnpm audit --audit-level high`                                                                                                                |

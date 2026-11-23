@@ -2,14 +2,14 @@
 
 Measured, not claimed. Each row lists the command that proves it. "Not run" is a valid status.
 
-Last measured: 2026-11-21
+Last measured: 2026-11-23
 
 | Target                                                        | Status                                                                                                       | Evidence                                                                              |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
 | Lint, 0 warnings                                              | ✅ 0 errors, 0 warnings                                                                                      | `pnpm lint`                                                                           |
 | Format check                                                  | ✅                                                                                                           | `pnpm format:check`                                                                   |
 | Typecheck                                                     | ✅                                                                                                           | `pnpm typecheck`                                                                      |
-| Unit tests                                                    | ✅ 18 tests (markdown, FAQ, upload types, zod schemas, trash slugs, request context, donations, passwords)   | `pnpm test`                                                                           |
+| Unit and integration tests                                    | ✅ 83 tests: 48 unit, 35 against a real Postgres (REST API, all 22 MCP tools, repositories, plugins, email)  | `TEST_DATABASE_URL=… pnpm test`                                                       |
 | API / MCP e2e checks                                          | ✅ 60 / 60 against production                                                                                | `API_KEY=… BASE=https://nextpress-app.vercel.app bash api-e2e.sh` (maintainer script) |
 | Dependency audit: no high/critical                            | ✅ 0 vulnerabilities of any severity                                                                         | `pnpm audit`                                                                          |
 | Secret scan, git history                                      | ✅ no leaks in any commit                                                                                    | `gitleaks git .` (also runs in CI)                                                    |
@@ -22,7 +22,7 @@ Last measured: 2026-11-21
 | Password hashing                                              | ✅ argon2id (m=19456, t=2, p=1); legacy scrypt hashes are upgraded at sign-in                                | `src/lib/password.ts` · `pnpm test`                                                   |
 | Audit log and soft delete                                     | ✅ append-only `audit_logs`, Trash for posts and pages                                                       | [ADR 0008](adr/0008-soft-delete-and-audit-log.md)                                     |
 | Static analysis (CodeQL)                                      | ✅ `security-extended` queries on every push and weekly                                                      | `.github/workflows/codeql.yml`                                                        |
-| Test coverage ≥ 70% (lib, server, core)                       | ❌ 14.7% statements                                                                                          | `pnpm vitest run --coverage`                                                          |
+| Test coverage ≥ 70% (lib, server, core)                       | ✅ 79.5% statements, 81.6% lines; enforced in CI                                                             | `TEST_DATABASE_URL=… pnpm test:coverage`                                              |
 | Stable error codes                                            | ✅ `{ error, code }` on every API error                                                                      | `curl /api/posts/x`                                                                   |
 | Rate-limit headers                                            | ✅ `X-RateLimit-*` and `Retry-After`                                                                         | `curl -i /api/posts`                                                                  |
 | Lighthouse: Accessibility, Best Practices, SEO (mobile, home) | ✅ 100 / 100 / 100, 0 failed audits                                                                          | Chrome DevTools Lighthouse on production                                              |

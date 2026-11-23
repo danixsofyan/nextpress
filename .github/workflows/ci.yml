@@ -10,6 +10,18 @@ jobs:
   lint-typecheck:
     name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v5
 
@@ -31,8 +43,10 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Test
-        run: pnpm test
+      - name: Test with coverage (unit and integration, at least 70% of statements)
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: pnpm test:coverage
 
   security:
     name: Secret scan & dependency audit

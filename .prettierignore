@@ -5,3 +5,4 @@ drizzle/meta
 next-env.d.ts
 docs/engineering-standard.md
 public/lottie
+coverage
